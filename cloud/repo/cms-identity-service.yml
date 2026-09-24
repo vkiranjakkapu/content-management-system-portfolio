@@ -1,0 +1,7 @@
+database:
+    name: cms_identity
+
+eureka:
+    client:
+        webclient:
+            enabled: true

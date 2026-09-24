@@ -1,0 +1,22 @@
+platform:
+  security:
+    cors:
+      enabled: true
+      allowed-origin-patterns:
+        - http://localhost:5173
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: cms-identity-service
+              uri: lb://cms-identity-service
+              predicates:
+                - Path=/identity/**
+
+            - id: cms-maintenance-service
+              uri: lb://cms-maintenance-service
+              predicates:
+                - Path=/cms/**
