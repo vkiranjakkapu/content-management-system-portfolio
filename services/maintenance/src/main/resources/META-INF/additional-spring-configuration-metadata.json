@@ -29,6 +29,11 @@
       "name": "spring.sql.init.mode",
       "type": "java.lang.String",
       "description": "A description for 'spring.sql.init.mode'"
+    },
+    {
+      "name": "spring.jpa.properties.hibernate.format_sql",
+      "type": "java.lang.Boolean",
+      "description": "A description for 'spring.jpa.properties.hibernate.format_sql'"
     }
   ]
 }

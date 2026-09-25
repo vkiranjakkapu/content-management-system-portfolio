@@ -11,3 +11,14 @@ spring:
         multipart:
             max-file-size: 10MB
             max-request-size: 10MB
+
+config:
+    storage:
+        provider: local # use 'azure' for cloud storage
+        local:
+            base-path: "filestore"
+        # azure:
+        #     connection-string: ${AZURE_STORAGE_CONNECTION_STRING}
+        #     container-name: ${AZURE_STORAGE_CONTAINER}
+    media:
+        allowed-exts: [png, jpg, jpeg, gif]

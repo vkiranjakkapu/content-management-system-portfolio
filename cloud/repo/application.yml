@@ -6,10 +6,10 @@ management:
                 include: refresh,health
 
 database:
-    host: localhost
-    port: 5432
-    username: admin
-    password: admin
+    host: ${DATABASE_HOST}
+    port: ${DATABASE_PORT}
+    password: ${DATABASE_USERNAME}
+    username: ${DATABASE_PASSWORD}
 
 services:
     uri:

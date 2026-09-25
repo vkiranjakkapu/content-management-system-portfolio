@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import com.cms.identity.dto.CreateUserRequestDto;
 import com.cms.identity.dto.PasswordChangeRequestDto;
-import com.cms.identity.dto.RegistrationRequest;
 import com.cms.identity.dto.UpdateUserRequest;
 import com.cms.identity.dto.UserResponse;
 import com.cms.identity.entities.RoleType;
@@ -23,8 +22,6 @@ public interface UserService {
     UserResponse getUserById(UUID id);
 
     UserResponse getUserByEmail(String email);
-
-    UserResponse register(RegistrationRequest request);
 
     UserResponse updateUser(UUID id, UpdateUserRequest request);
 

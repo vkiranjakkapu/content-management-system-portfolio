@@ -15,9 +15,9 @@ public class OpenApiConfig {
 	public OpenAPI openAPI() {
 		return new OpenAPI()
 				.info(new Info()
-						.title("Identity Service API")
+						.title("Maintenance Service APIs")
 						.version("1.0.0")
-						.description("Authentication and User Management APIs"))
+						.description("Portfolio Content Management APIs"))
 				.components(new Components()
 						.addSecuritySchemes(
 								"bearerAuth",

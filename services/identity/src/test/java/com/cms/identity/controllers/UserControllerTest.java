@@ -32,7 +32,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.cms.identity.dto.AddressDto;
 import com.cms.identity.dto.CreateUserRequestDto;
 import com.cms.identity.dto.FetchUsersRequestDto;
-import com.cms.identity.dto.RegistrationRequest;
 import com.cms.identity.dto.UpdateUserRequest;
 import com.cms.identity.dto.UserResponse;
 import com.cms.identity.entities.RoleType;
@@ -202,30 +201,6 @@ class UserControllerTest {
 				.andExpect(status().isBadRequest());
 	}
 
-	@Test
-	void register_ShouldReturn200() throws Exception {
-
-		RegistrationRequest request = new RegistrationRequest(
-				"newuser@test.com",
-				"John",
-				"Doe",
-				"password",
-				"password");
-
-		UserResponse response = response();
-
-		when(userService.register(any()))
-				.thenReturn(response);
-
-		mockMvc.perform(post("/identity/api/v1/users/register")
-				.param("email", request.email())
-				.param("firstName", request.firstName())
-				.param("lastName", request.lastName())
-				.param("password", request.password())
-				.param("confirmPassword", request.confirmPassword()))
-				.andExpect(status().isOk());
-	}
-
 	private CreateUserRequestDto createRequest() {
 
 		return new CreateUserRequestDto(
@@ -241,7 +216,7 @@ class UserControllerTest {
 						"534237",
 						"AP",
 						"India"),
-				RoleType.USER);
+				RoleType.ADMIN);
 	}
 
 	private UpdateUserRequest updateRequest() {
@@ -272,7 +247,7 @@ class UserControllerTest {
 				null,
 				LocalDate.of(2000, 1, 1),
 				true,
-				Set.of(RoleType.USER),
+				Set.of(RoleType.ADMIN),
 				LocalDateTime.now(),
 				LocalDateTime.now());
 	}

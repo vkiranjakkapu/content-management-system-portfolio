@@ -107,6 +107,7 @@ src
 | Method | Endpoint |
 |----------|----------|
 | POST | /api/users |
+| POST | /api/users/search |
 | GET | /api/users/me |
 | GET | /api/users |
 | GET | /api/users/role/{role} |

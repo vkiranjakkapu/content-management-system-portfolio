@@ -25,7 +25,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.cms.identity.dto.AddressDto;
 import com.cms.identity.dto.CreateUserRequestDto;
-import com.cms.identity.dto.RegistrationRequest;
 import com.cms.identity.dto.UpdateUserRequest;
 import com.cms.identity.dto.UserResponse;
 import com.cms.identity.entities.Address;
@@ -33,7 +32,6 @@ import com.cms.identity.entities.Role;
 import com.cms.identity.entities.RoleType;
 import com.cms.identity.entities.User;
 import com.cms.identity.enums.UserGender;
-import com.cms.identity.exceptions.BusinessException;
 import com.cms.identity.exceptions.EmailAlreadyUsedException;
 import com.cms.identity.exceptions.ForbiddenException;
 import com.cms.identity.exceptions.ResourceNotFoundException;
@@ -120,10 +118,10 @@ class UserServiceImplTest {
 				LocalDate.of(2000, 1, 1),
 				"9999999999",
 				addressDto,
-				RoleType.USER);
+				RoleType.ADMIN);
 
 		Role customerRole = new Role();
-		customerRole.setName(RoleType.USER);
+		customerRole.setName(RoleType.ADMIN);
 
 		when(authenticationContext.getCurrentUser())
 				.thenReturn(Optional.of(authenticatedUser("ROLE_ADMIN")));
@@ -131,7 +129,7 @@ class UserServiceImplTest {
 		when(userRepository.existsByEmail(request.email()))
 				.thenReturn(false);
 
-		when(roleRepository.findByName(RoleType.USER))
+		when(roleRepository.findByName(RoleType.ADMIN))
 				.thenReturn(Optional.of(customerRole));
 
 		when(passwordEncoder.encode(any()))
@@ -162,7 +160,7 @@ class UserServiceImplTest {
 				LocalDate.now(),
 				"9999999999",
 				addressDto,
-				RoleType.USER);
+				RoleType.ADMIN);
 
 		when(authenticationContext.getCurrentUser())
 				.thenReturn(Optional.of(authenticatedUser("ROLE_ADMIN")));
@@ -189,7 +187,7 @@ class UserServiceImplTest {
 				LocalDate.now(),
 				"9999999999",
 				addressDto,
-				RoleType.USER);
+				RoleType.ADMIN);
 
 		when(authenticationContext.getCurrentUser())
 				.thenReturn(Optional.of(authenticatedUser("ROLE_USER")));
@@ -373,75 +371,4 @@ class UserServiceImplTest {
 		verify(userRepository, never()).save(any());
 	}
 
-	@Test
-	void register_ShouldCreateUserSuccessfully() {
-
-		RegistrationRequest request = new RegistrationRequest(
-				"newuser@test.com",
-				"John",
-				"Doe",
-				"password",
-				"password");
-
-		Role userRole = new Role();
-		userRole.setName(RoleType.USER);
-
-		when(roleRepository.findByName(RoleType.USER))
-				.thenReturn(Optional.of(userRole));
-
-		when(passwordEncoder.encode("password"))
-				.thenReturn("encoded-password");
-
-		when(userRepository.save(any(User.class)))
-				.thenAnswer(invocation -> invocation.getArgument(0));
-
-		UserResponse response = userService.register(request);
-
-		assertNotNull(response);
-		assertEquals("newuser@test.com", response.email());
-		assertEquals("John", response.firstName());
-		assertEquals("Doe", response.lastName());
-
-		verify(roleRepository).findByName(RoleType.USER);
-		verify(passwordEncoder).encode("password");
-		verify(userRepository).save(any(User.class));
-	}
-
-	@Test
-	void register_ShouldThrow_WhenPasswordsDoNotMatch() {
-
-		RegistrationRequest request = new RegistrationRequest(
-				"newuser@test.com",
-				"John",
-				"Doe",
-				"password",
-				"different-password");
-
-		assertThrows(
-				BusinessException.class,
-				() -> userService.register(request));
-
-		verify(roleRepository, never()).findByName(any());
-		verify(userRepository, never()).save(any());
-	}
-
-	@Test
-	void register_ShouldThrow_WhenUserRoleDoesNotExist() {
-
-		RegistrationRequest request = new RegistrationRequest(
-				"newuser@test.com",
-				"John",
-				"Doe",
-				"password",
-				"password");
-
-		when(roleRepository.findByName(RoleType.USER))
-				.thenReturn(Optional.empty());
-
-		assertThrows(
-				ResourceNotFoundException.class,
-				() -> userService.register(request));
-
-		verify(userRepository, never()).save(any());
-	}
 }
