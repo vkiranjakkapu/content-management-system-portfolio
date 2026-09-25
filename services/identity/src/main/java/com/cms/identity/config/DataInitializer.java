@@ -32,10 +32,6 @@ public class DataInitializer implements CommandLineRunner {
 				.orElseGet(() -> roleRepository.save(
 						new Role(null, RoleType.ADMIN, "Administrator")));
 
-		roleRepository.findByName(RoleType.USER)
-				.orElseGet(() -> roleRepository.save(
-						new Role(null, RoleType.USER, "User")));
-
 		if (userRepository.findByEmail("admin@cms.com").isEmpty()) {
 
 			Address address = Address.builder()

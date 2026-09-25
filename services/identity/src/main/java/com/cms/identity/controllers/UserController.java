@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +22,6 @@ import com.cms.identity.dto.APIResponseDto;
 import com.cms.identity.dto.CreateUserRequestDto;
 import com.cms.identity.dto.FetchUsersRequestDto;
 import com.cms.identity.dto.PasswordChangeRequestDto;
-import com.cms.identity.dto.RegistrationRequest;
 import com.cms.identity.dto.UpdateUserRequest;
 import com.cms.identity.dto.UserResponse;
 import com.cms.identity.entities.RoleType;
@@ -83,17 +81,6 @@ public class UserController {
 				.body(APIResponseDto.<UserResponse>builder().data(userService.createUser(request)).build());
 	}
 
-	@Operation(summary = "Register user")
-	@ApiResponses({
-			@ApiResponse(responseCode = "201", description = "User registered successfully"),
-			@ApiResponse(responseCode = "400", description = "Invalid registration details", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class))),
-			@ApiResponse(responseCode = "409", description = "User already exists", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class)))
-	})
-	@PostMapping("/register")
-	public ResponseEntity<APIResponseDto<UserResponse>> register(@Valid @ModelAttribute RegistrationRequest request) {
-		return ResponseEntity.ok(APIResponseDto.<UserResponse>builder().data(userService.register(request)).build());
-	}
-
 	@Operation(summary = "Get all users")
 	@ApiResponses({
 			@ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
@@ -116,13 +103,8 @@ public class UserController {
 	@GetMapping("/role/{role}")
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	public ResponseEntity<APIResponseDto<List<UserResponse>>> getAllUsersByRole(@PathVariable String role) {
-		List<UserResponse> allUsers;
-		if (role.equals(RoleType.USER.toString())) {
-			allUsers = userService.getAllUsersByRole(RoleType.USER);
-		} else {
-			allUsers = userService.getAllUsersByRole(RoleType.ADMIN);
-		}
-		return ResponseEntity.ok(APIResponseDto.<List<UserResponse>>builder().data(allUsers).build());
+		return ResponseEntity.ok(APIResponseDto.<List<UserResponse>>builder()
+				.data(userService.getAllUsersByRole(RoleType.ADMIN)).build());
 	}
 
 	@Operation(summary = "Get user by ID")

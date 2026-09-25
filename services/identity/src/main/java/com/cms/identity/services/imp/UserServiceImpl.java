@@ -13,15 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.cms.identity.dto.CreateUserRequestDto;
 import com.cms.identity.dto.PasswordChangeRequestDto;
-import com.cms.identity.dto.RegistrationRequest;
 import com.cms.identity.dto.UpdateUserRequest;
 import com.cms.identity.dto.UserResponse;
 import com.cms.identity.entities.Address;
 import com.cms.identity.entities.Role;
 import com.cms.identity.entities.RoleType;
 import com.cms.identity.entities.User;
-import com.cms.identity.enums.IdentityExceptions;
-import com.cms.identity.exceptions.BusinessException;
 import com.cms.identity.exceptions.EmailAlreadyUsedException;
 import com.cms.identity.exceptions.ForbiddenException;
 import com.cms.identity.exceptions.ResourceNotFoundException;
@@ -133,26 +130,6 @@ public class UserServiceImpl implements UserService {
 				.orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
 		return mapToResponse(user);
-	}
-
-	@Override
-	public UserResponse register(RegistrationRequest request) {
-		if (!request.password().equals(request.confirmPassword())) {
-			throw new BusinessException(IdentityExceptions.REGISTRATION_ERROR, "Two Passwords didn't match!");
-		}
-
-		Role role = roleRepository.findByName(RoleType.USER)
-				.orElseThrow(() -> new ResourceNotFoundException("Role not found"));
-
-		User user = User.builder()
-				.email(request.email())
-				.firstName(request.firstName())
-				.lastName(request.lastName())
-				.roles(Set.of(role))
-				.password(passwordEncoder.encode(Optional.ofNullable(request.password()).orElse("password")))
-				.address(Address.builder().build())
-				.build();
-		return mapToResponse(userRepository.save(user));
 	}
 
 	@Override
