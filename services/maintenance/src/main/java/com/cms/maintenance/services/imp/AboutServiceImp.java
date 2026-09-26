@@ -27,6 +27,11 @@ public class AboutServiceImp implements AboutService {
     private final CurrentUserService currentUser;
 
     @Override
+    public List<About> getAllAbouts() {
+        return aboutRepository.findAllByProfile(profileService.getCurrentUserProfile());
+    }
+
+    @Override
     public About getLatestAboutByProfileId(UUID profileId) {
         return aboutRepository.findByProfileAndIsActiveTrue(Profile.builder().id(profileId).build())
                 .orElseThrow(() -> new BusinessException(BusinessExceptions.RESOURCE_NOT_FOUND,
@@ -49,6 +54,7 @@ public class AboutServiceImp implements AboutService {
 
         About about = About.builder()
                 .profile(profile)
+                .name(request.name())
                 .summary(request.summary())
                 .build();
         aboutRepository.saveAll(List.of(about, activeAbout));
@@ -60,6 +66,7 @@ public class AboutServiceImp implements AboutService {
     public About updateAbout(UpdateAboutRequestDto request) {
         About about = getAboutById(request.aboutId());
         about.setSummary(request.summary());
+        about.setName(request.name());
 
         return aboutRepository.save(about);
     }

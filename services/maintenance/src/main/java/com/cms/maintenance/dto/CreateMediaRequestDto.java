@@ -2,12 +2,14 @@ package com.cms.maintenance.dto;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cms.maintenance.enums.ImageTag;
+import com.cms.maintenance.enums.MediaTag;
 
 import jakarta.validation.constraints.NotEmpty;
+import lombok.Builder;
 
-public record CreateImageRequestDto(
+@Builder
+public record CreateMediaRequestDto(
         @NotEmpty MultipartFile file,
-        @NotEmpty ImageTag tag) {
+        @NotEmpty MediaTag tag) {
 
 }

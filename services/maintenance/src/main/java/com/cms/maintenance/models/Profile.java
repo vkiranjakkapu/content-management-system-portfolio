@@ -1,6 +1,5 @@
 package com.cms.maintenance.models;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -8,12 +7,13 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,8 +36,8 @@ public class Profile {
 
     private UUID userId;
 
-    @Lob
-    private byte[] dp;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    private Media dp;
 
     private String email;
 
@@ -45,7 +45,12 @@ public class Profile {
 
     private String phone;
 
-    private LocalDate dob;
+    private String designation;
+
+    private String location;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    private Media banner;
 
     @OneToMany(mappedBy = "profile")
     private List<About> abouts;

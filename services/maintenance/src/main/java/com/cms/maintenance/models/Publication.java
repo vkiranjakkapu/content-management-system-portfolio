@@ -5,11 +5,15 @@ import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import com.cms.maintenance.enums.PublicationStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -56,8 +60,13 @@ public class Publication {
     @OneToMany
     private List<Experience> experiences;
 
+    @JsonIgnore
     @Builder.Default
-    private boolean isActive = true;
+    @Enumerated(EnumType.STRING)
+    private PublicationStatus status = PublicationStatus.DRAFT;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

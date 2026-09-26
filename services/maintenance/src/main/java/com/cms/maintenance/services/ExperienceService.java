@@ -9,11 +9,13 @@ import com.cms.maintenance.models.Experience;
 
 public interface ExperienceService {
 
+    List<Experience> getAllExperiences();
+
     Experience getLatestExperienceByProfileId(UUID profileId);
 
     Experience getExperienceById(UUID id);
 
-    List<Experience> getAllExperiencesByIdsIn(List<UUID> ids);
+    List<Experience> getAllExperiencesByIds(List<UUID> ids);
 
     Experience createExperience(CreateExperienceRequestDto request);
 

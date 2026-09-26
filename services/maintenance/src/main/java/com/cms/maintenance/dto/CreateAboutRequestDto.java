@@ -1,6 +1,9 @@
 package com.cms.maintenance.dto;
 
+import jakarta.validation.constraints.NotEmpty;
+
 public record CreateAboutRequestDto(
-        String summary) {
+        @NotEmpty String name,
+        @NotEmpty String summary) {
 
 }

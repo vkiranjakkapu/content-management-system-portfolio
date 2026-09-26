@@ -1,6 +1,7 @@
 package com.cms.maintenance.enums;
 
-public enum ImageTag {
+public enum MediaTag {
+    PROFILE,
     UI,
     BANNER,
     ARCHITECTURE,

@@ -38,8 +38,11 @@ public class About {
     @ManyToOne(fetch = FetchType.LAZY)
     private Profile profile;
 
+    private String name;
+
     private String summary;
 
+    @JsonIgnore
     @Builder.Default
     private boolean isActive = true;
 

@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.cms.maintenance.enums.ImageTag;
+import com.cms.maintenance.enums.MediaTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
@@ -50,7 +50,7 @@ public class Media {
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    private ImageTag tag = ImageTag.UI;
+    private MediaTag tag = MediaTag.UI;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
