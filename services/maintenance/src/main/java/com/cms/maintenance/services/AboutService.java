@@ -1,5 +1,6 @@
 package com.cms.maintenance.services;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.cms.maintenance.dto.CreateAboutRequestDto;
@@ -7,6 +8,8 @@ import com.cms.maintenance.dto.UpdateAboutRequestDto;
 import com.cms.maintenance.models.About;
 
 public interface AboutService {
+
+    List<About> getAllAbouts();
 
     About getLatestAboutByProfileId(UUID profileId);
 
@@ -17,5 +20,5 @@ public interface AboutService {
     About updateAbout(UpdateAboutRequestDto request);
 
     boolean deleteAboutById(UUID id);
-    
+
 }

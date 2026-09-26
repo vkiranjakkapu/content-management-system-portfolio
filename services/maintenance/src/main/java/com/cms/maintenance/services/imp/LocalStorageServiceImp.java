@@ -16,7 +16,6 @@ import com.cms.maintenance.exceptions.BusinessException;
 import com.cms.maintenance.models.Media;
 import com.cms.maintenance.properties.LocalStorageProperties;
 import com.cms.maintenance.services.CurrentUserService;
-import com.cms.maintenance.services.ProfileService;
 import com.cms.maintenance.services.StorageService;
 
 public class LocalStorageServiceImp implements StorageService {
@@ -24,8 +23,7 @@ public class LocalStorageServiceImp implements StorageService {
     private final CurrentUserService currentUser;
     private final Path storageLocation;
 
-    public LocalStorageServiceImp(LocalStorageProperties properties, CurrentUserService currentUserService,
-            ProfileService profileService) {
+    public LocalStorageServiceImp(LocalStorageProperties properties, CurrentUserService currentUserService) {
         this.currentUser = currentUserService;
         this.storageLocation = Path.of(properties.basePath()).toAbsolutePath().normalize();
         try {

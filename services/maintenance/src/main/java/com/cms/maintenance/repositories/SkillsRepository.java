@@ -5,10 +5,13 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.cms.maintenance.models.Profile;
 import com.cms.maintenance.models.Skill;
 
 public interface SkillsRepository extends JpaRepository<Skill, UUID> {
 
     List<Skill> findAllByIdIn(List<UUID> ids);
+
+    List<Skill> findAllByProfile(Profile currentUserProfile);
 
 }

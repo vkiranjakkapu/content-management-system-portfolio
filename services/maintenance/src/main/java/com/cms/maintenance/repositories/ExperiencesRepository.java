@@ -15,4 +15,6 @@ public interface ExperiencesRepository extends JpaRepository<Experience, UUID> {
 
     List<Experience> findAllByIdIn(List<UUID> ids);
 
+    List<Experience> findAllByProfile(Profile currentUserProfile);
+
 }

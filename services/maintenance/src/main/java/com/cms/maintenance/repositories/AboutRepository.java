@@ -1,5 +1,6 @@
 package com.cms.maintenance.repositories;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,5 +14,7 @@ public interface AboutRepository extends JpaRepository<About, UUID> {
     Optional<About> findByProfile(Profile profile);
 
     Optional<About> findByProfileAndIsActiveTrue(Profile profile);
+
+    List<About> findAllByProfile(Profile profile);
 
 }

@@ -28,7 +28,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder 
+@Builder
 public class Experience {
 
     @Id
@@ -50,6 +50,7 @@ public class Experience {
     @Builder.Default
     private boolean isWorking = false;
 
+    @JsonIgnore
     @Builder.Default
     private boolean isActive = true;
 

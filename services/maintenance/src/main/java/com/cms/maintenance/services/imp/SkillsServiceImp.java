@@ -1,7 +1,9 @@
 package com.cms.maintenance.services.imp;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,11 @@ public class SkillsServiceImp implements SkillsService {
 
     private final SkillsRepository skillsRepository;
     private final ProfileService profileService;
+
+    @Override
+    public List<Skill> getAllSkills() {
+        return skillsRepository.findAllByProfile(profileService.getCurrentUserProfile());
+    }
 
     @Override
     public Skill getSkillById(UUID id) {
@@ -56,9 +63,13 @@ public class SkillsServiceImp implements SkillsService {
     }
 
     @Override
-    public boolean updateSkill(UUID id) {
+    public void deleteSkill(UUID id) {
         skillsRepository.deleteById(id);
-        return true;
+    }
+
+    @Override
+    public Map<String, List<Skill>> mapToResponse(List<Skill> allSkills) {
+        return allSkills.stream().collect(Collectors.groupingBy(Skill::getTech));
     }
 
 }

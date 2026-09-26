@@ -4,12 +4,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cms.maintenance.dto.CreateImageRequestDto;
-import com.cms.maintenance.dto.UpdateImageRequestDto;
+import com.cms.maintenance.dto.CreateMediaRequestDto;
+import com.cms.maintenance.dto.MediaResponseDto;
+import com.cms.maintenance.dto.UpdateMediaRequestDto;
 import com.cms.maintenance.enums.BusinessExceptions;
 import com.cms.maintenance.enums.StorageExceptions;
 import com.cms.maintenance.exceptions.BusinessException;
@@ -18,7 +20,6 @@ import com.cms.maintenance.models.Profile;
 import com.cms.maintenance.properties.DefaultProperties;
 import com.cms.maintenance.repositories.MediaRepository;
 import com.cms.maintenance.services.MediaService;
-import com.cms.maintenance.services.ProfileService;
 import com.cms.maintenance.services.StorageService;
 
 import lombok.RequiredArgsConstructor;
@@ -28,9 +29,13 @@ import lombok.RequiredArgsConstructor;
 public class MediaServiceImp implements MediaService {
 
     private final MediaRepository mediaRepository;
-    private final ProfileService profileService;
     private final StorageService storageService;
     private final DefaultProperties properties;
+
+    @Override
+    public List<Media> getAllMedia(Profile profile) {
+        return mediaRepository.findAllByProfile(profile);
+    }
 
     @Override
     public List<Media> getAllMediaByIds(List<UUID> ids) {
@@ -44,7 +49,7 @@ public class MediaServiceImp implements MediaService {
     }
 
     @Override
-    public Media createMedia(CreateImageRequestDto request) {
+    public Media createMedia(CreateMediaRequestDto request) {
         String fileName = resolvedFileName(request.file());
 
         if (fileName.contains("..")) {
@@ -53,13 +58,11 @@ public class MediaServiceImp implements MediaService {
         }
 
         if (!properties.getMedia().getAllowedExts().contains(Arrays.asList(fileName.split(".")).getLast())) {
-            throw new BusinessException(StorageExceptions.INVALID_FILE, "File not supported to be uploaded");
+            throw new BusinessException(StorageExceptions.INVALID_FILE, "File not supported to be uploaded",
+                    HttpStatus.UNSUPPORTED_MEDIA_TYPE);
         }
 
         Media media = storageService.saveMedia(fileName, request.file());
-
-        Profile profile = profileService.getCurrentUserProfile();
-        media.setProfile(profile);
 
         media.setTag(request.tag());
 
@@ -67,7 +70,7 @@ public class MediaServiceImp implements MediaService {
     }
 
     @Override
-    public Media updateMedia(UpdateImageRequestDto request) {
+    public Media updateMedia(UpdateMediaRequestDto request) {
         Media media = getMediaById(request.id());
         media.setTag(request.tag());
 
@@ -80,11 +83,28 @@ public class MediaServiceImp implements MediaService {
         mediaRepository.deleteById(id);
     }
 
+    @Override
+    public MediaResponseDto mapToResponse(Media media) {
+        try {
+            return MediaResponseDto.builder()
+                    .id(media.getId())
+                    .media(storageService.getMedia(media))
+                    .mediaName(media.getMediaName())
+                    .mediaType(media.getMediaType())
+                    .tag(media.getTag())
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BusinessException(StorageExceptions.STORAGE_ERROR, "Error downloading data");
+        }
+
+    }
+
     private String resolvedFileName(MultipartFile file) {
         if (file != null && StringUtils.hasText(file.getOriginalFilename())) {
             return file.getOriginalFilename();
         }
-        return profileService.getCurrentUserProfile().getId().toString();
+        return UUID.randomUUID().toString();
     }
 
 }

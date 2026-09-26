@@ -25,6 +25,11 @@ public class ExperienceServiceImp implements ExperienceService {
     private final ProfileService profileService;
 
     @Override
+    public List<Experience> getAllExperiences() {
+        return experiencesRepository.findAllByProfile(profileService.getCurrentUserProfile());
+    }
+
+    @Override
     public Experience getLatestExperienceByProfileId(UUID profileId) {
         return experiencesRepository.findByProfileAndIsActiveTrue(Profile.builder().build())
                 .orElseThrow(() -> new BusinessException(BusinessExceptions.RESOURCE_NOT_FOUND,
@@ -39,7 +44,7 @@ public class ExperienceServiceImp implements ExperienceService {
     }
 
     @Override
-    public List<Experience> getAllExperiencesByIdsIn(List<UUID> ids) {
+    public List<Experience> getAllExperiencesByIds(List<UUID> ids) {
         return experiencesRepository.findAllByIdIn(ids);
     }
 

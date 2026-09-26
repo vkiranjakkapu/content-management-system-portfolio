@@ -1,7 +1,5 @@
 package com.cms.maintenance.dto;
 
-import java.time.LocalDate;
-
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.constraints.Email;
@@ -12,6 +10,8 @@ public record CreateProfileRequestDto(
         @NotEmpty @Email String email,
         @NotEmpty String name,
         @NotEmpty String phone,
-        @NotEmpty LocalDate dob) {
+        @NotEmpty String designation,
+        @NotEmpty String location,
+        @NotEmpty MultipartFile banner) {
 
 }

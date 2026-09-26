@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.cms.maintenance.dto.CreateProjectRequestDto;
+import com.cms.maintenance.dto.ProjectResponseDto;
 import com.cms.maintenance.dto.UpdateProjectRequestDto;
 import com.cms.maintenance.enums.BusinessExceptions;
 import com.cms.maintenance.exceptions.BusinessException;
@@ -29,7 +30,12 @@ public class ProjectServiceImp implements ProjectService {
     private final ProjectsRepository projectsRepository;
     private final ProfileService profileService;
     private final SkillsService skillsService;
-    private final MediaService imageService;
+    private final MediaService mediaService;
+
+    @Override
+    public List<Project> getAllProjects() {
+        return projectsRepository.findAllByProfile(profileService.getCurrentUserProfile());
+    }
 
     @Override
     public Project getProjectById(UUID id) {
@@ -48,7 +54,7 @@ public class ProjectServiceImp implements ProjectService {
         Profile profile = profileService.getCurrentUserProfile();
 
         List<Skill> techStack = skillsService.getAllSkillsByIds(request.techStack());
-        List<Media> gallery = imageService.getAllMediaByIds(request.gallery());
+        List<Media> gallery = mediaService.getAllMediaByIds(request.gallery());
 
         return projectsRepository.save(Project.builder()
                 .profile(profile)
@@ -72,7 +78,7 @@ public class ProjectServiceImp implements ProjectService {
         });
 
         Optional.ofNullable(request.gallery()).ifPresent(gallery -> {
-            project.setGallery(imageService.getAllMediaByIds(gallery));
+            project.setGallery(mediaService.getAllMediaByIds(gallery));
         });
 
         return projectsRepository.save(project);
@@ -83,6 +89,17 @@ public class ProjectServiceImp implements ProjectService {
     public boolean deleteProjectById(UUID id) {
         projectsRepository.deleteById(id);
         return true;
+    }
+
+    @Override
+    public ProjectResponseDto mapToResponse(Project project) {
+        return ProjectResponseDto.builder()
+                .id(project.getId())
+                .title(project.getTitle())
+                .gitUrl(project.getGitUrl())
+                .techStack(project.getTechStack())
+                .gallery(project.getGallery().stream().map(media -> mediaService.mapToResponse(media)).toList())
+                .build();
     }
 
 }

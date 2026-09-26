@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import com.cms.maintenance.properties.AzureStorageProperties;
 import com.cms.maintenance.properties.LocalStorageProperties;
 import com.cms.maintenance.services.CurrentUserService;
-import com.cms.maintenance.services.ProfileService;
 import com.cms.maintenance.services.StorageService;
 import com.cms.maintenance.services.imp.AzureBlobStorageService;
 import com.cms.maintenance.services.imp.LocalStorageServiceImp;
@@ -17,9 +16,9 @@ public class StorageServiceConfig {
 
     @Bean
     @ConditionalOnProperty(prefix = "config.storage", name = "provider", havingValue = "local", matchIfMissing = true)
-    public StorageService localStorageService(LocalStorageProperties properties, CurrentUserService currentUserService,
-            ProfileService profileService) {
-        return new LocalStorageServiceImp(properties, currentUserService, profileService);
+    public StorageService localStorageService(LocalStorageProperties properties,
+            CurrentUserService currentUserService) {
+        return new LocalStorageServiceImp(properties, currentUserService);
     }
 
     @Bean

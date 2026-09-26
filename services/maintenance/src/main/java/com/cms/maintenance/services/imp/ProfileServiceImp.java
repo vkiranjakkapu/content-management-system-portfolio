@@ -1,19 +1,22 @@
 package com.cms.maintenance.services.imp;
 
-import java.io.IOException;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
+import com.cms.maintenance.dto.CreateMediaRequestDto;
 import com.cms.maintenance.dto.CreateProfileRequestDto;
+import com.cms.maintenance.dto.ProfileResponseDto;
 import com.cms.maintenance.dto.UpdateProfileRequestDto;
 import com.cms.maintenance.enums.BusinessExceptions;
+import com.cms.maintenance.enums.MediaTag;
 import com.cms.maintenance.exceptions.BusinessException;
+import com.cms.maintenance.models.Media;
 import com.cms.maintenance.models.Profile;
 import com.cms.maintenance.repositories.ProfileRepository;
 import com.cms.maintenance.services.CurrentUserService;
+import com.cms.maintenance.services.MediaService;
 import com.cms.maintenance.services.ProfileService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ public class ProfileServiceImp implements ProfileService {
 
     private final ProfileRepository profileRepository;
     private final CurrentUserService currentUser;
+    private final MediaService mediaService;
 
     @Override
     public Profile getCurrentUserProfile() {
@@ -46,15 +50,31 @@ public class ProfileServiceImp implements ProfileService {
     }
 
     @Override
-    public Profile createProfile(CreateProfileRequestDto request) throws IOException {
-        return profileRepository.save(Profile.builder()
+    public Profile createProfile(CreateProfileRequestDto request) {
+        Media dp = mediaService.createMedia(CreateMediaRequestDto.builder()
+                .file(request.dp())
+                .tag(MediaTag.PROFILE)
+                .build());
+        Media banner = mediaService.createMedia(CreateMediaRequestDto.builder()
+                .file(request.banner())
+                .tag(MediaTag.BANNER)
+                .build());
+
+        Profile profile = Profile.builder()
                 .userId(currentUser.userId())
-                .dp(request.dp().getBytes())
+                .dp(dp)
                 .email(request.email())
                 .name(request.name())
                 .phone(request.phone())
-                .dob(request.dob())
-                .build());
+                .designation(request.designation())
+                .location(request.location())
+                .banner(banner)
+                .build();
+
+        dp.setProfile(profile);
+        banner.setProfile(profile);
+
+        return profileRepository.save(profile);
     }
 
     @Override
@@ -66,42 +86,70 @@ public class ProfileServiceImp implements ProfileService {
     public Profile updateProfile(UpdateProfileRequestDto request) {
         Profile profile = getProfileByUserId(currentUser.userId());
 
-        Optional.of(request.dp()).ifPresent(file -> {
-            try {
-                profile.setDp(file.getBytes());
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new BusinessException(BusinessExceptions.PROFILE_UPDATE_FAILED,
-                        "Error while updating profile details.");
-            }
+        Optional.of(request.email()).ifPresent(email -> {
+            profile.setEmail(email);
         });
 
-        profile.setEmail(request.email());
-        profile.setName(request.name());
-        profile.setPhone(request.phone());
-        profile.setDob(request.dob());
+        Optional.of(request.name()).ifPresent(name -> {
+            profile.setName(name);
+        });
+
+        Optional.of(request.phone()).ifPresent(phone -> {
+            profile.setPhone(phone);
+        });
+
+        Optional.of(request.designation()).ifPresent(designation -> {
+            profile.setDesignation(designation);
+        });
+
+        Optional.of(request.dp()).ifPresent(dpReq -> {
+            try {
+                mediaService.deleteMediaById(profile.getDp().getId());
+            } catch (BusinessException e) {
+                e.printStackTrace();
+            }
+
+            Media dp = mediaService.createMedia(CreateMediaRequestDto.builder()
+                    .file(dpReq)
+                    .tag(MediaTag.PROFILE)
+                    .build());
+            dp.setProfile(profile);
+            profile.setDp(dp);
+        });
+
+        Optional.of(request.banner()).ifPresent(bannerReq -> {
+            try {
+                mediaService.deleteMediaById(profile.getBanner().getId());
+            } catch (BusinessException e) {
+                e.printStackTrace();
+            }
+
+            Media banner = mediaService.createMedia(CreateMediaRequestDto.builder()
+                    .file(bannerReq)
+                    .tag(MediaTag.BANNER)
+                    .build());
+            banner.setProfile(profile);
+            profile.setBanner(banner);
+        });
 
         return profileRepository.save(profile);
     }
 
     @Override
-    public Profile updateProfileImage(MultipartFile file) {
-        Profile profile = getProfileByUserId(currentUser.userId());
-
-        try {
-            profile.setDp(file.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new BusinessException(BusinessExceptions.PROFILE_UPDATE_FAILED, "Error while Updating DP.");
-        }
-
-        return profileRepository.save(profile);
-    }
-
-    @Override
-    public boolean deleteProfileById(UUID id) {
+    public void deleteProfileById(UUID id) {
         profileRepository.deleteById(id);
-        return true;
+    }
+
+    @Override
+    public ProfileResponseDto mapToResponse(Profile profile) {
+        return ProfileResponseDto.builder()
+                .id(profile.getId())
+                .name(profile.getName())
+                .email(profile.getEmail())
+                .phone(profile.getPhone())
+                .designation(profile.getDesignation())
+                .dp(mediaService.mapToResponse(profile.getDp()))
+                .build();
     }
 
 }
