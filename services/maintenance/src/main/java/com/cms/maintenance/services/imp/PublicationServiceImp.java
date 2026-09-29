@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.cms.maintenance.dto.PublicationResponseDto;
 import com.cms.maintenance.dto.UpdatePublicationRequestDto;
 import com.cms.maintenance.enums.BusinessExceptions;
 import com.cms.maintenance.enums.PublicationStatus;
@@ -19,6 +20,7 @@ import com.cms.maintenance.services.ProfileService;
 import com.cms.maintenance.services.ProjectService;
 import com.cms.maintenance.services.PublicationService;
 import com.cms.maintenance.services.SkillsService;
+import com.cms.maintenance.services.SocialProfileService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,6 +34,7 @@ public class PublicationServiceImp implements PublicationService {
     private final SkillsService skillsService;
     private final ProjectService projectService;
     private final ExperienceService experienceService;
+    private final SocialProfileService socialProfileService;
 
     @Override
     public Publication getPublicationById(UUID id) {
@@ -116,6 +119,19 @@ public class PublicationServiceImp implements PublicationService {
 
                     return publicationsRepository.save(publication);
                 });
+    }
+
+    @Override
+    public PublicationResponseDto mapToResponse(Publication publication) {
+        return PublicationResponseDto.builder()
+                .settings(publication.getSettings())
+                .about(publication.getAbout())
+                .skills(skillsService.mapToResponse(publication.getSkills()))
+                .projects(publication.getProjects().stream().map(prj -> projectService.mapToResponse(prj)).toList())
+                .experiences(publication.getExperiences())
+                .socialProfiles(publication.getSocialProfiles().stream()
+                        .map(sp -> socialProfileService.mapToResponse(sp)).toList())
+                .build();
     }
 
 }

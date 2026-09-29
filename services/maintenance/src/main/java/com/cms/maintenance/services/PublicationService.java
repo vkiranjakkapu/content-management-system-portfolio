@@ -2,6 +2,7 @@ package com.cms.maintenance.services;
 
 import java.util.UUID;
 
+import com.cms.maintenance.dto.PublicationResponseDto;
 import com.cms.maintenance.dto.UpdatePublicationRequestDto;
 import com.cms.maintenance.models.Publication;
 
@@ -14,5 +15,7 @@ public interface PublicationService {
     Publication updatePublication(UpdatePublicationRequestDto request);
 
     Publication publishById(UUID id);
+
+    PublicationResponseDto mapToResponse(Publication publication);
 
 }

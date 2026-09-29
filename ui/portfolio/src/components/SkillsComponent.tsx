@@ -1,0 +1,81 @@
+import type { Skill } from "../services/PublicationService";
+import SectionComponent from "./SectionComponent";
+
+type SkillsComponentProps = {
+    skills: Map<string, Skill[]>;
+};
+
+export default function SkillsComponent({ skills }: SkillsComponentProps) {
+    return (
+        <SectionComponent title="Skills" className="p-6 px-12" id="skills">
+            <div className="grid grid-cols-1 md:grid-cols-3">
+                {skills.size > 0 ? (
+                    Array.from(skills.entries()).map(([tech, skills]) => {
+                        return (
+                            <div className="p-2 space-y-2">
+                                <h3 className="text-primary font-playfair">
+                                    {tech}
+                                </h3>
+                                <p>{skills.map((sk) => sk.name).join(", ")}</p>
+                            </div>
+                        );
+                    })
+                ) : (
+                    <>
+                        <div className="p-2 space-y-2">
+                            <h3 className="text-primary font-playfair">
+                                Languages
+                            </h3>
+                            <p>Java, JavaScript, SQL, Python, PHP</p>
+                        </div>
+                        <div className="p-2 space-y-2">
+                            <h3 className="text-primary font-playfair">
+                                Frontend Skills
+                            </h3>
+                            <p>React, Typescript, Tailwind Css</p>
+                        </div>
+                        <div className="p-2 space-y-2">
+                            <h3 className="text-primary font-playfair">
+                                Backend Skills
+                            </h3>
+                            <p>
+                                Spring Boot, Spring Security, Spring Data JPA,
+                                Hibernate, REST API's
+                            </p>
+                        </div>
+                        <div className="p-2 space-y-2">
+                            <h3 className="text-primary font-playfair">
+                                Cloud & DevOps
+                            </h3>
+                            <p>Docker, Azure, Git, Kubernetes, CI/CD, Linux</p>
+                        </div>
+                        <div className="p-2 space-y-2">
+                            <h3 className="text-primary font-playfair">
+                                Databases
+                            </h3>
+                            <p>PostgreSQL, MySQL, Vector Databases</p>
+                        </div>
+                        <div className="p-2 space-y-2">
+                            <h3 className="text-primary font-playfair">
+                                Architecture
+                            </h3>
+                            <p>
+                                Micro services, Distributed Systems, Reusable
+                                Platform Components
+                            </p>
+                        </div>
+                        <div className="p-2 space-y-2">
+                            <h3 className="text-primary font-playfair">
+                                AI & AI-Assisted Engineering
+                            </h3>
+                            <p>
+                                Spring AI, ChatGPT, LLMs, RAG, AI-assisted
+                                Software Engineering
+                            </p>
+                        </div>
+                    </>
+                )}
+            </div>
+        </SectionComponent>
+    );
+}
