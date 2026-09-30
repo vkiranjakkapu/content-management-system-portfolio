@@ -39,8 +39,9 @@ export default function AboutComponent({
                                     return (
                                         <a
                                             key={idx}
+                                            aria-label={`${socPrf.name} profile`}
                                             href={socPrf.url}
-                                            target="_blank"
+                                            target="_blank" rel="noopener noreferrer"
                                         >
                                             <Icon />
                                         </a>
@@ -49,8 +50,9 @@ export default function AboutComponent({
                             ) : (
                                 <>
                                     <a
+                                        aria-label="GitHub profile"
                                         href="https://github.com/vkiranjakkapu"
-                                        target="_blank"
+                                        target="_blank" rel="noopener noreferrer"
                                     >
                                         {(() => {
                                             const Icon =
@@ -61,8 +63,9 @@ export default function AboutComponent({
                                         })()}
                                     </a>
                                     <a
+                                        aria-label="LinkedIn profile"
                                         href="https://www.linkedin.com/in/venkata-kiran-jakkapu-a2209415a/"
-                                        target="_blank"
+                                        target="_blank" rel="noopener noreferrer"
                                     >
                                         {(() => {
                                             const Icon =
@@ -73,8 +76,9 @@ export default function AboutComponent({
                                         })()}
                                     </a>
                                     <a
+                                        aria-label="WhatsApp profile"
                                         href="https://wa.me/qr/KTFQWZZGJCARP1"
-                                        target="_blank"
+                                        target="_blank" rel="noopener noreferrer"
                                     >
                                         {(() => {
                                             const Icon =
@@ -85,8 +89,9 @@ export default function AboutComponent({
                                         })()}
                                     </a>
                                     <a
+                                        aria-label="Spotify profile"
                                         href="https://open.spotify.com/user/31ecwujtmcg7jg6jylbnf3qktlfi?si=a0688b479bf141fe"
-                                        target="_blank"
+                                        target="_blank" rel="noopener noreferrer"
                                     >
                                         {(() => {
                                             const Icon =
@@ -97,8 +102,9 @@ export default function AboutComponent({
                                         })()}
                                     </a>
                                     <a
+                                        aria-label="Instagram profile"
                                         href="https://www.instagram.com/jvkiran_/"
-                                        target="_blank"
+                                        target="_blank" rel="noopener noreferrer"
                                     >
                                         {(() => {
                                             const Icon =
@@ -152,7 +158,7 @@ export default function AboutComponent({
                         </div>
                     </div>
 
-                    <h1 className="mt-auto order-4 lg:col-span-2">Hello!</h1>
+                    <p className="h1 mt-auto order-4 lg:col-span-2 font-playfair">Hello!</p>
 
                     {/* Contact Me */}
                     <div className="mt-auto text-center order-2 lg:order-5 -translate-y-2">

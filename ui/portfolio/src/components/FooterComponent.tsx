@@ -42,7 +42,10 @@ export default function FooterComponent({
                                     return (
                                         <a
                                             key={idx}
-                                            href="#"
+                                            href={socPrf.url}
+                                            aria-label={`${socPrf.name} profile`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                             className="hover:opacity-80 transition-opacity duration-100"
                                         >
                                             <Icon />

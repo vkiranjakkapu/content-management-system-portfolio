@@ -136,16 +136,15 @@ export default function ProjectsComponent({
                             </>
                         )}
                     </ul>
-                    <button
-                        onClick={() => {
-                            window.open(
-                                "https://github.com/vkiranjakkapu",
-                                "_blank",
-                            );
-                        }}
+                    <a
+                        href="https://github.com/vkiranjakkapu"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="View all projects on GitHub"
+                        className="btn-primary"
                     >
                         Show All
-                    </button>
+                    </a>
                 </div>
                 <div className="justify-end! relative lg:pr-12 lg:absolute lg:right-0 lg:w-3/5 h-fit origin-center lg:top-1/2 lg:-translate-y-1/2">
                     <div className="py-6 text-left md:text-right space-y-2 md:space-y-4 flex flex-col">
@@ -172,9 +171,11 @@ export default function ProjectsComponent({
                                 "https://github.com/vkiranjakkapu"
                             }
                             target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`View source code for ${selectedProject?.title ?? "Text To Speech - Azure OpenAI"} on GitHub`}
                             className="text-md cursor-pointer w-fit md:ms-auto gap-2 text-primary flex items-center justify-end order-2 md:order-4"
                         >
-                            <span>Github Link</span>
+                            <span>View source code on GitHub</span>
                             <BsBoxArrowUpRight />
                         </a>
                     </div>

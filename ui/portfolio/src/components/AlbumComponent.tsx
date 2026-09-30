@@ -27,11 +27,20 @@ export default function AlbumComponent({
                   ? localImages.filter((img) => img.includes(projectId))
                   : localImages
               )
-                  .sort(
-                      (a, b) =>
-                          Number(b.split("/")[4].split(".")[0].split("_")[1]) -
-                          Number(a.split("/")[4].split(".")[0].split("_")[1]),
-                  )
+                  .sort((a, b) => {
+                      const getOrder = (value: string | Media) => {
+                          if (typeof value !== "string") {
+                              return 0;
+                          }
+
+                          const fileName = value.split("/").pop() ?? "";
+                          const match = fileName.match(/_(\d+)\./);
+
+                          return match ? Number(match[1]) : 0;
+                      };
+
+                      return getOrder(b) - getOrder(a);
+                  })
                   .slice(0, window.innerWidth >= 1024 ? 12 : 6),
     );
 
@@ -49,6 +58,22 @@ export default function AlbumComponent({
         setSelection(filtered);
     }
 
+    const getImageName = (img: string | Media) => {
+        if (typeof img !== "string") {
+            return img.mediaName;
+        }
+
+        const fileName = img.split("/").pop() ?? "";
+
+        // Used to remove Vite's production hash:
+        // example:
+        // tts_7.ai-enhancement-Su2xin.png
+        // -> tts_7.ai-enhancement.png
+        const cleanName = fileName.replace(/-[A-Za-z0-9_-]+(?=\.[^.]+$)/, "");
+
+        return cleanName.split(".")[1];
+    };
+
     const marginRight = (5 / allImages.length) * 3.5;
     const marginTop = (2 / allImages.length) * 3.5;
 
@@ -57,42 +82,39 @@ export default function AlbumComponent({
             <div
                 className={`gallery overflow-y-clip overflow-x-visible lg:overflow-visible h-70 lg:h-100 max-w-160 ms-auto relative ${className}`}
             >
-                {allImages.map((img, idx) => (
-                    <div
-                        style={
-                            window.innerWidth >= 1024
-                                ? {
-                                      marginRight: `${idx * marginRight}rem`,
-                                  }
-                                : {
-                                      marginTop: `${idx * marginTop}rem`,
-                                  }
-                        }
-                        className={`absolute inset-0 ms-auto w-full h-full hover:z-100 [&_.desc]:hidden hover:[&_.desc]:block`}
-                        key={idx}
-                    >
-                        <img
-                            src={
-                                typeof img == "object"
-                                    ? URL.createObjectURL(img.media)
-                                    : String(img)
+                {allImages.map((img, idx) => {
+                    const imageName = getImageName(img);
+                    return (
+                        <div
+                            style={
+                                window.innerWidth >= 1024
+                                    ? {
+                                          marginRight: `${idx * marginRight}rem`,
+                                      }
+                                    : {
+                                          marginTop: `${idx * marginTop}rem`,
+                                      }
                             }
-                            alt={typeof img}
-                            className={`border w-full border-primary/50 rounded-lg object-cover hover:shadow-sm hover:scale-105 transition-all duration-150`}
-                        />
-                        <div className="desc absolute inset-0 pointer-events-none">
-                            <p className="capitalize font-playfair text-center w-fit px-4 py-1 mt-4 outline outline-offset-2 outline-primary rounded-full bg-primary text-white text-md">
-                                {(() => {
-                                    const imgName =
-                                        typeof img !== "object"
-                                            ? img.split("/")[4].split(".")[1]
-                                            : img.mediaName;
-                                    return imgName;
-                                })()}
-                            </p>
+                            className={`absolute inset-0 ms-auto w-full h-full hover:z-100 [&_.desc]:hidden hover:[&_.desc]:block`}
+                            key={idx}
+                        >
+                            <img
+                                src={
+                                    typeof img == "object"
+                                        ? URL.createObjectURL(img.media)
+                                        : String(img)
+                                }
+                                alt={imageName}
+                                className={`border w-full border-primary/50 rounded-lg object-cover hover:shadow-sm hover:scale-105 transition-all duration-150`}
+                            />
+                            <div className="desc absolute inset-0 pointer-events-none">
+                                <p className="capitalize font-playfair text-center w-fit px-4 py-1 mt-4 outline outline-offset-2 outline-primary rounded-full bg-primary text-white text-md">
+                                    {imageName}
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
             {album.length > 0 && (
                 <>

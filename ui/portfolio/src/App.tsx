@@ -2,6 +2,7 @@ import "./App.css";
 import SectionComponent from "./components/SectionComponent";
 
 import { useState } from "react";
+import SeoComponent from "./components/SeoComponent";
 import AboutComponent from "./components/AboutComponent";
 import ContactComponent from "./components/ContactComponent";
 import ExperienceComponent from "./components/ExperienceComponent";
@@ -15,6 +16,7 @@ function App() {
 
     return (
         <div className="relative">
+            <SeoComponent content={content} />
             <div
                 className="vert-line absolute inset-0 ml-18 w-4 flex justify-between
 				before:h-full before:w-1.5 before:bg-[repeating-linear-gradient(135deg,currentColor,currentColor_10px,transparent_4px,transparent_18px)]
@@ -33,15 +35,23 @@ function App() {
 				after:h-full after:w-1.5 after:bg-[repeating-linear-gradient(-135deg,currentColor,currentColor_10px,transparent_4px,transparent_18px)]
 				text-primary opacity-80"
             ></div>
-            <main className="relative min-h-screen md:p-6 space-y-6">
+            <main
+                className="relative min-h-screen md:p-6 space-y-6"
+                aria-label="Portfolio content"
+            >
                 {/* About */}
-                <SectionComponent id="about">
-                    <AboutComponent
-                        profile={content?.profile}
-                        about={content?.about}
-                        socialProfiles={content?.socialProfiles}
-                    />
-                </SectionComponent>
+                <section aria-labelledby="about-heading" id="about">
+                    <h2 id="about-heading" className="sr-only">
+                        About
+                    </h2>
+                    <SectionComponent>
+                        <AboutComponent
+                            profile={content?.profile}
+                            about={content?.about}
+                            socialProfiles={content?.socialProfiles}
+                        />
+                    </SectionComponent>
+                </section>
 
                 {/* Skills */}
                 <SkillsComponent skills={content?.skills ?? new Map()} />
