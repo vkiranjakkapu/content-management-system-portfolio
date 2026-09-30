@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Media, MediaTag } from "../services/PublicationService";
 
 const ttsImagesModules = import.meta.glob<{ default: string }>(
-    "/src/assets/projects/*.{png,jpg,jpeg,svg}",
+    "/src/assets/projects/*.{webp,png,jpg,jpeg,svg}",
     { eager: true },
 );
 const localImages = Object.values(ttsImagesModules).map(

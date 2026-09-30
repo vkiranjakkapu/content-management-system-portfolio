@@ -16,7 +16,11 @@ export default function SkillsComponent({
             className="p-6 px-12"
             {...props}
         >
-            <div className="grid grid-cols-1 md:grid-cols-3">
+            <div
+                className="absolute inset-0 z-1 bg-left md:bg-right bg-auto md:bg-cover opacity-10"
+                style={{ backgroundImage: "url(/footer-bg.webp)" }}
+            ></div>
+            <div className="relative z-2 grid grid-cols-1 md:grid-cols-3">
                 {skills.size > 0 ? (
                     Array.from(skills.entries()).map(([tech, skills]) => {
                         return (
@@ -38,18 +42,18 @@ export default function SkillsComponent({
                         </div>
                         <div className="p-2 space-y-2">
                             <h3 className="text-primary font-playfair font-semibold lg:font-normal">
-                                Frontend Skills
-                            </h3>
-                            <p>React, Typescript, Tailwind Css</p>
-                        </div>
-                        <div className="p-2 space-y-2">
-                            <h3 className="text-primary font-playfair font-semibold lg:font-normal">
                                 Backend Skills
                             </h3>
                             <p>
                                 Spring Boot, Spring Security, Spring Data JPA,
                                 Hibernate, REST API's
                             </p>
+                        </div>
+                        <div className="p-2 space-y-2">
+                            <h3 className="text-primary font-playfair font-semibold lg:font-normal">
+                                Frontend Skills
+                            </h3>
+                            <p>React, Typescript, Tailwind Css</p>
                         </div>
                         <div className="p-2 space-y-2">
                             <h3 className="text-primary font-playfair font-semibold lg:font-normal">

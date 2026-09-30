@@ -1,5 +1,6 @@
 package com.cms.maintenance.repositories;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,7 +11,7 @@ import com.cms.maintenance.models.Profile;
 
 public interface MediaRepository extends JpaRepository<Media, UUID> {
 
-    List<Media> findAllByIdIn(List<UUID> ids);
+    List<Media> findAllByIdIn(Collection<UUID> ids);
 
     List<Media> findAllByProfile(Profile profile);
 

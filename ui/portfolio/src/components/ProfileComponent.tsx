@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type HTMLAttributes } from "react";
 
-import profileDp from "/profile.png";
+import profileDp from "/profile.webp";
 
 type ProfileComponentProps = HTMLAttributes<HTMLDivElement> & {
     image?: Blob;

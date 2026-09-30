@@ -8,12 +8,23 @@ export default new PublicationService();
 export type Publication = {
     id: string;
     settings: DisplaySettings;
+    seo?: SeoSettings;
     profile: Profile;
     about: About;
     skills: Map<string, Skill[]>;
     projects: Project[];
     experiences: Experience[];
     socialProfiles: SocialProfile[];
+};
+
+export type SeoSettings = {
+    title?: string;
+    description?: string;
+    canonicalUrl?: string;
+    ogTitle?: string;
+    ogDescription?: string;
+    ogImage?: Media;
+    robots?: string;
 };
 
 export type About = {

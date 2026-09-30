@@ -14,6 +14,7 @@ import com.cms.maintenance.enums.PublicationStatus;
 import com.cms.maintenance.exceptions.BusinessException;
 import com.cms.maintenance.models.DisplaySettings;
 import com.cms.maintenance.models.Publication;
+import com.cms.maintenance.models.SeoSettings;
 import com.cms.maintenance.repositories.PublicationsRepository;
 import com.cms.maintenance.services.AboutService;
 import com.cms.maintenance.services.ExperienceService;
@@ -111,19 +112,54 @@ public class PublicationServiceImp implements PublicationService {
             draft.getSettings().setShowContact(showContact);
         });
 
+        Optional.ofNullable(request.seo()).ifPresent(seoRequest -> {
+
+            if (draft.getSeo() == null) {
+                SeoSettings seo = SeoSettings.builder().build();
+                seo.setPublication(draft);
+                draft.setSeo(seo);
+            }
+
+            SeoSettings seo = draft.getSeo();
+
+            Optional.ofNullable(seoRequest.title())
+                    .ifPresent(seo::setTitle);
+
+            Optional.ofNullable(seoRequest.description())
+                    .ifPresent(seo::setDescription);
+
+            Optional.ofNullable(seoRequest.canonicalUrl())
+                    .ifPresent(seo::setCanonicalUrl);
+
+            Optional.ofNullable(seoRequest.ogTitle())
+                    .ifPresent(seo::setOgTitle);
+
+            Optional.ofNullable(seoRequest.ogDescription())
+                    .ifPresent(seo::setOgDescription);
+
+            Optional.ofNullable(seoRequest.ogImageId())
+                    .ifPresent(seo::setOgImageId);
+
+            Optional.ofNullable(seoRequest.robots())
+                    .ifPresent(seo::setRobots);
+        });
+
         return publicationsRepository.save(draft);
     }
 
     private Publication getDraftPublication() {
         return publicationsRepository.findFirstByProfileAndStatus(profileService.getCurrentUserProfile(),
                 PublicationStatus.DRAFT).orElseGet(() -> {
+                    SeoSettings seo = SeoSettings.builder().build();
                     DisplaySettings settings = DisplaySettings.builder().build();
 
                     Publication publication = Publication.builder().build();
                     publication.setSettings(settings);
+                    publication.setSeo(seo);
                     publication.setProfile(profileService.getCurrentUserProfile());
 
                     settings.setPublication(publication);
+                    seo.setPublication(publication);
 
                     return publicationsRepository.save(publication);
                 });
@@ -134,6 +170,7 @@ public class PublicationServiceImp implements PublicationService {
         return PublicationResponseDto.builder()
                 .profile(profileService.mapToResponse(publication.getProfile()))
                 .settings(publication.getSettings())
+                .seo(publication.getSeo())
                 .about(publication.getAbout())
                 .skills(skillsService.mapToResponse(publication.getSkills()))
                 .projects(publication.getProjects().stream().map(prj -> projectService.mapToResponse(prj)).toList())

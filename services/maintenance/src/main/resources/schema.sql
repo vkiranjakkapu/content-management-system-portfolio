@@ -118,11 +118,24 @@ CREATE TABLE IF NOT EXISTS page_settings (
     CONSTRAINT pk_page_settings PRIMARY KEY (id)
 );
 
+CREATE TABLE IF NOT EXISTS seo_settings (
+    id UUID NOT NULL,
+    title VARCHAR(255),
+    description VARCHAR(1000),
+    canonical_url VARCHAR(500),
+    og_title VARCHAR(255),
+    og_description VARCHAR(1000),
+    og_image_id UUID,
+    robots VARCHAR(100),
+    CONSTRAINT pk_seo_settings PRIMARY KEY (id)
+);
+
 CREATE TABLE IF NOT EXISTS publications (
     id UUID NOT NULL,
     profile_id UUID,
     about_id UUID UNIQUE,
     settings_id UUID UNIQUE,
+    seo_id UUID UNIQUE,
     status VARCHAR(255),
     created_at TIMESTAMP(6) NOT NULL,
     updated_at TIMESTAMP(6) NOT NULL,
@@ -163,10 +176,6 @@ CREATE TABLE IF NOT EXISTS publications_skills (
     publication_id UUID NOT NULL,
     skills_id UUID NOT NULL UNIQUE
 );
-
--- ============================================================
--- NEW: SOCIAL PROFILES
--- ============================================================
 
 CREATE TABLE IF NOT EXISTS social_profiles (
     id UUID NOT NULL,
@@ -211,7 +220,6 @@ ALTER TABLE profiles
     ADD CONSTRAINT fk_profiles_banner
     FOREIGN KEY (banner_id)
     REFERENCES images (id);
-
 
 ALTER TABLE profiles
     DROP CONSTRAINT IF EXISTS fk_profiles_dp;
@@ -319,6 +327,17 @@ ALTER TABLE publications
     ADD CONSTRAINT fk_publications_settings
     FOREIGN KEY (settings_id)
     REFERENCES page_settings (id);
+
+
+-- Publications -> Seo Settings
+
+ALTER TABLE publications
+    DROP CONSTRAINT IF EXISTS fk_publications_seo;
+
+ALTER TABLE publications
+    ADD CONSTRAINT fk_publications_seo
+    FOREIGN KEY (seo_id)
+    REFERENCES seo_settings (id);
 
 
 -- Projects Gallery -> Projects

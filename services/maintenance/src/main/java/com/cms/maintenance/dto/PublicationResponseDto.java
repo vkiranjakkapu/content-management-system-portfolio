@@ -7,6 +7,7 @@ import com.cms.maintenance.enums.PublicationStatus;
 import com.cms.maintenance.models.About;
 import com.cms.maintenance.models.DisplaySettings;
 import com.cms.maintenance.models.Experience;
+import com.cms.maintenance.models.SeoSettings;
 import com.cms.maintenance.models.Skill;
 
 import lombok.Builder;
@@ -15,6 +16,7 @@ import lombok.Builder;
 public record PublicationResponseDto(
         ProfileResponseDto profile,
         DisplaySettings settings,
+        SeoSettings seo,
         About about,
         Map<String,List<Skill>> skills,
         List<ProjectResponseDto> projects,

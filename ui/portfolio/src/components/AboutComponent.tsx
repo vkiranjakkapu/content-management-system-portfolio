@@ -214,7 +214,7 @@ export default function AboutComponent({
                         </p>
                     </div>
                     <div className="col-span-full order-7 w-fit mx-auto mt-4">
-                        <div className="font-playfair text-md p-1 rounded-full lg:outline lg:outline-offset-2 lg:outline-primary lg:border border-primary flex flex-wrap justify-center gap-1.5 *:shadow-sm *:lg:shadow-none *:text-white lg:*:text-current *:bg-primary *:lg:bg-transparent *:px-2.5 *:py-1.5 *:rounded-full *:hover:bg-primary *:hover:text-white *:focus:bg-primary *:focus:text-white *:active:bg-primary *:active:text-white *:transition-colors *:duration-100">
+                        <div className="font-playfair text-md p-1 rounded-full md:outline md:outline-offset-2 md:outline-primary md:border border-primary flex flex-wrap justify-center gap-1.5 *:shadow-sm *:md:shadow-none *:text-white md:*:text-current *:bg-primary *:md:bg-transparent *:px-2.5 *:py-1.5 *:rounded-full *:hover:bg-primary *:hover:text-white *:focus:bg-primary *:focus:text-white *:active:bg-primary *:active:text-white *:transition-colors *:duration-100">
                             <a href="#skills">Skills</a>
                             <a href="#projects">Projects</a>
                             <a href="#experience">Experience</a>

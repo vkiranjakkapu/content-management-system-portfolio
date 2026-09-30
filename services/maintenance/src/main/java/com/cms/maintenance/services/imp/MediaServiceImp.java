@@ -1,6 +1,7 @@
 package com.cms.maintenance.services.imp;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,7 +39,7 @@ public class MediaServiceImp implements MediaService {
     }
 
     @Override
-    public List<Media> getAllMediaByIds(List<UUID> ids) {
+    public List<Media> getAllMediaByIds(Collection<UUID> ids) {
         return mediaRepository.findAllByIdIn(ids);
     }
 

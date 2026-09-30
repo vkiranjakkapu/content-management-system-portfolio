@@ -55,6 +55,7 @@ platform:
             - "/v3/api-docs/**"
             - "/identity/api/v1/auth/**"
             - "/cms/api/v1/media/fetch"
+            - "/cms/api/v1/media/fetch/*"
             - "/cms/api/v1/publish/"
         admin-paths:
             - "/actuator/**"
