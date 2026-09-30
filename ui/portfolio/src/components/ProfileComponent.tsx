@@ -32,6 +32,8 @@ export default function ProfileComponent({
             <img
                 src={image ? URL.createObjectURL(image) : profileDp}
                 alt="Venkata Kiran Jakkapu"
+                loading="eager"
+                decoding="async"
                 className="absolute top-1/2 left-1/2 -translate-1/2 mx-auto size-3/4 border border-primary/30 bg-black/12 object-cover rounded-full"
             />
             <div

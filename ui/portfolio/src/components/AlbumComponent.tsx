@@ -105,6 +105,8 @@ export default function AlbumComponent({
                                         : String(img)
                                 }
                                 alt={imageName}
+                                loading="eager"
+                                decoding="async"
                                 className={`border w-full border-primary/50 rounded-lg object-cover hover:shadow-sm hover:scale-105 transition-all duration-150`}
                             />
                             <div className="desc absolute inset-0 pointer-events-none">

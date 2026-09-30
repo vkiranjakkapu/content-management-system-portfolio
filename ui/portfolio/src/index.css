@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Kanchenjunga&family=Pixelify+Sans:wght@400&family=Playfair+Display+SC:wght@400;700&display=swap");
-
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));

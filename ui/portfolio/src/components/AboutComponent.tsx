@@ -156,7 +156,7 @@ export default function AboutComponent({
                                           )
                                         : Banner
                                 }
-                                alt="Banner Image - West Godavari, AP"
+                                alt="Landscape of West Godavari, Andhra Pradesh"
                                 className="w-full h-32 lg:h-40 object-cover"
                             />
                             <div className="absolute inset-0 p-2 flex items-end">
