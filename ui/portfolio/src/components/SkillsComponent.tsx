@@ -1,13 +1,21 @@
+import type { HTMLAttributes } from "react";
 import type { Skill } from "../services/PublicationService";
 import SectionComponent from "./SectionComponent";
 
-type SkillsComponentProps = {
+type SkillsComponentProps = HTMLAttributes<HTMLDivElement> & {
     skills: Map<string, Skill[]>;
 };
 
-export default function SkillsComponent({ skills }: SkillsComponentProps) {
+export default function SkillsComponent({
+    skills,
+    ...props
+}: SkillsComponentProps) {
     return (
-        <SectionComponent title="Skills" className="p-6 px-12" id="skills">
+        <SectionComponent
+            sectionTitle="Skills"
+            className="p-6 px-12"
+            {...props}
+        >
             <div className="grid grid-cols-1 md:grid-cols-3">
                 {skills.size > 0 ? (
                     Array.from(skills.entries()).map(([tech, skills]) => {

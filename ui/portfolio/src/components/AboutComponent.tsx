@@ -8,20 +8,23 @@ import {
 import ProfileComponent from "./ProfileComponent";
 
 import Banner from "../assets/banner.jpg";
+import SectionComponent from "./SectionComponent";
+import type { HTMLAttributes } from "react";
 
-type AboutComponentProps = {
+type AboutComponentProps = HTMLAttributes<HTMLDivElement> & {
     profile?: Profile;
-    about?: About;
+    summary?: About;
     socialProfiles?: SocialProfile[];
 };
 
 export default function AboutComponent({
     profile,
-    about,
+    summary: about,
     socialProfiles,
+    ...props
 }: AboutComponentProps) {
     return (
-        <>
+        <SectionComponent {...props}>
             <div className="relative">
                 <div className="absolute font-semibold inset-0 text-primary font-pixelify grid gap-4">
                     <div className="flex flex-wrap items-center justify-between ms-3 *:inline-flex *:items-center *:gap-4">
@@ -41,7 +44,8 @@ export default function AboutComponent({
                                             key={idx}
                                             aria-label={`${socPrf.name} profile`}
                                             href={socPrf.url}
-                                            target="_blank" rel="noopener noreferrer"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
                                         >
                                             <Icon />
                                         </a>
@@ -52,7 +56,8 @@ export default function AboutComponent({
                                     <a
                                         aria-label="GitHub profile"
                                         href="https://github.com/vkiranjakkapu"
-                                        target="_blank" rel="noopener noreferrer"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                     >
                                         {(() => {
                                             const Icon =
@@ -65,7 +70,8 @@ export default function AboutComponent({
                                     <a
                                         aria-label="LinkedIn profile"
                                         href="https://www.linkedin.com/in/venkata-kiran-jakkapu-a2209415a/"
-                                        target="_blank" rel="noopener noreferrer"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                     >
                                         {(() => {
                                             const Icon =
@@ -78,7 +84,8 @@ export default function AboutComponent({
                                     <a
                                         aria-label="WhatsApp profile"
                                         href="https://wa.me/qr/KTFQWZZGJCARP1"
-                                        target="_blank" rel="noopener noreferrer"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                     >
                                         {(() => {
                                             const Icon =
@@ -91,7 +98,8 @@ export default function AboutComponent({
                                     <a
                                         aria-label="Spotify profile"
                                         href="https://open.spotify.com/user/31ecwujtmcg7jg6jylbnf3qktlfi?si=a0688b479bf141fe"
-                                        target="_blank" rel="noopener noreferrer"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                     >
                                         {(() => {
                                             const Icon =
@@ -104,7 +112,8 @@ export default function AboutComponent({
                                     <a
                                         aria-label="Instagram profile"
                                         href="https://www.instagram.com/jvkiran_/"
-                                        target="_blank" rel="noopener noreferrer"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                     >
                                         {(() => {
                                             const Icon =
@@ -158,7 +167,9 @@ export default function AboutComponent({
                         </div>
                     </div>
 
-                    <p className="h1 mt-auto order-4 lg:col-span-2 font-playfair">Hello!</p>
+                    <p className="h1 mt-auto order-4 lg:col-span-2 font-playfair">
+                        Hello!
+                    </p>
 
                     {/* Contact Me */}
                     <div className="mt-auto text-center order-2 lg:order-5 -translate-y-2">
@@ -167,7 +178,10 @@ export default function AboutComponent({
                         </a>
                     </div>
 
-                    <h1 className="lg:col-span-4 mt-auto order-5 translate-y-1">
+                    <h1
+                        id={props["aria-labelledby"]}
+                        className="lg:col-span-4 mt-auto order-5 translate-y-1"
+                    >
                         {`I'm ${profile?.name ?? "Venkata Kiran J"}.`}
                     </h1>
 
@@ -209,6 +223,6 @@ export default function AboutComponent({
                     </div>
                 </div>
             </div>
-        </>
+        </SectionComponent>
     );
 }

@@ -1,8 +1,14 @@
 import { PiPaperPlaneTilt } from "react-icons/pi";
+import SectionComponent from "./SectionComponent";
 
 export default function ContactComponent() {
     return (
-        <>
+        <SectionComponent
+            id="contact"
+            aria-labelledby="contact-title"
+            sectionTitle="Contact"
+            className="lg:*:px-6 space-y-3 shadow-none! bg-bg-primary! backdrop-blur-none!"
+        >
             <p>Send your quote here.</p>
             <form onSubmit={() => {}} className="grid gap-3 text-md">
                 <label htmlFor="name">
@@ -42,6 +48,6 @@ export default function ContactComponent() {
                     Confirm Send
                 </button>
             </form>
-        </>
+        </SectionComponent>
     );
 }

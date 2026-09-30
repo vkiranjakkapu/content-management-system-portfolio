@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, type HTMLAttributes } from "react";
 import { RiArrowRightLongFill } from "react-icons/ri";
 import type { Project } from "../services/PublicationService";
 import AlbumComponent from "./AlbumComponent";
 import SectionComponent from "./SectionComponent";
 import { BsBoxArrowUpRight } from "react-icons/bs";
 
-type ProjectsComponentProps = {
+type ProjectsComponentProps = HTMLAttributes<HTMLDivElement> & {
     projects: (Project & {
         projectId?: string;
     })[];
@@ -13,6 +13,7 @@ type ProjectsComponentProps = {
 
 export default function ProjectsComponent({
     projects,
+    ...props
 }: ProjectsComponentProps) {
     const [selectedProject, setSelection] = useState<
         | (Project & {
@@ -22,7 +23,11 @@ export default function ProjectsComponent({
     >(projects.length > 0 ? projects[0] : null);
 
     return (
-        <SectionComponent title="projects" className="px-12" id="projects">
+        <SectionComponent
+            sectionTitle="projects"
+            className="px-12"
+            {...props}
+        >
             <div className="lg:h-125 grid grid-cols-1 lg:grid-cols-2 *:flex *:items-center">
                 <div className="text-primary gap-4 flex-col justify-center items-start!">
                     <ul
