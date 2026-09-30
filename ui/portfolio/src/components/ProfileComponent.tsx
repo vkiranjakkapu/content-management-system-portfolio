@@ -1,13 +1,17 @@
 import { useEffect, useRef, useState, type HTMLAttributes } from "react";
 
+import profileDp from "../assets/profile.png";
+
 type ProfileComponentProps = HTMLAttributes<HTMLDivElement> & {
-    image?: string;
+    image?: Blob;
     position?: string;
+    customiseText?: string;
 };
 
 export default function ProfileComponent({
     image,
-    position,
+    position = "~ Full Stack Developer ~ Java ~ React ~ AI",
+    customiseText,
     ...props
 }: ProfileComponentProps) {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -26,7 +30,7 @@ export default function ProfileComponent({
             className={`relative size-48 rounded-full text-primary ${props.className}`}
         >
             <img
-                src={image}
+                src={image ? URL.createObjectURL(image) : profileDp}
                 alt="Venkata Kiran Jakkapu"
                 className="absolute top-1/2 left-1/2 -translate-1/2 mx-auto size-3/4 border border-primary/30 bg-black/12 object-cover rounded-full"
             />
@@ -41,6 +45,7 @@ export default function ProfileComponent({
                             transform: `rotate(${i * 8.54}deg)`,
                             transformOrigin: `0 ${radius}px`,
                         }}
+                        className={customiseText}
                     >
                         {char}
                     </span>

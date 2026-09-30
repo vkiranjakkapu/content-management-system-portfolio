@@ -55,7 +55,7 @@ export default function AlbumComponent({
     return (
         <>
             <div
-                className={`gallery overflow-hidden lg:overflow-visible h-70 lg:h-100 max-w-160 ms-auto relative ${className}`}
+                className={`gallery overflow-y-clip overflow-x-visible lg:overflow-visible h-70 lg:h-100 max-w-160 ms-auto relative ${className}`}
             >
                 {allImages.map((img, idx) => (
                     <div

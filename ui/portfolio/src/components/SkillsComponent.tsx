@@ -13,7 +13,7 @@ export default function SkillsComponent({ skills }: SkillsComponentProps) {
                     Array.from(skills.entries()).map(([tech, skills]) => {
                         return (
                             <div className="p-2 space-y-2">
-                                <h3 className="text-primary font-playfair">
+                                <h3 className="text-primary font-playfair font-semibold lg:font-normal">
                                     {tech}
                                 </h3>
                                 <p>{skills.map((sk) => sk.name).join(", ")}</p>
@@ -23,19 +23,19 @@ export default function SkillsComponent({ skills }: SkillsComponentProps) {
                 ) : (
                     <>
                         <div className="p-2 space-y-2">
-                            <h3 className="text-primary font-playfair">
+                            <h3 className="text-primary font-playfair font-semibold lg:font-normal">
                                 Languages
                             </h3>
                             <p>Java, JavaScript, SQL, Python, PHP</p>
                         </div>
                         <div className="p-2 space-y-2">
-                            <h3 className="text-primary font-playfair">
+                            <h3 className="text-primary font-playfair font-semibold lg:font-normal">
                                 Frontend Skills
                             </h3>
                             <p>React, Typescript, Tailwind Css</p>
                         </div>
                         <div className="p-2 space-y-2">
-                            <h3 className="text-primary font-playfair">
+                            <h3 className="text-primary font-playfair font-semibold lg:font-normal">
                                 Backend Skills
                             </h3>
                             <p>
@@ -44,19 +44,19 @@ export default function SkillsComponent({ skills }: SkillsComponentProps) {
                             </p>
                         </div>
                         <div className="p-2 space-y-2">
-                            <h3 className="text-primary font-playfair">
+                            <h3 className="text-primary font-playfair font-semibold lg:font-normal">
                                 Cloud & DevOps
                             </h3>
                             <p>Docker, Azure, Git, Kubernetes, CI/CD, Linux</p>
                         </div>
                         <div className="p-2 space-y-2">
-                            <h3 className="text-primary font-playfair">
+                            <h3 className="text-primary font-playfair font-semibold lg:font-normal">
                                 Databases
                             </h3>
                             <p>PostgreSQL, MySQL, Vector Databases</p>
                         </div>
                         <div className="p-2 space-y-2">
-                            <h3 className="text-primary font-playfair">
+                            <h3 className="text-primary font-playfair font-semibold lg:font-normal">
                                 Architecture
                             </h3>
                             <p>
@@ -65,7 +65,7 @@ export default function SkillsComponent({ skills }: SkillsComponentProps) {
                             </p>
                         </div>
                         <div className="p-2 space-y-2">
-                            <h3 className="text-primary font-playfair">
+                            <h3 className="text-primary font-playfair font-semibold lg:font-normal">
                                 AI & AI-Assisted Engineering
                             </h3>
                             <p>

@@ -1,3 +1,6 @@
+import type { IconType } from "react-icons";
+import { BsGithub, BsInstagram, BsLinkedin, BsSpotify, BsWhatsapp } from "react-icons/bs";
+
 class PublicationService {}
 
 export default new PublicationService();
@@ -10,6 +13,7 @@ export type Publication = {
     skills: Map<string, Skill[]>;
     projects: Project[];
     experiences: Experience[];
+    socialProfiles: SocialProfile[];
 };
 
 export type About = {
@@ -48,7 +52,6 @@ export type Profile = {
     availability: string;
     location: string;
     banner: Media;
-    socialProfiles: SocialProfile[];
 };
 
 export type Skill = {
@@ -61,10 +64,12 @@ export type SocialProfile = {
     url: string;
 };
 
-const SocialMediaType = {
+export const SocialMediaType = {
     LINKEDIN: "LINKEDIN",
+    GITHUB: "GITHUB",
     WHATSAPP: "WHATSAPP",
     SPOTIFY: "SPOTIFY",
+    INSTAGRAM: "INSTAGRAM",
 } as const;
 
 export type SocialMediaType =
@@ -89,3 +94,10 @@ const MediaTag = {
 
 export type MediaTag = (typeof MediaTag)[keyof typeof MediaTag];
 
+export const SocialIconMap: Record<SocialMediaType, IconType> = {
+    [SocialMediaType.LINKEDIN]: BsLinkedin,
+    [SocialMediaType.WHATSAPP]: BsWhatsapp,
+    [SocialMediaType.GITHUB]: BsGithub,
+    [SocialMediaType.SPOTIFY]: BsSpotify,
+    [SocialMediaType.INSTAGRAM]: BsInstagram,
+};
