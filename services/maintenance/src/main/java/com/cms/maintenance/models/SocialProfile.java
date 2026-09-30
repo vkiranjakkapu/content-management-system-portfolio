@@ -1,16 +1,13 @@
 package com.cms.maintenance.models;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import com.cms.maintenance.enums.PublicationStatus;
+import com.cms.maintenance.enums.SocialMediaType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,8 +16,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,13 +24,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "publications")
-@NoArgsConstructor
+@Table(name = "social_profiles")
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @Builder
-public class Publication {
+public class SocialProfile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -45,31 +40,11 @@ public class Publication {
     @ManyToOne(fetch = FetchType.LAZY)
     private Profile profile;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    private DisplaySettings settings;
-
-    @OneToOne
-    private About about;
-
-    @OneToMany
-    private List<Skill> skills;
-
-    @OneToMany
-    private List<Project> projects;
-
-    @OneToMany
-    private List<Experience> experiences;
-
-    @OneToMany
-    private List<SocialProfile> socialProfiles;
-
-    @JsonIgnore
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    private PublicationStatus status = PublicationStatus.DRAFT;
+    private SocialMediaType name = SocialMediaType.LINKEDIN;
 
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    private String url;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

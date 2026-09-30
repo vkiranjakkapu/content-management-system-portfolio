@@ -9,6 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -51,6 +52,9 @@ public class Profile {
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Media banner;
+
+    @OneToMany(mappedBy = "profile", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SocialProfile> socialProfiles;
 
     @OneToMany(mappedBy = "profile")
     private List<About> abouts;

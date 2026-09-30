@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+html {
+    scroll-behavior: smooth;
+}
+
+@theme {
+    --color-primary: #2c562d;
+    --color-bg-primary: #f3f3f3;
+    --color-bg-secondary: #ffffffc7;
+
+    --default-font-family: "Kanchenjunga", sans-serif;
+
+    --font-playfair: "Playfair Display SC", serif;
+    --font-kanchenjunga: "Kanchenjunga", sans-serif;
+    --font-pixelify: "Pixelify Sans", sans-serif;
+}
+
+@layer base {
+    .playfair-display-sc-regular {
+        font-family: var(--font-playfair);
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    .playfair-display-sc-bold {
+        font-family: var(--font-playfair);
+        font-weight: 700;
+        font-style: normal;
+    }
+
+    .kanchenjunga-regular {
+        font-family: var(--font-kanchenjunga);
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    .pixelify-sans-400 {
+        font-family: var(--font-pixelify);
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    .pixelify-sans-500 {
+        font-family: var(--font-pixelify);
+        font-optical-sizing: auto;
+        font-weight: 500;
+        font-style: normal;
+    }
+
+    .text-md {
+        font-size: 1rem;
+    }
+
+    body {
+        font-size: clamp(0.725rem, 4vw + 0.25rem, 1.25rem);
+    }
+
+    h1,.h1 {
+        @apply text-4xl md:text-8xl text-primary font-bold;
+        font-family: var(--font-playfair);
+
+        &.font-pixel {
+            @apply opacity-40;
+            font-family: var(--font-pixelify);
+        }
+    }
+
+    h3 {
+        @apply text-lg lg:text-2xl;
+    }
+
+    button,
+    .btn-primary {
+        @apply text-lg font-playfair cursor-pointer bg-primary text-white px-2 py-1 outline-1 outline-primary outline-offset-2 hover:animate-pulse;
+    }
+}
