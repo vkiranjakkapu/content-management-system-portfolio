@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cms.maintenance.dto.ApiResponseDto;
 import com.cms.maintenance.dto.CreateMediaRequestDto;
+import com.cms.maintenance.dto.FetchMediaByIDsRequest;
 import com.cms.maintenance.dto.MediaResponseDto;
 import com.cms.maintenance.dto.UpdateMediaRequestDto;
 import com.cms.maintenance.enums.MediaTag;
@@ -39,14 +40,22 @@ public class MediaController {
 	public ResponseEntity<ApiResponseDto<List<MediaResponseDto>>> getMyMedia() {
 		return ResponseEntity.ok(ApiResponseDto.<List<MediaResponseDto>>builder()
 				.data(mediaService.getAllMedia(profileService.getCurrentUserProfile()).stream()
-						.map(med -> mediaService.mapToResponse(med)).toList())
+						.map(med -> mediaService.mapToResponse(med, true)).toList())
 				.build());
 	}
 
 	@GetMapping("/{mediaId}")
 	public ResponseEntity<ApiResponseDto<MediaResponseDto>> getMediaById(@PathVariable UUID mediaId) {
 		return ResponseEntity.ok(ApiResponseDto.<MediaResponseDto>builder()
-				.data(mediaService.mapToResponse(mediaService.getMediaById(mediaId))).build());
+				.data(mediaService.mapToResponse(mediaService.getMediaById(mediaId), true)).build());
+	}
+
+	@PostMapping("/fetch")
+	public ResponseEntity<ApiResponseDto<?>> getMediaFromIds(@RequestBody FetchMediaByIDsRequest request) {
+		return ResponseEntity.ok(ApiResponseDto.builder().data(
+				mediaService.getAllMediaByIds(request.ids()).stream().map(med -> mediaService.mapToResponse(med, true))
+						.toList())
+				.build());
 	}
 
 	@PostMapping("/")
@@ -55,7 +64,8 @@ public class MediaController {
 		return ResponseEntity.ok(ApiResponseDto.<MediaResponseDto>builder()
 				.data(mediaService.mapToResponse(
 						mediaService.createMedia(CreateMediaRequestDto.builder().file(file)
-								.tag(tag).build())))
+								.tag(tag).build()),
+						true))
 				.build());
 	}
 
@@ -63,7 +73,7 @@ public class MediaController {
 	public ResponseEntity<ApiResponseDto<MediaResponseDto>> updateMedia(
 			@Valid @RequestBody UpdateMediaRequestDto request) {
 		return ResponseEntity.ok(ApiResponseDto.<MediaResponseDto>builder()
-				.data(mediaService.mapToResponse(mediaService.updateMedia(request))).build());
+				.data(mediaService.mapToResponse(mediaService.updateMedia(request), true)).build());
 	}
 
 	@DeleteMapping("/{mediaId}")

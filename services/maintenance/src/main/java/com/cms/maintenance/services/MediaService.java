@@ -23,6 +23,6 @@ public interface MediaService {
 
     void deleteMediaById(UUID id);
 
-    MediaResponseDto mapToResponse(Media media);
+    MediaResponseDto mapToResponse(Media media, boolean includeMedia);
 
 }

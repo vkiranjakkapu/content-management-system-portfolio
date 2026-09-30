@@ -84,11 +84,19 @@ public class MediaServiceImp implements MediaService {
     }
 
     @Override
-    public MediaResponseDto mapToResponse(Media media) {
+    public MediaResponseDto mapToResponse(Media media, boolean includeMedia) {
         try {
+            if (includeMedia) {
+                return MediaResponseDto.builder()
+                        .id(media.getId())
+                        .media(storageService.getMedia(media))
+                        .mediaName(media.getMediaName())
+                        .mediaType(media.getMediaType())
+                        .tag(media.getTag())
+                        .build();
+            }
             return MediaResponseDto.builder()
                     .id(media.getId())
-                    .media(storageService.getMedia(media))
                     .mediaName(media.getMediaName())
                     .mediaType(media.getMediaType())
                     .tag(media.getTag())

@@ -11,6 +11,7 @@ public record ProfileResponseDto(
         String email,
         String name,
         String phone,
-        String designation) {
+        String designation,
+        MediaResponseDto banner) {
 
 }

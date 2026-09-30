@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.cms.maintenance.dto.PublicationResponseDto;
@@ -35,6 +36,13 @@ public class PublicationServiceImp implements PublicationService {
     private final ProjectService projectService;
     private final ExperienceService experienceService;
     private final SocialProfileService socialProfileService;
+
+    @Override
+    public Publication getLatestPublicPublication() {
+        return publicationsRepository.findFirstByStatusOrderByUpdatedAtDesc(PublicationStatus.PUBLISH)
+                .orElseThrow(() -> new BusinessException(BusinessExceptions.PUBLICATION_NOT_FOUND,
+                        "No active publication found.", HttpStatus.NOT_FOUND));
+    }
 
     @Override
     public Publication getPublicationById(UUID id) {
@@ -124,6 +132,7 @@ public class PublicationServiceImp implements PublicationService {
     @Override
     public PublicationResponseDto mapToResponse(Publication publication) {
         return PublicationResponseDto.builder()
+                .profile(profileService.mapToResponse(publication.getProfile()))
                 .settings(publication.getSettings())
                 .about(publication.getAbout())
                 .skills(skillsService.mapToResponse(publication.getSkills()))

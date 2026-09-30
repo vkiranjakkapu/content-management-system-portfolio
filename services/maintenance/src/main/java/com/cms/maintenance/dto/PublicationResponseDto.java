@@ -13,6 +13,7 @@ import lombok.Builder;
 
 @Builder
 public record PublicationResponseDto(
+        ProfileResponseDto profile,
         DisplaySettings settings,
         About about,
         Map<String,List<Skill>> skills,

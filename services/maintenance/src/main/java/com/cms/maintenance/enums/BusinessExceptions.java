@@ -11,6 +11,12 @@ public enum BusinessExceptions implements ErrorDefinition {
     IMAGE_UPLOAD_FAILED("IMAGE_UPLOAD_FAILED", "BUS-5003",
             "Error while saving image."),
 
+    PROFILE_NOT_FOUND("PROFILE_NOT_FOUND", "BUS-2001",
+            "Publication not found."),
+
+    PUBLICATION_NOT_FOUND("PUBLICATION_NOT_FOUND", "BUS-2002",
+            "Publication not found."),
+
     RESOURCE_NOT_FOUND("RESOURCE_NOT_FOUND", "BUS-4001",
             "Resource with guven Id not found.");
 
