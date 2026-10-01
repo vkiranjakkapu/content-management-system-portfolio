@@ -1,5 +1,5 @@
 import { AxiosError } from "axios";
-import type { ErrorResponse } from "../services/PublicationService";
+import type { ErrorResponse } from "./api";
 
 export function handleErrorResponse(error: AxiosError) {
     const serverData = (error.response?.data ?? {}) as Record<string, unknown>;
