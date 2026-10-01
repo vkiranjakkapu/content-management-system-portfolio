@@ -1,7 +1,47 @@
 import type { IconType } from "react-icons";
-import { BsGithub, BsInstagram, BsLinkedin, BsSpotify, BsWhatsapp } from "react-icons/bs";
+import {
+    BsGithub,
+    BsInstagram,
+    BsLinkedin,
+    BsSpotify,
+    BsWhatsapp,
+} from "react-icons/bs";
+import { apiClient, type ApiResponse } from "../api/api";
 
-class PublicationService {}
+export type ValidationErrors = {
+    field: string;
+    rejectedValue: object;
+    message: string;
+};
+
+class PublicationService {
+    async getPublicationContent<T>(): Promise<ApiResponse<T>> {
+        return apiClient({
+            type: "get",
+            uri: "/publish/publication",
+        });
+    }
+
+    async fetchMediaById<T>(mediaId: string): Promise<ApiResponse<T>> {
+        return apiClient({
+            type: "get",
+            uri: "/media/fetch/" + mediaId,
+            config: {
+                responseType: "blob",
+            },
+        });
+    }
+
+    async fetchMediaFromList<T>(payload: {
+        ids: string[];
+    }): Promise<ApiResponse<T>> {
+        return apiClient({
+            type: "get",
+            uri: "/media/fetch/",
+            payload,
+        });
+    }
+}
 
 export default new PublicationService();
 

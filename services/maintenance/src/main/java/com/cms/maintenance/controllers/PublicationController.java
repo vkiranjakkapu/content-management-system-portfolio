@@ -27,7 +27,7 @@ public class PublicationController {
 
     private final PublicationService publicationService;
 
-    @GetMapping("/")
+    @GetMapping("/publication")
     public ResponseEntity<ApiResponseDto<PublicationResponseDto>> getPublication() {
         return ResponseEntity
                 .ok(ApiResponseDto.<PublicationResponseDto>builder()

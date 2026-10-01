@@ -11,6 +11,7 @@ public record UpdateProfileRequestDto(
 		String phone,
 		String designation,
 		String location,
+		String availability,
 		MultipartFile banner) {
 
 }

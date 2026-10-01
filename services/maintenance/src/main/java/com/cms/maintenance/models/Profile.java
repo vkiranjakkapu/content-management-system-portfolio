@@ -50,6 +50,9 @@ public class Profile {
 
     private String location;
 
+    @Builder.Default
+    private String availability = "Open to work";
+
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Media banner;
 

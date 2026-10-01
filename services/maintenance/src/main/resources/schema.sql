@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     user_id UUID,
     name VARCHAR(255),
     designation VARCHAR(255),
+    availability VARCHAR(255),
     email VARCHAR(255),
     phone VARCHAR(255),
     location VARCHAR(255),

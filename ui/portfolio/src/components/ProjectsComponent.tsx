@@ -1,9 +1,9 @@
 import { useState, type HTMLAttributes } from "react";
+import { BsBoxArrowUpRight } from "react-icons/bs";
 import { RiArrowRightLongFill } from "react-icons/ri";
 import type { Project } from "../services/PublicationService";
 import AlbumComponent from "./AlbumComponent";
 import SectionComponent from "./SectionComponent";
-import { BsBoxArrowUpRight } from "react-icons/bs";
 
 type ProjectsComponentProps = HTMLAttributes<HTMLDivElement> & {
     projects: (Project & {
@@ -23,16 +23,12 @@ export default function ProjectsComponent({
     >(projects.length > 0 ? projects[0] : null);
 
     return (
-        <SectionComponent
-            sectionTitle="projects"
-            className="px-12"
-            {...props}
-        >
-            <div className="lg:h-125 grid grid-cols-1 lg:grid-cols-2 *:flex *:items-center">
-                <div className="text-primary gap-4 flex-col justify-center items-start!">
+        <SectionComponent sectionTitle="projects" className="px-12" {...props}>
+            <div className="sm:min-h-125 md:min-h-115 grid grid-cols-1 lg:grid-cols-2 gap-y-4 *:flex *:items-center">
+                <div className="text-primary gap-4 flex-col justify-center items-start! z-1">
                     <ul
                         className="
-                        space-y-3
+                        space-y-3 *:bg-bg-secondary *:rounded-sm
 
                         [&>li>:first-child]:hidden [&>li.active>:first-child]:block
                         [&>.active]:text-current [&>:not(.active)]:text-slate-500 [&>:not(.active)]:text-lg
@@ -151,8 +147,8 @@ export default function ProjectsComponent({
                         Show All
                     </a>
                 </div>
-                <div className="justify-end! relative lg:pr-12 lg:absolute lg:right-0 lg:w-3/5 h-fit origin-center lg:top-1/2 lg:-translate-y-1/2">
-                    <div className="py-6 text-left md:text-right space-y-2 md:space-y-4 flex flex-col">
+                <div className="justify-end! h-fit origin-center relative z-0 md:pr-6 lg:pr-12 md:absolute md:right-0 md:w-3/5 md:top-1/2 md:-translate-y-1/2">
+                    <div className="text-left md:text-right space-y-2 md:space-y-4 flex flex-col">
                         <h3 className="text-primary order-1">
                             {selectedProject?.title ??
                                 `Text To Speech - Azure OpenAI`}
