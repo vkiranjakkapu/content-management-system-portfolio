@@ -36,7 +36,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Login successful"),
             @ApiResponse(responseCode = "401", description = "Invalid credentials", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/login")
+    @PostMapping("/")
     public ResponseEntity<APIResponseDto<LoginResponseDto>> login(@Valid @RequestBody LoginRequestDto request) {
         return ResponseEntity
                 .ok(APIResponseDto.<LoginResponseDto>builder().data(authenticationService.login(request)).build());

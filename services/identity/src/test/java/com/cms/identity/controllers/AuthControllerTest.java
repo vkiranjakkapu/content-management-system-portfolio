@@ -52,7 +52,7 @@ class AuthControllerTest {
         when(authenticationService.login(any()))
                 .thenReturn(response);
 
-        mockMvc.perform(post("/identity/api/v1/auth/login")
+        mockMvc.perform(post("/identity/api/v1/auth/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());

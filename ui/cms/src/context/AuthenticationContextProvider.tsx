@@ -1,0 +1,89 @@
+import { useCallback, useEffect, useState, type ReactNode } from "react";
+import type { ErrorResponse } from "../api/api";
+import type { LoginResponse } from "../services/AuthService";
+import AuthService from "../services/AuthService";
+import TokenStorage from "../storage/TokenStorage";
+import { AuthContext, AuthStatus, type UserProfile } from "./useAuthContext";
+
+type AuthenticationContextProviderProps = {
+    children: ReactNode;
+};
+
+export default function AuthenticationContextProvider({
+    children,
+}: AuthenticationContextProviderProps) {
+    const [userProfile, setProfile] = useState<UserProfile>({} as UserProfile);
+
+    const [status, setStatus] = useState<AuthStatus>(() => {
+        return TokenStorage.getAccessToken() !== null
+            ? AuthStatus.INITIALIZING
+            : AuthStatus.UNAUTHENTICATED;
+    });
+
+    const loadProfile = useCallback(() => {
+        AuthService.getProfile<UserProfile>()
+            .then((resp) => {
+                setProfile(resp.data);
+                setStatus(AuthStatus.AUTHENTICATED);
+            })
+            .catch((e: ErrorResponse) => {
+                setStatus(AuthStatus.UNAUTHENTICATED);
+                console.log(e);
+            });
+    }, []);
+
+    useEffect(() => {
+        const token = TokenStorage.getAccessToken();
+        if (token != null) {
+            loadProfile();
+        }
+    }, [loadProfile]);
+
+    async function login(
+        email: string,
+        password: string,
+    ): Promise<LoginResponse> {
+        setStatus(AuthStatus.INITIALIZING);
+        try {
+            const resp = await AuthService.authenticate<LoginResponse>({
+                email,
+                password,
+            });
+            TokenStorage.save(resp.data.accessToken, resp.data.refreshToken);
+            loadProfile();
+            return resp.data;
+        } catch (e) {
+            setStatus(AuthStatus.UNAUTHENTICATED);
+            throw e;
+        }
+    }
+
+    function logout() {
+        try {
+            AuthService.logout<void>({
+                refreshToken: TokenStorage.getRefreshToken(),
+            });
+            TokenStorage.clear();
+            setStatus(AuthStatus.UNAUTHENTICATED);
+            setProfile({} as UserProfile);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const isLoggedIn = status === AuthStatus.AUTHENTICATED;
+
+    return (
+        <AuthContext
+            value={{
+                user: userProfile,
+                status,
+                isLoggedIn,
+                login,
+                logout,
+            }}
+        >
+            {children}
+        </AuthContext>
+    );
+}
