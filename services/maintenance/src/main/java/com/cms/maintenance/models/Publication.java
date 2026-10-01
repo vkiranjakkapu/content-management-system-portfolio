@@ -48,6 +48,9 @@ public class Publication {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private DisplaySettings settings;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    private SeoSettings seo;
+
     @OneToOne
     private About about;
 

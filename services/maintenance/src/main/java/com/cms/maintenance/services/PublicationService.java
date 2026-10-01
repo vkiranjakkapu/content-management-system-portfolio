@@ -8,6 +8,8 @@ import com.cms.maintenance.models.Publication;
 
 public interface PublicationService {
 
+    Publication getLatestPublicPublication();
+
     Publication getPublicationById(UUID id);
 
     Publication getLatestPublication();

@@ -60,7 +60,9 @@ html {
     }
 
     h1,.h1 {
-        @apply text-4xl md:text-8xl text-primary font-bold;
+        @apply text-primary font-bold;
+        font-size: clamp(2.25rem, 6vw + 1rem,6rem);
+        line-height: var(--tw-leading, var(--text-8xl--line-height));
         font-family: var(--font-playfair);
 
         &.font-pixel {

@@ -16,8 +16,11 @@ export default function FooterComponent({
 }: FooterComponentProps) {
     return (
         <>
-            <footer className="bg-primary text-white flex flex-wrap justify-between gap-3 p-6 pb-0 lg:*:pb-4">
-                <div className="flex flex-wrap justify-center items-center gap-6">
+            <footer
+                className="bg-primary bg-contain bg-left text-white flex flex-wrap justify-between gap-3 p-6 pb-0 lg:*:pb-4"
+                style={{ backgroundImage: "url(/footer-bg.webp)" }}
+            >
+                <div className="flex flex-wrap justify-center items-center gap-6 flex-1">
                     <ProfileComponent
                         image={profile?.dp.media}
                         position={profile?.designation}
@@ -79,7 +82,7 @@ export default function FooterComponent({
             </footer>
             <hr className="border-primary/70" />
             <div className="bg-primary text-white p-3 w-full text-center text-sm capitalize">
-                &#xA9; 2026. Created for Myself with ❤️ for learining.
+                &#xA9; 2026. Created for Myself with ❤️ for learning.
             </div>
         </>
     );

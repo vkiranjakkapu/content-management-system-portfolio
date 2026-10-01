@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cms.maintenance.dto.ApiResponseDto;
+import com.cms.maintenance.dto.PublicationResponseDto;
 import com.cms.maintenance.dto.UpdatePublicationRequestDto;
 import com.cms.maintenance.models.Publication;
 import com.cms.maintenance.services.PublicationService;
@@ -27,9 +28,11 @@ public class PublicationController {
     private final PublicationService publicationService;
 
     @GetMapping("/")
-    public ResponseEntity<ApiResponseDto<Publication>> getPublication() {
+    public ResponseEntity<ApiResponseDto<PublicationResponseDto>> getPublication() {
         return ResponseEntity
-                .ok(ApiResponseDto.<Publication>builder().data(publicationService.getLatestPublication()).build());
+                .ok(ApiResponseDto.<PublicationResponseDto>builder()
+                        .data(publicationService.mapToResponse(publicationService.getLatestPublicPublication()))
+                        .build());
     }
 
     @GetMapping("/{publicationId}")

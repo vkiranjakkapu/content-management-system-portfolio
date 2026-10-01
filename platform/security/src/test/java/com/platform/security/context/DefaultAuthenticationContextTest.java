@@ -14,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -98,6 +100,27 @@ class DefaultAuthenticationContextTest {
 
         assertThat(authenticationContext.getCurrentUser())
                 .isEmpty();
+
+        verifyNoInteractions(authenticationAdapter);
+    }
+
+    @Test
+    void shouldReturnEmptyWhenAuthenticationIsAnonymous() {
+
+        SecurityContext securityContext = mock(SecurityContext.class);
+
+        SecurityContextHolder.setContext(securityContext);
+
+        when(securityContext.getAuthentication())
+                .thenReturn(new AnonymousAuthenticationToken(
+                        "test-key",
+                        "anonymousUser",
+                        AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS")));
+
+        assertThat(authenticationContext.getCurrentUser())
+                .isEmpty();
+        assertThat(authenticationContext.isAuthenticated())
+                .isFalse();
 
         verifyNoInteractions(authenticationAdapter);
     }

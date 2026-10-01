@@ -98,7 +98,7 @@ public class ProjectServiceImp implements ProjectService {
                 .title(project.getTitle())
                 .gitUrl(project.getGitUrl())
                 .techStack(project.getTechStack())
-                .gallery(project.getGallery().stream().map(media -> mediaService.mapToResponse(media)).toList())
+                .gallery(project.getGallery().stream().map(media -> mediaService.mapToResponse(media, false)).toList())
                 .build();
     }
 

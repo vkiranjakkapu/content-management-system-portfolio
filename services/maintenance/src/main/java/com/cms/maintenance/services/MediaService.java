@@ -1,5 +1,6 @@
 package com.cms.maintenance.services;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,7 +14,7 @@ public interface MediaService {
 
     List<Media> getAllMedia(Profile profile);
 
-    List<Media> getAllMediaByIds(List<UUID> ids);
+    List<Media> getAllMediaByIds(Collection<UUID> ids);
 
     Media getMediaById(UUID id);
 
@@ -23,6 +24,6 @@ public interface MediaService {
 
     void deleteMediaById(UUID id);
 
-    MediaResponseDto mapToResponse(Media media);
+    MediaResponseDto mapToResponse(Media media, boolean includeMedia);
 
 }

@@ -1,9 +1,6 @@
 package com.cms.maintenance.models;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
-
-import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -21,35 +18,35 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "page_settings")
+@Table(name = "seo_settings")
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Builder
-public class DisplaySettings {
+public class SeoSettings {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY, mappedBy = "settings")
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "seo")
     private Publication publication;
 
-    @Builder.Default
-    private boolean showSkills = true;
+    private String title;
+
+    private String description;
+
+    private String canonicalUrl;
+
+    private String ogTitle;
+
+    private String ogDescription;
+
+    private UUID ogImageId;
 
     @Builder.Default
-    private boolean showProjects = true;
-
-    @Builder.Default
-    private boolean showExperience = true;
-
-    @Builder.Default
-    private boolean showContact = true;
-
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    private String robots = "index,follow";
 
 }

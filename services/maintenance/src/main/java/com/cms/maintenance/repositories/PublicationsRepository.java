@@ -13,6 +13,8 @@ public interface PublicationsRepository extends JpaRepository<Publication, UUID>
 
     Optional<Publication> findByProfileAndStatus(Profile currentUserProfile, PublicationStatus publish);
 
+    Optional<Publication> findFirstByStatusOrderByUpdatedAtDesc(PublicationStatus status);
+
     Optional<Publication> findFirstByProfileAndStatus(Profile currentUserProfile, PublicationStatus draft);
 
 }

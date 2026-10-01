@@ -3,6 +3,7 @@ package com.cms.maintenance.services.imp;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.cms.maintenance.dto.CreateMediaRequestDto;
@@ -32,8 +33,8 @@ public class ProfileServiceImp implements ProfileService {
     @Override
     public Profile getCurrentUserProfile() {
         return profileRepository.findByUserId(currentUser.userId()).orElseThrow(
-                () -> new BusinessException(BusinessExceptions.RESOURCE_NOT_FOUND,
-                        "User doesn't created any profile so far."));
+                () -> new BusinessException(BusinessExceptions.PROFILE_NOT_FOUND,
+                        "No Profile associated with this user.", HttpStatus.TOO_EARLY));
     }
 
     @Override
@@ -148,7 +149,8 @@ public class ProfileServiceImp implements ProfileService {
                 .email(profile.getEmail())
                 .phone(profile.getPhone())
                 .designation(profile.getDesignation())
-                .dp(mediaService.mapToResponse(profile.getDp()))
+                .dp(mediaService.mapToResponse(profile.getDp(), false))
+                .banner(mediaService.mapToResponse(profile.getBanner(), false))
                 .build();
     }
 
