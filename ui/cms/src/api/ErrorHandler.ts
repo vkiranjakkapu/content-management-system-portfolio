@@ -1,7 +1,9 @@
 import { AxiosError } from "axios";
-import type { ErrorResponse } from "./api";
+import type { ErrorResponse } from "../api/api";
 
-export function handleErrorResponse(error: AxiosError) {
+export function handleErrorResponse(er: unknown): ErrorResponse {
+    const error = er as AxiosError;
+
     const serverData = (error.response?.data ?? {}) as Record<string, unknown>;
 
     const errorNameStr =
