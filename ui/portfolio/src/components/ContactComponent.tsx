@@ -42,10 +42,10 @@ export default function ContactComponent() {
                 </label>
                 <button
                     type="submit"
-                    className="w-fit ms-auto flex items-center gap-1"
+                    className="ms-auto flex items-center gap-1 -translate-x-0.5"
                 >
                     <PiPaperPlaneTilt />
-                    Confirm Send
+                    Confirm Quote
                 </button>
             </form>
         </SectionComponent>

@@ -69,6 +69,7 @@ public class ProfileServiceImp implements ProfileService {
                 .phone(request.phone())
                 .designation(request.designation())
                 .location(request.location())
+                .availability(request.availability())
                 .banner(banner)
                 .build();
 
@@ -101,6 +102,10 @@ public class ProfileServiceImp implements ProfileService {
 
         Optional.of(request.designation()).ifPresent(designation -> {
             profile.setDesignation(designation);
+        });
+
+        Optional.of(request.availability()).ifPresent(availability -> {
+            profile.setAvailability(availability);
         });
 
         Optional.of(request.dp()).ifPresent(dpReq -> {
@@ -149,6 +154,7 @@ public class ProfileServiceImp implements ProfileService {
                 .email(profile.getEmail())
                 .phone(profile.getPhone())
                 .designation(profile.getDesignation())
+                .availability(profile.getAvailability())
                 .dp(mediaService.mapToResponse(profile.getDp(), false))
                 .banner(mediaService.mapToResponse(profile.getBanner(), false))
                 .build();

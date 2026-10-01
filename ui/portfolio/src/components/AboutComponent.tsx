@@ -7,9 +7,9 @@ import {
 } from "../services/PublicationService";
 import ProfileComponent from "./ProfileComponent";
 
+import { type HTMLAttributes } from "react";
 import Banner from "../assets/banner.jpg";
 import SectionComponent from "./SectionComponent";
-import type { HTMLAttributes } from "react";
 
 type AboutComponentProps = HTMLAttributes<HTMLDivElement> & {
     profile?: Profile;
@@ -31,8 +31,9 @@ export default function AboutComponent({
                         <div className="pointer-events-none">
                             <div className="size-4 bg-primary text-primary font-pixelify rounded-full"></div>
                             <span>
-                                {profile?.availability ??
-                                    "STATUS - Open to work"}
+                                {`STATUS - ${
+                                    profile?.availability ?? "Open to work"
+                                }`}
                             </span>
                         </div>
                         <div className="ms-auto mx-10 *:cursor-pointer *:hover:opacity-80 *:transition-opacity *:duration-75">

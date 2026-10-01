@@ -1,3 +1,4 @@
+import type { HTMLAttributes } from "react";
 import {
     SocialIconMap,
     type Profile,
@@ -5,7 +6,7 @@ import {
 } from "../services/PublicationService";
 import ProfileComponent from "./ProfileComponent";
 
-type FooterComponentProps = {
+type FooterComponentProps = HTMLAttributes<HTMLDivElement> & {
     profile?: Profile;
     socialProfiles?: SocialProfile[];
 };
@@ -13,14 +14,16 @@ type FooterComponentProps = {
 export default function FooterComponent({
     profile,
     socialProfiles,
+    ...props
 }: FooterComponentProps) {
     return (
-        <>
-            <footer
-                className="bg-primary bg-contain bg-left text-white flex flex-wrap justify-between gap-3 p-6 pb-0 lg:*:pb-4"
-                style={{ backgroundImage: "url(/footer-bg.webp)" }}
-            >
-                <div className="flex flex-wrap justify-center items-center gap-6 flex-1">
+        <footer {...props}>
+            <div className="relative bg-primary text-white flex flex-wrap justify-between gap-3 p-6 pb-0 lg:*:pb-4">
+                <div
+                    className="absolute inset-0 bg-contain bg-left z-0"
+                    style={{ backgroundImage: "url(/footer-bg.webp)" }}
+                ></div>
+                <div className="z-1 flex flex-wrap justify-center items-center gap-6 flex-1">
                     <ProfileComponent
                         image={profile?.dp.media}
                         position={profile?.designation}
@@ -36,7 +39,7 @@ export default function FooterComponent({
                         <p className="text-md">
                             {profile?.phone ?? "+91 9493660145"}
                         </p>
-                        <div className="flex gap-3">
+                        <div className="flex flex-wrap gap-3">
                             {socialProfiles &&
                                 socialProfiles.length > 0 &&
                                 socialProfiles.map((socPrf, idx) => {
@@ -58,32 +61,32 @@ export default function FooterComponent({
                         </div>
                     </div>
                 </div>
-                <div className="font-pixelify flex gap-3 justify-center flex-1 lg:flex-col lg:flex-none p-3 lg:w-2/5">
+                <div className="z-1 font-pixelify flex flex-wrap sm:flex-col gap-3 p-3 items-center justify-center flex-1 lg:flex-col lg:flex-none lg:w-2/5">
                     <a href="#about" className="w-fit hover:[&>span]:w-3/4">
                         About
-                        <span className="block w-0 border-t transition-all duration-100"></span>
+                        <span className="block mx-auto w-0 border-t transition-all duration-100"></span>
                     </a>
                     <a href="#skills" className="w-fit hover:[&>span]:w-3/4">
                         Skills
-                        <span className="block w-0 border-t transition-all duration-100"></span>
+                        <span className="block mx-auto w-0 border-t transition-all duration-100"></span>
                     </a>
                     <a href="#projects" className="w-fit hover:[&>span]:w-3/4">
                         Projects
-                        <span className="block w-0 border-t transition-all duration-100"></span>
+                        <span className="block mx-auto w-0 border-t transition-all duration-100"></span>
                     </a>
                     <a
                         href="#experience"
                         className="w-fit hover:[&>span]:w-3/4"
                     >
                         Experience
-                        <span className="block w-0 border-t transition-all duration-100"></span>
+                        <span className="block mx-auto w-0 border-t transition-all duration-100"></span>
                     </a>
                 </div>
-            </footer>
+            </div>
             <hr className="border-primary/70" />
             <div className="bg-primary text-white p-3 w-full text-center text-sm capitalize">
                 &#xA9; 2026. Created for Myself with ❤️ for learning.
             </div>
-        </>
+        </footer>
     );
 }

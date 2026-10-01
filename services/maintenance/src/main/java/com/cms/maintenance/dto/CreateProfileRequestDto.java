@@ -12,6 +12,7 @@ public record CreateProfileRequestDto(
         @NotEmpty String phone,
         @NotEmpty String designation,
         @NotEmpty String location,
+        @NotEmpty String availability,
         @NotEmpty MultipartFile banner) {
 
 }

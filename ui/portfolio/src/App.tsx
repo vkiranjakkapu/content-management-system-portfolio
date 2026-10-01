@@ -1,6 +1,7 @@
 import "./App.css";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { ErrorResponse } from "./api/api";
 import AboutComponent from "./components/AboutComponent";
 import ContactComponent from "./components/ContactComponent";
 import ExperienceComponent from "./components/ExperienceComponent";
@@ -8,10 +9,106 @@ import FooterComponent from "./components/FooterComponent";
 import ProjectsComponent from "./components/ProjectsComponent";
 import SeoComponent from "./components/SeoComponent";
 import SkillsComponent from "./components/SkillsComponent";
-import type { Publication } from "./services/PublicationService";
+import type {
+    Profile,
+    Project,
+    Publication,
+} from "./services/PublicationService";
+import PublicationService from "./services/PublicationService";
 
 function App() {
-    const [content] = useState<Publication | null>(null);
+    const [content, setContent] = useState<Publication | null>(null);
+
+    function fetchProfileMedia(profile: Profile) {
+        PublicationService.fetchMediaFromList<Map<string, Blob>>({
+            ids: [profile.dp.id, profile.banner.id],
+        })
+            .then((resp) => {
+                if (resp.status === 200) {
+                    const mediaMap = resp.data;
+
+                    setContent((prev) =>
+                        prev
+                            ? {
+                                  ...prev,
+                                  profile: {
+                                      ...profile,
+                                      dp: {
+                                          ...profile.dp,
+                                          media:
+                                              mediaMap.get(profile.dp.id) ??
+                                              profile.dp.media,
+                                      },
+                                      banner: {
+                                          ...profile.banner,
+                                          media:
+                                              mediaMap.get(profile.banner.id) ??
+                                              profile.banner.media,
+                                      },
+                                  },
+                              }
+                            : null,
+                    );
+                }
+            })
+            .catch((e: ErrorResponse) => {
+                console.log(e);
+            });
+    }
+
+    function fetchProjectsMedia(projects: Project[]) {
+        if (projects.length == 0) {
+            return;
+        }
+
+        PublicationService.fetchMediaFromList<Map<string, Blob>>({
+            ids: projects.flatMap((prj) => prj.gallery).map((md) => md.id),
+        })
+            .then((resp) => {
+                if (resp.status == 200) {
+                    const mediaMap = resp.data;
+
+                    setContent((prev) =>
+                        prev
+                            ? {
+                                  ...prev,
+                                  projects: projects.map(
+                                      (prj) =>
+                                          ({
+                                              ...prj,
+                                              gallery: prj.gallery.map(
+                                                  (md) => ({
+                                                      ...md,
+                                                      media: mediaMap.get(
+                                                          md.id,
+                                                      ),
+                                                  }),
+                                              ),
+                                          }) as Project,
+                                  ),
+                              }
+                            : null,
+                    );
+                }
+            })
+            .catch((e: ErrorResponse) => {
+                console.log(e);
+            });
+    }
+
+    useEffect(() => {
+        PublicationService.getPublicationContent<Publication>()
+            .then((resp) => {
+                if (resp.status == 200) {
+                    setContent(resp.data as Publication);
+                    fetchProfileMedia(resp.data.profile);
+                    fetchProjectsMedia(resp.data.projects);
+                }
+            })
+            .catch((e: ErrorResponse) => {
+                console.log(e.errorMessage);
+            });
+    }, []);
 
     return (
         <div className="relative">

@@ -59,9 +59,10 @@ html {
         font-size: clamp(0.725rem, 4vw + 0.25rem, 1.25rem);
     }
 
-    h1,.h1 {
+    h1,
+    .h1 {
         @apply text-primary font-bold;
-        font-size: clamp(2.25rem, 6vw + 1rem,6rem);
+        font-size: clamp(2.25rem, 6vw + 1rem, 6rem);
         line-height: var(--tw-leading, var(--text-8xl--line-height));
         font-family: var(--font-playfair);
 
@@ -77,6 +78,6 @@ html {
 
     button,
     .btn-primary {
-        @apply text-lg font-playfair cursor-pointer bg-primary text-white px-2 py-1 outline-1 outline-primary outline-offset-2 hover:animate-pulse;
+        @apply text-lg font-playfair cursor-pointer bg-primary text-white px-2 py-1 outline-1 outline-primary outline-offset-2 translate-x-0.5 -translate-y-0.5 md:translate-y-0 hover:animate-pulse;
     }
 }
