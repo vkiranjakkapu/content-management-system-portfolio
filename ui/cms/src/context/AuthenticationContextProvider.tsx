@@ -68,6 +68,7 @@ export default function AuthenticationContextProvider({
             setProfile({} as UserProfile);
         } catch (error) {
             console.log(error);
+            window.alert((error as ErrorResponse).errorMessage);
         }
     }
 
