@@ -23,7 +23,10 @@ export default function AuthenticationContextProvider({
     const loadProfile = useCallback(() => {
         AuthService.getProfile<UserProfile>()
             .then((resp) => {
-                setProfile(resp.data);
+                setProfile({
+                    ...resp.data,
+                    name: `${resp.data.firstName} ${resp.data.lastName}`,
+                });
                 setStatus(AuthStatus.AUTHENTICATED);
             })
             .catch((e: ErrorResponse) => {

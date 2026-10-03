@@ -25,7 +25,8 @@ export default function ActionButton({
     return (
         <button
             {...props}
-            className={`flex items-center gap-1 ${props.disabled && `pointer-events-none opacity-70`} ${props.className}`}
+            className={`flex items-center gap-1 text-md ${props.disabled && `pointer-events-none opacity-70`} ${props.className}`}
+            type={props.type ?? "button"}
         >
             {spinner && spinner.loading ? (
                 <SpinnerComponent

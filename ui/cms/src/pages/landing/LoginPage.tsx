@@ -39,7 +39,7 @@ export default function LoginPage() {
         <main className="h-screen overflow-hidden flex items-center justify-center">
             <form
                 onSubmit={handleSignIn}
-                className="m-4 p-4 md:p-6 lg:p-10 bg-background-secondary space-y-3 w-full md:w-2/5 rounded-md shadow-lg"
+                className="m-4 p-4 md:p-6 lg:p-10 bg-section-theme space-y-3 w-full md:w-2/5 rounded-md shadow-lg"
             >
                 <div className="relative rounded-md shadow-sm bg-background min-h-30 py-3 flex flex-col items-center justify-center">
                     <div

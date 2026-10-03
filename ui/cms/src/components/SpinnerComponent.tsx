@@ -1,5 +1,10 @@
 export type SpinnerComponentProps = {
     /**
+     * To handle conditional display of spinner
+     */
+    isLoading?: boolean;
+
+    /**
      * To show custom message after the spinner wheel.
      */
     text?: string;
@@ -28,7 +33,7 @@ export default function SpinnerComponent({
 }: SpinnerComponentProps) {
     return (
         <div
-            className={`container inline-flex items-center gap-1.5 justify-center ${customize}`}
+            className={`w-full flex items-center gap-1.5 justify-center ${customize}`}
         >
             <div
                 className={`border-2 border-slate-300 border-t-primary animate-spin rounded-full ${size ?? "size-4"}`}

@@ -1,44 +1,3 @@
-import type { IconType } from "react-icons";
-import {
-    BsGithub,
-    BsInstagram,
-    BsLinkedin,
-    BsSpotify,
-    BsWhatsapp,
-} from "react-icons/bs";
-import { apiClient, type ApiResponse } from "../api/api";
-
-class PublicationService {
-    async getPublicationContent<T>(): Promise<ApiResponse<T>> {
-        return apiClient({
-            type: "get",
-            uri: "/publish/publication",
-        });
-    }
-
-    async fetchMediaById<T>(mediaId: string): Promise<ApiResponse<T>> {
-        return apiClient({
-            type: "get",
-            uri: "/media/fetch/" + mediaId,
-            config: {
-                responseType: "blob",
-            },
-        });
-    }
-
-    async fetchMediaFromList<T>(payload: {
-        ids: string[];
-    }): Promise<ApiResponse<T>> {
-        return apiClient({
-            type: "get",
-            uri: "/media/fetch/",
-            payload,
-        });
-    }
-}
-
-export default new PublicationService();
-
 export type Publication = {
     id: string;
     settings: DisplaySettings;
@@ -52,6 +11,7 @@ export type Publication = {
 };
 
 export type SeoSettings = {
+    id: string;
     title?: string;
     description?: string;
     canonicalUrl?: string;
@@ -62,11 +22,13 @@ export type SeoSettings = {
 };
 
 export type About = {
+    id: string;
     name: string;
     summary: string;
 };
 
 export type Experience = {
+    id: string;
     company: string;
     position: string;
     startDate: string;
@@ -75,6 +37,7 @@ export type Experience = {
 };
 
 export type Project = {
+    id: string;
     title: string;
     techStack: Skill[];
     gallery: Media[];
@@ -82,6 +45,7 @@ export type Project = {
 };
 
 export type DisplaySettings = {
+    id: string;
     showSkills: boolean;
     showProjects: boolean;
     showExperience: boolean;
@@ -89,6 +53,7 @@ export type DisplaySettings = {
 };
 
 export type Profile = {
+    id: string;
     dp: Media;
     email: string;
     name: string;
@@ -100,11 +65,13 @@ export type Profile = {
 };
 
 export type Skill = {
+    id: string;
     tech: string;
     name: string;
 };
 
 export type SocialProfile = {
+    id: string;
     name: SocialMediaType;
     url: string;
 };
@@ -126,9 +93,10 @@ export type Media = {
     media: Blob;
     mediaType: string;
     tag: MediaTag;
+    createdAt: string;
 };
 
-const MediaTag = {
+export const MediaTag = {
     PROFILE: "PROFILE",
     UI: "UI",
     BANNER: "BANNER",
@@ -138,11 +106,3 @@ const MediaTag = {
 } as const;
 
 export type MediaTag = (typeof MediaTag)[keyof typeof MediaTag];
-
-export const SocialIconMap: Record<SocialMediaType, IconType> = {
-    [SocialMediaType.LINKEDIN]: BsLinkedin,
-    [SocialMediaType.WHATSAPP]: BsWhatsapp,
-    [SocialMediaType.GITHUB]: BsGithub,
-    [SocialMediaType.SPOTIFY]: BsSpotify,
-    [SocialMediaType.INSTAGRAM]: BsInstagram,
-};

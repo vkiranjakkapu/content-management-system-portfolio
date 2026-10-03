@@ -3,10 +3,10 @@ import { type TableHTMLAttributes } from "react";
 import { renderCellValue, type IconProps } from "./commons";
 import type { InputComponentProps } from "./formelements/InputComponent";
 import type { PaginationButtonsProps } from "./pagination/PaginationButtons";
+import SectionLayoutComponent from "./SectionLayoutComponent";
 import SpinnerComponent, {
     type SpinnerComponentProps,
 } from "./SpinnerComponent";
-import SectionLayoutComponent from "./SectionLayoutComponent";
 
 /**
  * Configuration properties for the generic {@link TableComponent}.
@@ -340,7 +340,7 @@ export default function TableComponent<T>({
             search={search}
             pagination={pagination}
         >
-            <div className="container overflow-x-auto overflow-y-clip rounded-xl">
+            <div className="overflow-x-auto overflow-y-clip rounded-md">
                 {loading && loading.showSpinner ? (
                     <SpinnerComponent
                         {...loading.spinner}
@@ -442,10 +442,7 @@ export default function TableComponent<T>({
 
                             {body.length == 0 && (
                                 <tr>
-                                    <td
-                                        colSpan={3}
-                                        className="fullSpan capitalize text-center"
-                                    >
+                                    <td className="fullSpan capitalize text-center">
                                         No Data to display
                                     </td>
                                 </tr>

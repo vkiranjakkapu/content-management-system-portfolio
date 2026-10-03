@@ -74,6 +74,8 @@ export async function apiClient<T>({
             url = AppConfig.CMS_SOCIAL_PROFILES_URL;
         } else if (service == "media") {
             url = AppConfig.CMS_MEDIA_URL;
+        } else if (service == "about") {
+            url = AppConfig.CMS_ABOUT_URL;
         } else if (service == "skills") {
             url = AppConfig.CMS_SKILLS_URL;
         } else if (service == "projects") {

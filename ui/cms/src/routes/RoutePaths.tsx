@@ -1,6 +1,15 @@
 export const RoutePaths = {
     LOGIN: "/",
     DASHBOARD: "/dashboard",
+    PUBLICATIONS: "/publications",
+    CONTACTS: "/contacts",
     PROFILE: "/profile",
-    MANAGE: "/manage",
+    LIBRARY: "/library",
+    ABOUT: "/about",
+    SKILLS: "/skills",
+    PROJECTS: "/projects",
+    PROJECT_DETAILS: "/projects/:prjId",
+    EXPERIENCE: "/experience",
+    EXPERIENCE_DETAILS: "/experience/:expId",
+    ACCOUNT: "/account",
 } as const;

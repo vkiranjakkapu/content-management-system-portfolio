@@ -13,11 +13,19 @@
 
 @layer base {
     body {
-        @apply font-noto-sans;
+        @apply font-noto-sans text-slate-700 dark:text-white;
     }
 
     * {
-        @apply border-background transition-all duration-100;
+        @apply border-slate-300 dark:border-background/20 transition-all duration-100;
+    }
+
+    .bg-section-theme {
+        @apply bg-background-secondary dark:bg-gray-900;
+    }
+
+    section.section-component .section-component {
+        @apply bg-transparent shadow-none! p-0!;
     }
 
     h1,
@@ -27,17 +35,19 @@
 
     input,
     slect,
-    text-area {
-        @apply w-full px-1.5 py-1 outline-0 border border-primary/30 origin-center focus:ring-2 focus:ring-offset-1 focus:ring-primary/50;
+    textarea {
+        @apply w-full px-1.5 py-1 outline-0 border border-primary/30 dark:border-background/20 origin-center focus:ring-2 focus:ring-offset-1 focus:ring-primary/50 dark:focus:ring-background/50;
     }
 
     button,
     .btn-primary {
         @apply bg-primary text-white outline-primary px-2 py-1 outline outline-offset-1 m-0.5 cursor-pointer hover:bg-primary/90;
     }
-}
 
-@layer components {
+    .btn-secondary {
+        @apply bg-slate-300 rounded text-primary outline-slate-300 dark:outline-slate-600 hover:text-white;
+    }
+
     .font-noto-sans {
         font-family: "Noto Sans", sans-serif;
         font-optical-sizing: auto;
@@ -46,13 +56,19 @@
         font-variation-settings: "wdth" 100;
     }
 
+    .text-md {
+        font-size: 0.95rem;
+    }
+}
+
+@layer components {
     .form-group {
-        @apply flex flex-wrap items-center justify-center outline-none focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-1 focus-within:border-transparent;
+        @apply flex flex-col justify-start items-start gap-2 p-1 outline-none focus-within:ring-2 focus-within:ring-primary/50 focus-within:ring-offset-1 focus-within:border-transparent;
         & :is(input, select, textarea) {
             @apply outline-none p-1 flex-1;
         }
         & textarea {
-            @apply p-0.5;
+            @apply p-0.5 flex-1;
         }
     }
 }
