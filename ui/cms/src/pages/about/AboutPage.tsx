@@ -110,6 +110,7 @@ export default function AboutPage() {
 
     // * Data Fetch
     const [allAbouts, setAllAbouts] = useState<About[]>([]);
+    const [emptyProfile, setEmptyProfile] = useState<boolean>(true);
 
     const [fetchProgress, setFetchProgress] = useState<boolean>(true);
 
@@ -117,8 +118,12 @@ export default function AboutPage() {
         AboutService.getAbouts<About[]>()
             .then((resp) => {
                 setAllAbouts(resp.data);
+                setEmptyProfile(false);
             })
             .catch((e: ErrorResponse) => {
+                if (e.errorCode === "BUS-2001") {
+                    setEmptyProfile(true);
+                }
                 setNotifications("info", {
                     type: "info",
                     messages: [e.errorMessage],
@@ -168,7 +173,7 @@ export default function AboutPage() {
                     onClick() {
                         setModalOpen("new");
                     },
-                    disabled: allAbouts.length == 0,
+                    disabled: emptyProfile,
                 },
             ]}
             search={

@@ -52,36 +52,43 @@ public class ProfileServiceImp implements ProfileService {
 
     @Override
     public Profile createProfile(CreateProfileRequestDto request) {
-        Media dp = mediaService.createMedia(CreateMediaRequestDto.builder()
-                .file(request.dp())
-                .tag(MediaTag.PROFILE)
-                .build(), getCurrentUserProfile());
-        Media banner = mediaService.createMedia(CreateMediaRequestDto.builder()
-                .file(request.banner())
-                .tag(MediaTag.BANNER)
-                .build(), getCurrentUserProfile());
+
+        try {
+            getCurrentUserProfile();
+            throw new BusinessException(BusinessExceptions.PROFILE_ALREADY_EXISTS,
+                    "Profile already exists for this user.");
+        } catch (BusinessException e) {
+        }
 
         Profile profile = Profile.builder()
                 .userId(currentUser.userId())
-                .dp(dp)
                 .email(request.email())
                 .name(request.name())
                 .phone(request.phone())
                 .designation(request.designation())
                 .location(request.location())
                 .availability(request.availability())
-                .banner(banner)
                 .build();
 
-        dp.setProfile(profile);
-        banner.setProfile(profile);
+        Profile savedProfile = profileRepository.save(profile);
 
-        return profileRepository.save(profile);
-    }
+        Optional.ofNullable(request.dp()).ifPresent(dpReq -> {
+            Media dp = mediaService.createMedia(CreateMediaRequestDto.builder()
+                    .file(request.dp())
+                    .tag(MediaTag.PROFILE)
+                    .build(), savedProfile);
+            savedProfile.setDp(dp);
+        });
 
-    @Override
-    public Profile updateProfile(Profile profile) {
-        return profileRepository.save(profile);
+        Optional.ofNullable(request.banner()).ifPresent(bannerReq -> {
+            Media banner = mediaService.createMedia(CreateMediaRequestDto.builder()
+                    .file(request.banner())
+                    .tag(MediaTag.BANNER)
+                    .build(), savedProfile);
+            savedProfile.setDp(banner);
+        });
+
+        return profileRepository.save(savedProfile);
     }
 
     @Override

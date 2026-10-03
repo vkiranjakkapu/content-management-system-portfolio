@@ -1,7 +1,9 @@
 import { EllipsisVerticalIcon, TrashIcon } from "@heroicons/react/24/outline";
 import ActionButton from "../../components/ActionButtonComponent";
 import Notification from "../../components/notifications/Notification";
-import SpinnerComponent from "../../components/SpinnerComponent";
+import SpinnerComponent, {
+    type SpinnerComponentProps,
+} from "../../components/SpinnerComponent";
 import type { Media } from "../../services/DtoModels";
 import { UploadStatus } from "../../services/MediaService";
 import { formatBytes } from "../../utils/FileUploadHelper";
@@ -15,6 +17,8 @@ type MasonryComponentProps = {
         | Preview[];
     isPreview?: boolean;
 
+    spinner?: SpinnerComponentProps;
+
     handleImageClick?: (media: Media) => void;
     handleEdit?: (media: Media) => void;
     handleDelete?: (media: Media) => void;
@@ -26,13 +30,16 @@ type MasonryComponentProps = {
 export default function MasonryComponent({
     resources,
     isPreview = false,
+    spinner,
     handleImageClick,
     handleEdit,
     handleDelete,
     handleOnLoad,
     handleDiscard,
 }: MasonryComponentProps) {
-    return resources.length > 0 ? (
+    return spinner && spinner.isLoading ? (
+        <SpinnerComponent {...spinner} />
+    ) : resources.length > 0 ? (
         <div className="columns-1 sm:columns-2 md:columns-3 2xl:columns-4">
             {resources.map((rsc) => {
                 const media = !isPreview

@@ -30,6 +30,7 @@ export default function LibraryPage() {
     const updateNotifications = notifications["update"] ?? null;
 
     const [allResources, setAllResources] = useState<Media[]>([]);
+    const [emptyProfile, setEmptyProfile] = useState<boolean>(true);
 
     const [fetchProgress, setFetchProgress] = useState<boolean>(true);
     const [actionProgress, setActionProgress] = useState<boolean>(false);
@@ -56,12 +57,18 @@ export default function LibraryPage() {
             .then((resp) => {
                 setAllResources(resp.data);
                 fetchMedia(resp.data);
+                setEmptyProfile(false);
             })
             .catch((e: ErrorResponse) => {
+                if (e.errorCode === "BUS-2001") {
+                    setEmptyProfile(true);
+                }
                 setNotifications("fetch", {
                     type: "info",
                     messages: [e.errorMessage],
                 });
+            })
+            .finally(() => {
                 setFetchProgress(false);
             });
     }, [setNotifications, fetchMedia]);
@@ -262,7 +269,7 @@ export default function LibraryPage() {
                         onClick() {
                             setResourceModalType("new");
                         },
-                        disabled: allResources.length == 0,
+                        disabled: emptyProfile,
                     },
                 ]}
                 spinner={{

@@ -86,7 +86,7 @@ export default function SidebarComponent({
 
     return (
         <aside
-            className={`sidebar flex flex-col justify-between p-4 lg:p-5 fixed lg:sticky bg-section-theme shadow-lg h-full min-w-68 duration-150 *:space-y-3`}
+            className={`sidebar flex flex-col justify-between p-4 lg:p-5 fixed z-1000 lg:sticky bg-section-theme shadow-lg h-full min-w-68 duration-150 *:space-y-3`}
         >
             <div className="divide-y">
                 <div className="pb-4 lg:pb-5 flex items-center gap-2 font-semibold">

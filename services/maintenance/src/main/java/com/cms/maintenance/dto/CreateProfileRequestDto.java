@@ -6,13 +6,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 
 public record CreateProfileRequestDto(
-        @NotEmpty MultipartFile dp,
+        MultipartFile dp,
         @NotEmpty @Email String email,
         @NotEmpty String name,
         @NotEmpty String phone,
         @NotEmpty String designation,
         @NotEmpty String location,
         @NotEmpty String availability,
-        @NotEmpty MultipartFile banner) {
+        MultipartFile banner) {
 
 }

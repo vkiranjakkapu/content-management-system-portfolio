@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cms.maintenance.dto.ApiResponseDto;
 import com.cms.maintenance.dto.CreateProfileRequestDto;
-import com.cms.maintenance.dto.ProfileResponseDto;
 import com.cms.maintenance.dto.UpdateProfileRequestDto;
+import com.cms.maintenance.models.Profile;
 import com.cms.maintenance.services.ProfileService;
 
 import lombok.RequiredArgsConstructor;
@@ -28,23 +28,23 @@ public class ProfileController {
     private final ProfileService profileService;
 
     @GetMapping("/")
-    public ResponseEntity<ApiResponseDto<ProfileResponseDto>> getMyProfile() {
-        return ResponseEntity.ok(ApiResponseDto.<ProfileResponseDto>builder()
-                .data(profileService.mapToResponse(profileService.getCurrentUserProfile())).build());
+    public ResponseEntity<ApiResponseDto<Profile>> getMyProfile() {
+        return ResponseEntity.ok(ApiResponseDto.<Profile>builder()
+                .data(profileService.getCurrentUserProfile()).build());
     }
 
     @PostMapping("/")
-    public ResponseEntity<ApiResponseDto<ProfileResponseDto>> createProfile(
+    public ResponseEntity<ApiResponseDto<Profile>> createProfile(
             @ModelAttribute CreateProfileRequestDto request) {
-        return ResponseEntity.ok(ApiResponseDto.<ProfileResponseDto>builder()
-                .data(profileService.mapToResponse(profileService.createProfile(request))).build());
+        return ResponseEntity.ok(ApiResponseDto.<Profile>builder()
+                .data(profileService.createProfile(request)).build());
     }
 
     @PutMapping("/")
-    public ResponseEntity<ApiResponseDto<ProfileResponseDto>> updateProfile(
+    public ResponseEntity<ApiResponseDto<Profile>> updateProfile(
             @ModelAttribute UpdateProfileRequestDto request) {
-        return ResponseEntity.ok(ApiResponseDto.<ProfileResponseDto>builder()
-                .data(profileService.mapToResponse(profileService.updateProfile(request))).build());
+        return ResponseEntity.ok(ApiResponseDto.<Profile>builder()
+                .data(profileService.updateProfile(request)).build());
     }
 
     @DeleteMapping("/{profileId}")

@@ -66,7 +66,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             className={`relative flex gap-3 h-screen ${openMenu ? "[&>.sidebar]:translate-x-0" : "[&>.sidebar]:-translate-x-full lg:[&>.sidebar]:translate-x-0"}`}
         >
             <div
-                className={`absolute inset-0 backdrop-blur-xs bg-primary/20 dark:bg-slate-600/40 lg:opacity-0 lg:pointer-events-none ${openMenu ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"} duration-150`}
+                className={`absolute z-1000 inset-0 backdrop-blur-xs bg-primary/20 dark:bg-slate-600/40 lg:opacity-0 lg:pointer-events-none ${openMenu ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"} duration-150`}
                 onClick={() => setOpenMenu(false)}
             ></div>
             <SidebarComponent theme={theme} toggleTheme={toggleTheme} />
