@@ -6,17 +6,18 @@ export type SelectComponentProps = SelectHTMLAttributes<HTMLSelectElement> & {
         text?: string;
     }[];
     emptyOption?: string;
-    className?: string;
 };
 
 export default function SelectComponent({
     options,
     emptyOption,
-    className,
     ...props
 }: SelectComponentProps) {
     return (
-        <select {...props} className={`${className} ${props.disabled && `opacity-60`}`}>
+        <select
+            {...props}
+            className={`${props.className} ${props.disabled && `opacity-60 pointer-events-none cursor-not-allowed`}`}
+        >
             <option value="">{emptyOption ?? "Select"}</option>
             {options.map((opt, idx) => {
                 return (

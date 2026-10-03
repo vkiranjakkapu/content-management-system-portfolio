@@ -9,28 +9,25 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.cms.maintenance.dto.ApiResponseDto;
 import com.cms.maintenance.dto.CreateMediaRequestDto;
 import com.cms.maintenance.dto.FetchMediaByIDsRequest;
 import com.cms.maintenance.dto.MediaResponseDto;
 import com.cms.maintenance.dto.UpdateMediaRequestDto;
-import com.cms.maintenance.enums.MediaTag;
 import com.cms.maintenance.models.Media;
 import com.cms.maintenance.services.MediaService;
 import com.cms.maintenance.services.ProfileService;
 import com.cms.maintenance.services.StorageService;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -73,12 +70,11 @@ public class MediaController {
 	}
 
 	@PostMapping("/")
-	public ResponseEntity<ApiResponseDto<MediaResponseDto>> createMedia(@NotEmpty @RequestParam MultipartFile file,
-			@NotEmpty @RequestParam MediaTag tag) {
+	public ResponseEntity<ApiResponseDto<MediaResponseDto>> createMedia(
+			@Valid @ModelAttribute CreateMediaRequestDto request) {
 		return ResponseEntity.ok(ApiResponseDto.<MediaResponseDto>builder()
 				.data(mediaService.mapToResponse(
-						mediaService.createMedia(CreateMediaRequestDto.builder().file(file)
-								.tag(tag).build()),
+						mediaService.createMedia(request, profileService.getCurrentUserProfile()),
 						true))
 				.build());
 	}

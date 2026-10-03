@@ -55,11 +55,11 @@ public class ProfileServiceImp implements ProfileService {
         Media dp = mediaService.createMedia(CreateMediaRequestDto.builder()
                 .file(request.dp())
                 .tag(MediaTag.PROFILE)
-                .build());
+                .build(), getCurrentUserProfile());
         Media banner = mediaService.createMedia(CreateMediaRequestDto.builder()
                 .file(request.banner())
                 .tag(MediaTag.BANNER)
-                .build());
+                .build(), getCurrentUserProfile());
 
         Profile profile = Profile.builder()
                 .userId(currentUser.userId())
@@ -118,7 +118,7 @@ public class ProfileServiceImp implements ProfileService {
             Media dp = mediaService.createMedia(CreateMediaRequestDto.builder()
                     .file(dpReq)
                     .tag(MediaTag.PROFILE)
-                    .build());
+                    .build(), getCurrentUserProfile());
             dp.setProfile(profile);
             profile.setDp(dp);
         });
@@ -133,7 +133,7 @@ public class ProfileServiceImp implements ProfileService {
             Media banner = mediaService.createMedia(CreateMediaRequestDto.builder()
                     .file(bannerReq)
                     .tag(MediaTag.BANNER)
-                    .build());
+                    .build(), getCurrentUserProfile());
             banner.setProfile(profile);
             profile.setBanner(banner);
         });

@@ -34,9 +34,9 @@
     }
 
     input,
-    slect,
+    select,
     textarea {
-        @apply w-full px-1.5 py-1 outline-0 border border-primary/30 dark:border-background/20 origin-center focus:ring-2 focus:ring-offset-1 focus:ring-primary/50 dark:focus:ring-background/50;
+        @apply w-full px-1.5 py-1 outline-0 border border-primary/30 m-0.5 dark:border-background/20 origin-center focus:ring-2 focus:ring-offset-1 focus:ring-primary/50 dark:focus:ring-background/50;
     }
 
     button,

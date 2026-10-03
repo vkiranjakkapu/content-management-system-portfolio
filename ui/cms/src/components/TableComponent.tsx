@@ -2,6 +2,7 @@ import { type TableHTMLAttributes } from "react";
 
 import { renderCellValue, type IconProps } from "./commons";
 import type { InputComponentProps } from "./formelements/InputComponent";
+import Notification from "./notifications/Notification";
 import type { PaginationButtonsProps } from "./pagination/PaginationButtons";
 import SectionLayoutComponent from "./SectionLayoutComponent";
 import SpinnerComponent, {
@@ -346,7 +347,7 @@ export default function TableComponent<T>({
                         {...loading.spinner}
                         animate={`${loading.spinner?.animate ?? "animate-pulse"}`}
                     />
-                ) : (
+                ) : body.length > 0 ? (
                     <table
                         className={`
                         w-full min-w-max text-left text-sm
@@ -449,6 +450,11 @@ export default function TableComponent<T>({
                             )}
                         </tbody>
                     </table>
+                ) : (
+                    <Notification
+                        type="info"
+                        messages={["No Data to display"]}
+                    />
                 )}
             </div>
         </SectionLayoutComponent>

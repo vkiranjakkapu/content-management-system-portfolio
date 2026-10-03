@@ -18,7 +18,7 @@ public interface MediaService {
 
     Media getMediaById(UUID id);
 
-    Media createMedia(CreateMediaRequestDto request);
+    Media createMedia(CreateMediaRequestDto request, Profile profile);
 
     Media updateMedia(UpdateMediaRequestDto request);
 

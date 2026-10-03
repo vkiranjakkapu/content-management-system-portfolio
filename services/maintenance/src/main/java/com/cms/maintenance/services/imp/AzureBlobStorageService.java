@@ -2,7 +2,6 @@ package com.cms.maintenance.services.imp;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.UUID;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,14 +26,9 @@ public class AzureBlobStorageService implements StorageService {
     }
 
     @Override
-    public Media saveMedia(String fileName, MultipartFile file) {
+    public Media saveMedia(Media media, MultipartFile file) {
 
-        Media media = new Media();
-        media.setId(UUID.randomUUID());
-        media.setMediaName(fileName);
-        media.setMediaType(file.getContentType());
-
-        String blobName = media.getId() + "-" + fileName;
+        String blobName = media.getId() + "-" + media.getMediaName();
         media.setMediaPath(blobName);
 
         BlobClient blobClient = containerClient.getBlobClient(blobName);

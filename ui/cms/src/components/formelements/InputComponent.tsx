@@ -10,8 +10,8 @@ export default function InputComponent({
 }: InputComponentProps) {
     return (
         <input
-            type="text"
             {...props}
+            type={props.type ?? "text"}
             className={`${className} ${props.disabled ? `pointer-events-none cursor-not-allowed opacity-70` : ``}`}
         />
     );

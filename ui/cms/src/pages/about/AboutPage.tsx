@@ -297,7 +297,7 @@ export default function AboutPage() {
                             type="submit"
                             text="Confirm"
                             spinner={{
-                                loading: actionProgress,
+                                isLoading: actionProgress,
                             }}
                             icon={CheckCircleIcon}
                             className="ms-auto"

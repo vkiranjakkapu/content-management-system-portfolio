@@ -9,9 +9,7 @@ export type ActionButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
     customiseIcon?: string;
     customiseText?: string;
     text?: string;
-    spinner?: SpinnerComponentProps & {
-        loading?: boolean;
-    };
+    spinner?: SpinnerComponentProps
 };
 
 export default function ActionButton({
@@ -28,7 +26,7 @@ export default function ActionButton({
             className={`flex items-center gap-1 text-md ${props.disabled && `pointer-events-none opacity-70`} ${props.className}`}
             type={props.type ?? "button"}
         >
-            {spinner && spinner.loading ? (
+            {spinner && spinner.isLoading ? (
                 <SpinnerComponent
                     {...spinner}
                     customize={`w-fit ${spinner.customize}`}

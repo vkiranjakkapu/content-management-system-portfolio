@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.UUID;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -35,11 +34,9 @@ public class LocalStorageServiceImp implements StorageService {
     }
 
     @Override
-    public Media saveMedia(String fileName, MultipartFile file) {
+    public Media saveMedia(Media media, MultipartFile file) {
 
         try {
-            Media media = new Media();
-            media.setId(UUID.randomUUID());
             String storageId = media.getId().toString();
 
             Path uniqueDir = getUserPath().resolve(storageId);
@@ -47,12 +44,10 @@ public class LocalStorageServiceImp implements StorageService {
                 Files.createDirectories(uniqueDir);
             }
 
-            Path targetDir = uniqueDir.resolve(fileName);
+            Path targetDir = uniqueDir.resolve(media.getMediaName());
             Files.copy(file.getInputStream(), targetDir, StandardCopyOption.REPLACE_EXISTING);
 
-            media.setMediaName(fileName);
             media.setMediaPath(targetDir.toString());
-            media.setMediaType(file.getContentType());
 
             return media;
         } catch (IOException e) {
