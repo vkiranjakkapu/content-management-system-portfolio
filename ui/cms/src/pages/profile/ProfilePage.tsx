@@ -32,15 +32,15 @@ export default function ProfilePage() {
     const actionNotifications = notifications["action"] ?? null;
 
     const fetchMedia = useCallback(
-        async (ids: string[]): Promise<Map<string, Blob>> => {
+        async (ids: string[]): Promise<Record<string, Blob>> => {
             try {
                 const resp = await MediaService.fetchMediaByList<
-                    Map<string, Blob>
+                    Record<string, Blob>
                 >({ ids });
                 return resp.data;
             } catch (error) {
                 console.error("Failed to fetch media:", error);
-                return new Map<string, Blob>();
+                return {};
             }
         },
         [],
@@ -62,7 +62,7 @@ export default function ProfilePage() {
                         setAllMedia(
                             allMedia.map((md) => ({
                                 ...md,
-                                media: mediaMap.get(md.id)!,
+                                media: mediaMap[md.id]!,
                             })),
                         );
                     })
@@ -103,7 +103,7 @@ export default function ProfilePage() {
                                 ? {
                                       dp: {
                                           ...prev.dp,
-                                          media: mediaMap.get(prev.dp.id)!,
+                                          media: mediaMap[prev.dp.id]!,
                                       },
                                   }
                                 : {}),
@@ -111,7 +111,7 @@ export default function ProfilePage() {
                                 ? {
                                       banner: {
                                           ...prev.banner,
-                                          media: mediaMap.get(prev.banner.id)!,
+                                          media: mediaMap[prev.banner.id]!,
                                       },
                                   }
                                 : {}),
@@ -259,7 +259,7 @@ export default function ProfilePage() {
                                 (Edited)
                             </span>
                         </div>
-                        <hr className="lg:hidden border-t order-3" />
+                        <hr className="md:hidden border-t order-3" />
 
                         {/* Banner Image Box */}
                         <div className="md:row-span-2 md:col-span-2 flex flex-col justify-between order-4 md:order-2">
@@ -337,7 +337,7 @@ export default function ProfilePage() {
                                 (Edited)
                             </span>
                         </div>
-                        <hr className="lg:hidden border-t order-6" />
+                        <hr className="md:hidden border-t order-6" />
 
                         {/* Availability */}
                         <div className="order-7">

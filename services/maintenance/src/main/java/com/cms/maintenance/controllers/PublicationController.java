@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cms.maintenance.dto.ApiResponseDto;
-import com.cms.maintenance.dto.PublicationResponseDto;
 import com.cms.maintenance.dto.UpdatePublicationRequestDto;
 import com.cms.maintenance.models.Publication;
 import com.cms.maintenance.services.PublicationService;
@@ -26,14 +25,6 @@ import lombok.RequiredArgsConstructor;
 public class PublicationController {
 
     private final PublicationService publicationService;
-
-    @GetMapping("/publication")
-    public ResponseEntity<ApiResponseDto<PublicationResponseDto>> getPublication() {
-        return ResponseEntity
-                .ok(ApiResponseDto.<PublicationResponseDto>builder()
-                        .data(publicationService.mapToResponse(publicationService.getLatestPublicPublication()))
-                        .build());
-    }
 
     @GetMapping("/{publicationId}")
     public ResponseEntity<ApiResponseDto<Publication>> getPublicationById(@PathVariable UUID publicationId) {

@@ -35,7 +35,7 @@ public class MediaServiceImp implements MediaService {
 
     @Override
     public List<Media> getAllMedia(Profile profile) {
-        return mediaRepository.findAllByProfile(profile);
+        return mediaRepository.findAllByProfileOrderByUpdatedAtDesc(profile);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class MediaServiceImp implements MediaService {
             return mediaRepository.save(media);
 
         } catch (Exception e) {
-
+            e.printStackTrace();
             mediaRepository.delete(media);
             storageService.deleteMedia(media);
 

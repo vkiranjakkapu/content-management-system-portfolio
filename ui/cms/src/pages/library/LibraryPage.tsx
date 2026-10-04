@@ -38,13 +38,19 @@ export default function LibraryPage() {
     const fetchMedia = useCallback((resources: Media[]) => {
         if (resources.length == 0) return;
 
-        MediaService.fetchMediaByList<Map<string, Blob>>({
+        MediaService.fetchMediaByList<Record<string, Blob>>({
             ids: resources.map((md) => md.id),
         })
             .then((resp) => {
-                resources.map((md) => ({ ...md, media: resp.data.get(md.id) }));
+                const updatedMedia = resources.map((md) => ({
+                    ...md,
+                    media: resp.data[md.id]!,
+                }));
+
+                setAllResources(updatedMedia);
             })
             .catch((e: ErrorResponse) => {
+                console.log(e);
                 console.log(e.errorMessage);
             })
             .finally(() => {
@@ -56,7 +62,9 @@ export default function LibraryPage() {
         MediaService.getMedia<Media[]>()
             .then((resp) => {
                 setAllResources(resp.data);
-                fetchMedia(resp.data);
+                if (resp.data.length > 0) {
+                    fetchMedia(resp.data);
+                }
                 setEmptyProfile(false);
             })
             .catch((e: ErrorResponse) => {
@@ -115,6 +123,9 @@ export default function LibraryPage() {
         if (window.confirm(`Delete '@${media.mediaName}'?`)) {
             MediaService.deleteMedia(media.id).then(() => {
                 window.alert(`@${media.mediaName} deleted successfully.`);
+                setAllResources((prev) =>
+                    prev.filter((md) => md.id != media.id),
+                );
             });
         }
     }
@@ -133,62 +144,80 @@ export default function LibraryPage() {
 
         if (resourceModalType === "new") {
             resetNotifications("upload");
-            const uploadPromises = previews.map(async (item) => {
-                updatePreviews((prev) =>
-                    prev.map((upItem) =>
-                        upItem.id === item.id
-                            ? {
-                                  ...upItem,
-                                  uploadStatus: UploadStatus.UPLOADING,
-                              }
-                            : upItem,
-                    ),
-                );
 
-                MediaService.createMedia<Media>(
-                    {
-                        file: item.file,
-                        tag: tag!,
-                    },
-                    (progress) => {
-                        updatePreviews((prev) =>
-                            prev.map((upItem) =>
-                                upItem.file === item.file
-                                    ? { ...upItem, progress }
-                                    : upItem,
-                            ),
-                        );
-                    },
-                )
-                    .then((resp) => {
-                        updatePreviews((prev) =>
-                            prev.map((upItem) =>
-                                upItem.file === item.file
-                                    ? {
-                                          ...upItem,
-                                          status: UploadStatus.SUCCESS,
-                                      }
-                                    : upItem,
-                            ),
-                        );
+            updatePreviews((prev) =>
+                prev.map((upItem) =>
+                    upItem.file.name.length > 100
+                        ? { ...upItem, error: "Filename too long." }
+                        : upItem,
+                ),
+            );
 
-                        setAllResources((prev) => [...prev, resp.data]);
-                    })
-                    .catch((err: ErrorResponse) => {
-                        updatePreviews((prev) =>
-                            prev.map((upItem) =>
-                                upItem.file === item.file
-                                    ? {
-                                          ...upItem,
-                                          status: "error",
-                                          error: err.errorMessage,
-                                          uploadStatus: UploadStatus.FAILURE,
-                                      }
-                                    : upItem,
-                            ),
-                        );
-                    });
-            });
+            const uploadPromises = previews
+                .filter((prv) => prv.file.name.length < 100)
+                .map(async (item) => {
+                    updatePreviews((prev) =>
+                        prev.map((upItem) =>
+                            upItem.id === item.id
+                                ? {
+                                      ...upItem,
+                                      progress: {
+                                          loaded: 0,
+                                          total: upItem.file.size,
+                                          percentage: 0,
+                                      },
+                                      uploadStatus: UploadStatus.UPLOADING,
+                                  }
+                                : upItem,
+                        ),
+                    );
+
+                    MediaService.createMedia<Media>(
+                        {
+                            file: item.file,
+                            tag: tag!,
+                        },
+                        (progress) => {
+                            updatePreviews((prev) =>
+                                prev.map((upItem) =>
+                                    upItem.id === item.id
+                                        ? { ...upItem, progress }
+                                        : upItem,
+                                ),
+                            );
+                        },
+                    )
+                        .then((resp) => {
+                            updatePreviews((prev) =>
+                                prev.map((upItem) => {
+                                    if (upItem.id == item.id) {
+                                        return {
+                                            ...upItem,
+                                            uploadStatus: UploadStatus.SUCCESS,
+                                        };
+                                    }
+                                    return upItem;
+                                }),
+                            );
+                            
+                            setAllResources((prev) => [resp.data, ...prev]);
+                        })
+                        .catch((err: ErrorResponse) => {
+                            updatePreviews((prev) =>
+                                prev.map((upItem) =>
+                                    upItem.id === item.id
+                                        ? {
+                                              ...upItem,
+                                              status: "error",
+                                              error: err.errorMessage,
+                                              uploadStatus:
+                                                  UploadStatus.FAILURE,
+                                          }
+                                        : upItem,
+                                ),
+                            );
+                        });
+                });
             await Promise.allSettled(uploadPromises).then(() => {
                 setActionProgress(false);
             });
@@ -208,6 +237,10 @@ export default function LibraryPage() {
                         rsc.id == resp.data.id ? resp.data : rsc,
                     ),
                 );
+                setNotifications("update", {
+                    type: "success",
+                    messages: [`Tag Updated Successfully to ${tag}`],
+                });
             })
             .catch((e: ErrorResponse) => {
                 setNotifications("update", {
@@ -325,25 +358,26 @@ export default function LibraryPage() {
                     resourceModalType == "new"
                         ? "Uplaod Resources"
                         : resourceModalType == "edit"
-                          ? "Edit Resource"
+                          ? "Update Resource Tag"
                           : `@${handlingResource?.mediaName}`
                 }
                 isOpen={resourceModalType != null}
                 onClose={() => {
                     setResourceModalType(null);
+                    updatePreviews([]);
                 }}
                 maxWidthClass="max-w-6xl"
             >
                 {resourceModalType === "preview" ? (
                     <div className="space-y-3">
                         <h2>
-                            {handlingResource?.mediaName}{" "}
-                            {handlingResource?.tag && (
-                                <span className="px-2 py-1 tsxt-sm bg-primary text-white rounded-md">
-                                    {handlingResource?.tag}
-                                </span>
-                            )}
+                            <span>FileName: {handlingResource?.mediaName}</span>
                         </h2>
+                        {handlingResource?.tag && (
+                            <p className="w-fit px-2 py-1 text-xs bg-primary text-white rounded-md">
+                                {handlingResource?.tag}
+                            </p>
+                        )}
                         {handlingResource?.createdAt && (
                             <p className="text-sm">
                                 Uploaded on :{" "}
@@ -353,7 +387,7 @@ export default function LibraryPage() {
                             </p>
                         )}
                         <img
-                            src={URL.createObjectURL(handlingResource!.media)}
+                            src={`data:${handlingResource?.mediaType};base64,${handlingResource!.media}`}
                             className="block w-full rounded-md"
                         />
                     </div>
@@ -393,6 +427,11 @@ export default function LibraryPage() {
                                         );
                                     }
                                 }}
+                                defaultValue={
+                                    resourceModalType == "edit"
+                                        ? handlingResource?.tag
+                                        : ""
+                                }
                                 className="w-2/3 md:w-2/5"
                                 required
                             />
@@ -407,7 +446,7 @@ export default function LibraryPage() {
                                         isLoading: actionProgress,
                                         size: "border-t-yellow-600! size-4",
                                     }}
-                                    disabled={allResources.length == 0}
+                                    disabled={emptyProfile}
                                 />
                             )}
                         </div>
@@ -458,7 +497,7 @@ export default function LibraryPage() {
                                             isLoading: actionProgress,
                                             size: "border-t-yellow-600! size-4",
                                         }}
-                                        disabled={allResources.length == 0}
+                                        disabled={emptyProfile}
                                     />
                                 </div>
                                 {previews.length > 0 && (
@@ -477,14 +516,20 @@ export default function LibraryPage() {
                             </>
                         ) : (
                             resourceModalType === "edit" && (
-                                <div>
-                                    <img
-                                        src={URL.createObjectURL(
-                                            handlingResource!.media,
-                                        )}
-                                        alt={handlingResource!.mediaName}
-                                    />
-                                </div>
+                                <>
+                                    <hr />
+                                    <div className="relative">
+                                        <img
+                                            src={`data:${handlingResource?.mediaType};base64,${handlingResource?.media}`}
+                                            alt={handlingResource!.mediaName}
+                                        />
+                                        <div className="absolute inset-0 p-4">
+                                            <span className="bg-section-theme p-1 rounded">
+                                                {handlingResource?.mediaName}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </>
                             )
                         )}
                     </form>

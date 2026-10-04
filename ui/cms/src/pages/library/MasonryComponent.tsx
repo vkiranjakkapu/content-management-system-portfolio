@@ -1,4 +1,4 @@
-import { EllipsisVerticalIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import ActionButton from "../../components/ActionButtonComponent";
 import Notification from "../../components/notifications/Notification";
 import SpinnerComponent, {
@@ -8,6 +8,8 @@ import type { Media } from "../../services/DtoModels";
 import { UploadStatus } from "../../services/MediaService";
 import { formatBytes } from "../../utils/FileUploadHelper";
 import type { Preview } from "./useFilePreview";
+
+import Landscape from "../../assets/landscape.png";
 
 type MasonryComponentProps = {
     resources:
@@ -61,11 +63,20 @@ export default function MasonryComponent({
                                     
                                     hover:[&>img]:scale-105
                                     "
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (!isPreview) {
+                                handleImageClick?.(media);
+                            }
+                        }}
                     >
                         {/* Options */}
                         <div
                             className="z-1 backdrop absolute inset-0 bg-gray-900/20 p-4 cursor-pointer
                                         hover:[&>*>*]:translate-0 hover:*:visible hover:[&_button]:pointer-events-auto"
+                            title={
+                                isPreview ? preview.file.name : media.mediaName
+                            }
                         >
                             <div className="flex flex-col gap-1 items-end invisible pointer-events-none *:duration-100">
                                 {!isPreview ? (
@@ -73,7 +84,7 @@ export default function MasonryComponent({
                                         {handleEdit && (
                                             <ActionButton
                                                 className="p-2 rounded-full -translate-y-2 z-1"
-                                                icon={EllipsisVerticalIcon}
+                                                icon={PencilIcon}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
                                                     handleEdit(media);
@@ -92,6 +103,8 @@ export default function MasonryComponent({
                                         )}
                                     </>
                                 ) : (
+                                    preview.uploadStatus ==
+                                        UploadStatus.PREVIEW &&
                                     handleDiscard && (
                                         <ActionButton
                                             className="p-2 rounded-full -translate-y-12 z-0 text-rose-400 btn-secondary bg-background-secondary hover:bg-background dark:outline-background"
@@ -122,29 +135,37 @@ export default function MasonryComponent({
                         <img
                             src={
                                 isPreview
-                                    ? preview.media
-                                    : URL.createObjectURL(media.media)
+                                    ? preview?.media || Landscape
+                                    : media?.media
+                                      ? `data:${media.mediaType};base64,${media.media}`
+                                      : Landscape
+                            }
+                            alt={
+                                isPreview
+                                    ? preview?.file.name
+                                    : media?.mediaName
                             }
                             className="z-0 w-full h-auto object-cover duration-200"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                if (!isPreview) {
-                                    handleImageClick?.(media);
-                                }
-                            }}
                             onLoad={() => {
                                 if (isPreview) handleOnLoad?.();
                             }}
                         />
-                        {((isPreview &&
-                            preview.uploadStatus === UploadStatus.UPLOADING) ||
-                            media.isUploading) && (
-                            <SpinnerComponent
-                                text={`Uploading... ${formatBytes(preview.progress!.loaded)} / ${formatBytes(preview.progress!.total)} (${preview.progress!.percentage}%)`}
-                                customize="m-2 text-xs mr-auto w-fit!"
-                                animate="animate-pulse"
-                            />
-                        )}
+                        {isPreview &&
+                            preview.uploadStatus === UploadStatus.UPLOADING && (
+                                <SpinnerComponent
+                                    text={`Uploading... ${formatBytes(preview.progress!.loaded)} / ${formatBytes(preview.progress!.total)} (${preview.progress!.percentage}%)`}
+                                    customize="m-2 text-xs mr-auto w-fit!"
+                                    animate="animate-pulse"
+                                />
+                            )}
+                        {isPreview &&
+                            preview.uploadStatus == UploadStatus.SUCCESS && (
+                                <Notification
+                                    type="success"
+                                    messages={["Upload complete."]}
+                                    customise="py-1"
+                                />
+                            )}
                         {isPreview && preview.error && (
                             <Notification
                                 type="error"

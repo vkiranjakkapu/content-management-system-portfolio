@@ -13,6 +13,6 @@ public interface MediaRepository extends JpaRepository<Media, UUID> {
 
     List<Media> findAllByIdIn(Collection<UUID> ids);
 
-    List<Media> findAllByProfile(Profile profile);
+    List<Media> findAllByProfileOrderByUpdatedAtDesc(Profile profile);
 
 }

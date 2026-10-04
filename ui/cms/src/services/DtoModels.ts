@@ -4,7 +4,7 @@ export type Publication = {
     seo?: SeoSettings;
     profile: Profile;
     about: About;
-    skills: Map<string, Skill[]>;
+    skills: Record<string, Skill[]>;
     projects: Project[];
     experiences: Experience[];
     socialProfiles: SocialProfile[];

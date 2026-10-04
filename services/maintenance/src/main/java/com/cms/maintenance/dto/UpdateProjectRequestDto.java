@@ -3,10 +3,10 @@ package com.cms.maintenance.dto;
 import java.util.List;
 import java.util.UUID;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 public record UpdateProjectRequestDto(
-		@NotEmpty UUID id,
+		@NotNull UUID id,
 		String title,
 		List<UUID> techStack,
 		List<UUID> gallery,
