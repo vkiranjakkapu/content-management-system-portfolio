@@ -356,7 +356,7 @@ export default function TableComponent<T>({
                         [&_td]:py-2.5
 
                         [&_tr>*:last-child:is(.fullSpan)]:bg-primary/30
-                        [&_tr]:hover:bg-primary/30
+                        [&_tr]:hover:bg-primary/10
                         [&_tr]:even:bg-slate-100
                         dark:[&_tr]:even:bg-slate-600/20
                     `}
@@ -394,18 +394,47 @@ export default function TableComponent<T>({
                         `}
                         >
                             {body.map((item, idx) => (
-                                <tr key={"tb" + idx}>
-                                    {cols.map((column) => (
-                                        <td
-                                            key={String(column.key)}
-                                            className={column.customiseColumn}
-                                            title={String(item[column.key])}
-                                        >
-                                            {renderCellValue(
-                                                String(item[column.key]),
-                                            )}
-                                        </td>
-                                    ))}
+                                <tr key={"tb" + idx} className="group">
+                                    {cols.map((column) => {
+                                        const hasLineClamp =
+                                            column.customiseColumn?.includes(
+                                                "line-clamp",
+                                            );
+
+                                        return (
+                                            <td
+                                                key={String(column.key)}
+                                                className={`relative overflow-hidden ${column.customiseColumn}`}
+                                                title={String(item[column.key])}
+                                            >
+                                                {hasLineClamp ? (
+                                                    <>
+                                                        <div
+                                                            className={
+                                                                column.customiseColumn
+                                                            }
+                                                        >
+                                                            {renderCellValue(
+                                                                String(
+                                                                    item[
+                                                                        column
+                                                                            .key
+                                                                    ],
+                                                                ),
+                                                            )}
+                                                        </div>
+                                                        <div className="absolute inset-x-0 bottom-0 h-5 bg-linear-to-t from-white group-hover:from-transparent to-transparent pointer-events-none transition-colors" />
+                                                    </>
+                                                ) : (
+                                                    renderCellValue(
+                                                        String(
+                                                            item[column.key],
+                                                        ),
+                                                    )
+                                                )}
+                                            </td>
+                                        );
+                                    })}
 
                                     {actionEvents &&
                                         actionEvents.map(

@@ -125,6 +125,17 @@ export default function ProfilePage() {
                 if (e.errorCode === "BUS-2001") {
                     setEmptyProfile(true);
                 }
+                if (e.errorCode === "500") {
+                    console.log(e);
+
+                    setNotifications("info", {
+                        type: "error",
+                        messages: [
+                            "We are facing unexpected issues, Please try again later.",
+                        ],
+                    });
+                    return;
+                }
                 setNotifications("info", {
                     type: "info",
                     messages: [e.errorMessage],

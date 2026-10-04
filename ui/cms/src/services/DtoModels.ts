@@ -25,6 +25,8 @@ export type About = {
     id: string;
     name: string;
     summary: string;
+    updatedAt: string;
+    createdAt: string;
 };
 
 export type Experience = {

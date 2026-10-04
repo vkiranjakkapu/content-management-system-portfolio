@@ -1,6 +1,7 @@
 import {
     Bars3BottomLeftIcon,
     CheckCircleIcon,
+    ClipboardDocumentListIcon,
     InformationCircleIcon,
     PencilIcon,
     PlusCircleIcon,
@@ -23,11 +24,8 @@ import type { About } from "../../services/DtoModels";
 export default function AboutPage() {
     const [modalOpen, setModalOpen] = useState<"new" | "update" | null>(null);
 
-    const { notifications, setNotifications } = useNotifications([
-        "new",
-        "update",
-        "info",
-    ]);
+    const { notifications, setNotifications, resetNotifications } =
+        useNotifications(["new", "update", "info"]);
     const creationNotifications = notifications["new"] ?? null;
     const updateNotifications = notifications["update"] ?? null;
     const infoNotifications = notifications["info"] ?? null;
@@ -38,6 +36,7 @@ export default function AboutPage() {
 
     function createAbout(e: SubmitEvent<HTMLFormElement>) {
         e.preventDefault();
+        resetNotifications();
 
         if (about.name === "" || about.summary === "") {
             const errors = [];
@@ -65,6 +64,7 @@ export default function AboutPage() {
                         ],
                     });
                     setAbout(resp.data);
+                    setAllAbouts((prev) => [resp.data, ...prev]);
                 })
                 .catch((e: ErrorResponse) => {
                     setNotifications("new", {
@@ -91,6 +91,9 @@ export default function AboutPage() {
                     ],
                 });
                 setAbout(resp.data);
+                setAllAbouts((prev) =>
+                    prev.map((ab) => (ab.id === about.id ? resp.data : ab)),
+                );
             })
             .catch((e: ErrorResponse) => {
                 setNotifications("update", {
@@ -124,6 +127,18 @@ export default function AboutPage() {
                 if (e.errorCode === "BUS-2001") {
                     setEmptyProfile(true);
                 }
+                if (e.errorCode === "500") {
+                    console.log(e);
+
+                    setNotifications("info", {
+                        type: "error",
+                        messages: [
+                            "We are facing unexpected issues, Please try again later.",
+                        ],
+                    });
+                    return;
+                }
+
                 setNotifications("info", {
                     type: "info",
                     messages: [e.errorMessage],
@@ -154,6 +169,9 @@ export default function AboutPage() {
         if (window.confirm(`Are you sure deleting @${about.name}?`)) {
             AboutService.deleteAbout(about.id)
                 .then(() => {
+                    setAllAbouts((prev) =>
+                        prev.filter((ab) => ab.id != about.id),
+                    );
                     window.alert(`@${about.name} deleted successfully.`);
                 })
                 .catch((e: ErrorResponse) => {
@@ -197,12 +215,39 @@ export default function AboutPage() {
                 />
             )}
             <TableComponent
+                headers={[
+                    {
+                        key: "name",
+                    },
+                    {
+                        key: "summary",
+                        alias: "About",
+                        customiseColumn: "max-w-[60ch] line-clamp-4",
+                    },
+                    {
+                        key: "updatedAt",
+                        alias: "Last Modified",
+                    },
+                ]}
                 body={pagination.currentItems}
                 loading={{
                     showSpinner: fetchProgress,
                     spinner: { text: "Fetching abouts..." },
                 }}
                 actionEvents={[
+                    {
+                        title: "Copy text",
+                        clickEvent: {
+                            icon: ClipboardDocumentListIcon,
+                            className: "text-secondary dark:text-primary",
+                            onClick(item) {
+                                navigator.clipboard.writeText(item.summary);
+                                window.alert(
+                                    `Below text has been copied to your clipboard. \n\n ${item.summary}`,
+                                );
+                            },
+                        },
+                    },
                     {
                         title: "Edit",
                         clickEvent: {
@@ -228,7 +273,12 @@ export default function AboutPage() {
             <ModalComponent
                 title={modalOpen == "new" ? `Add About` : `Update About`}
                 isOpen={modalOpen != null}
-                onClose={() => setModalOpen(null)}
+                onClose={() => {
+                    setModalOpen(null);
+                    resetNotifications("new");
+                    resetNotifications("update");
+                    setAbout({} as About);
+                }}
                 maxWidthClass="max-w-2xl"
             >
                 <form

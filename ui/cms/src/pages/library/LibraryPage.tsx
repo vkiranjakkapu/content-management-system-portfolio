@@ -71,6 +71,17 @@ export default function LibraryPage() {
                 if (e.errorCode === "BUS-2001") {
                     setEmptyProfile(true);
                 }
+                if (e.errorCode === "500") {
+                    console.log(e);
+
+                    setNotifications("fetch", {
+                        type: "error",
+                        messages: [
+                            "We are facing unexpected issues, Please try again later.",
+                        ],
+                    });
+                    return;
+                }
                 setNotifications("fetch", {
                     type: "info",
                     messages: [e.errorMessage],
@@ -199,7 +210,7 @@ export default function LibraryPage() {
                                     return upItem;
                                 }),
                             );
-                            
+
                             setAllResources((prev) => [resp.data, ...prev]);
                         })
                         .catch((err: ErrorResponse) => {
