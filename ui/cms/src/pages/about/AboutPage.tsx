@@ -128,8 +128,6 @@ export default function AboutPage() {
                     setEmptyProfile(true);
                 }
                 if (e.errorCode === "500") {
-                    console.log(e);
-
                     setNotifications("info", {
                         type: "error",
                         messages: [

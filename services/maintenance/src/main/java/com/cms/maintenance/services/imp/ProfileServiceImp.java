@@ -95,27 +95,19 @@ public class ProfileServiceImp implements ProfileService {
     public Profile updateProfile(UpdateProfileRequestDto request) {
         Profile profile = getProfileByUserId(currentUser.userId());
 
-        Optional.of(request.email()).ifPresent(email -> {
-            profile.setEmail(email);
-        });
+        Optional.ofNullable(request.email()).ifPresent(profile::setEmail);
 
-        Optional.of(request.name()).ifPresent(name -> {
-            profile.setName(name);
-        });
+        Optional.ofNullable(request.name()).ifPresent(profile::setName);
 
-        Optional.of(request.phone()).ifPresent(phone -> {
-            profile.setPhone(phone);
-        });
+        Optional.ofNullable(request.phone()).ifPresent(profile::setPhone);
 
-        Optional.of(request.designation()).ifPresent(designation -> {
-            profile.setDesignation(designation);
-        });
+        Optional.ofNullable(request.designation()).ifPresent(profile::setDesignation);
 
-        Optional.of(request.availability()).ifPresent(availability -> {
-            profile.setAvailability(availability);
-        });
+        Optional.ofNullable(request.availability()).ifPresent(profile::setAvailability);
 
-        Optional.of(request.dp()).ifPresent(dpReq -> {
+        Optional.ofNullable(request.location()).ifPresent(profile::setLocation);
+
+        Optional.ofNullable(request.dp()).ifPresent(dpReq -> {
             try {
                 mediaService.deleteMediaById(profile.getDp().getId());
             } catch (BusinessException e) {
@@ -130,7 +122,7 @@ public class ProfileServiceImp implements ProfileService {
             profile.setDp(dp);
         });
 
-        Optional.of(request.banner()).ifPresent(bannerReq -> {
+        Optional.ofNullable(request.banner()).ifPresent(bannerReq -> {
             try {
                 mediaService.deleteMediaById(profile.getBanner().getId());
             } catch (BusinessException e) {

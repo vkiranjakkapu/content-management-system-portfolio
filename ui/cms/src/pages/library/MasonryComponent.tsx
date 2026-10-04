@@ -27,11 +27,7 @@ import usePagination from "../../components/pagination/usePagination";
 import { DateFormatter } from "../../utils/DateFormatter";
 
 type MasonryComponentProps = {
-    resources:
-        | (Media & {
-              isUploading?: boolean;
-          })[]
-        | Preview[];
+    resources: Media[] | Preview[];
     isPreview?: boolean;
 
     allowUpload?: boolean;
@@ -84,6 +80,8 @@ export default function MasonryComponent({
     const [uploadNotifications, setUploadNotifications] =
         useState<NotificationProps | null>(null);
 
+    const [uploadInProgress, setUploadInProgress] = useState<boolean>(false);
+
     const [upload, setUpload] = useState<{
         preview: Preview;
         tag?: MediaTag;
@@ -94,6 +92,7 @@ export default function MasonryComponent({
             return;
         }
 
+        setUploadInProgress(true);
         setUploadNotifications(null);
 
         const tag = upload.tag;
@@ -163,6 +162,9 @@ export default function MasonryComponent({
                     type: "error",
                     messages: [e.errorMessage],
                 });
+            })
+            .finally(() => {
+                setUploadInProgress(false);
             });
     }
 
@@ -337,12 +339,17 @@ export default function MasonryComponent({
                                         <ActionButton
                                             text="Confirm Upload"
                                             icon={CheckCircleIcon}
+                                            spinner={{
+                                                isLoading: uploadInProgress,
+                                            }}
                                             className="w-full justify-center"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 uploadResource();
                                             }}
-                                            disabled={!upload.tag}
+                                            disabled={
+                                                !upload.tag || uploadInProgress
+                                            }
                                         />
                                     </div>
                                 </div>
@@ -384,12 +391,8 @@ export default function MasonryComponent({
 
                         {pagination.currentItems.map((rsc) => {
                             const media = !isPreview
-                                ? (rsc as Media & {
-                                      isUploading?: boolean;
-                                  })
-                                : ({} as Media & {
-                                      isUploading?: boolean;
-                                  });
+                                ? (rsc as Media)
+                                : ({} as Media);
 
                             const preview = isPreview
                                 ? (rsc as Preview)
@@ -417,7 +420,7 @@ export default function MasonryComponent({
                                         }
                                     }}
                                 >
-                                    {/* Options */}
+                                    {/* Options & File Details */}
                                     <div
                                         className="z-1 backdrop absolute inset-0 bg-gray-900/20 p-4 cursor-pointer
                                         hover:[&>*>*]:translate-0 hover:*:visible hover:[&_button]:pointer-events-auto"
@@ -427,11 +430,12 @@ export default function MasonryComponent({
                                                 : media.mediaName
                                         }
                                     >
-                                        <div className="flex flex-col gap-1 items-end invisible pointer-events-none *:duration-100">
+                                        {/* Options */}
+                                        <div className="absolute inset-x-0 bottom-0 p-2 flex flex-wrap gap-1 items-center justify-center invisible pointer-events-none *:duration-100">
                                             {!isPreview ? (
                                                 <>
                                                     <ActionButton
-                                                        className="p-2 rounded-full -translate-y-2 z-1"
+                                                        className="p-2 rounded-full translate-y-2 z-1"
                                                         icon={EyeIcon}
                                                         onClick={(e) => {
                                                             e.stopPropagation();
@@ -444,7 +448,7 @@ export default function MasonryComponent({
                                                     />
                                                     {handleEdit && (
                                                         <ActionButton
-                                                            className="p-2 rounded-full -translate-y-2 z-1"
+                                                            className="p-2 rounded-full translate-y-2 z-1"
                                                             icon={PencilIcon}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
@@ -456,7 +460,7 @@ export default function MasonryComponent({
                                                     )}
                                                     {handleDelete && (
                                                         <ActionButton
-                                                            className="p-2 rounded-full -translate-y-12 z-0 text-rose-400 btn-secondary bg-background-secondary hover:bg-background dark:outline-background"
+                                                            className="p-2 rounded-full translate-y-2 z-0 text-rose-400 btn-secondary bg-background-secondary hover:bg-background dark:outline-background"
                                                             icon={TrashIcon}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
@@ -484,6 +488,8 @@ export default function MasonryComponent({
                                                 )
                                             )}
                                         </div>
+
+                                        {/* File Details */}
                                         <div className="absolute inset-0 p-4 space-y-1 invisible pointer-events-none">
                                             <p className="border max-w-[30ch] truncate -translate-y-2 w-fit text-xs bg-background-secondary text-primary px-2 py-1 rounded">
                                                 <b className="uppercase">
@@ -659,6 +665,179 @@ export default function MasonryComponent({
             </ModalComponent>
         </>
     ) : (
-        <Notification type="info" messages={["No Media to show"]} />
+        <div className="space-y-1.5 *:not-last:pb-1.5">
+            {allowUpload && (
+                <>
+                    <div>
+                        <ActionButton
+                            text="Upload"
+                            icon={ArrowUpTrayIcon}
+                            onClick={(e) => {
+                                (
+                                    e.currentTarget.nextSibling as HTMLElement
+                                ).click();
+                            }}
+                            className="ml-auto"
+                        />
+                        <input
+                            type="file"
+                            name="uploadResource"
+                            className="hidden"
+                            onChange={(e) => {
+                                if (
+                                    !e.target.files ||
+                                    e.target.files.length == 0
+                                ) {
+                                    if (upload != null) {
+                                        URL.revokeObjectURL(
+                                            upload.preview.media,
+                                        );
+                                    }
+                                    setUpload(null);
+                                    return;
+                                }
+
+                                if (upload != null) {
+                                    URL.revokeObjectURL(upload.preview.media);
+                                }
+
+                                const file = e.target.files[0];
+                                const prv = {
+                                    file,
+                                    progress: {
+                                        loaded: 0,
+                                        percentage: 0,
+                                        total: file.size,
+                                    },
+                                    uploadStatus: UploadStatus.PREVIEW,
+                                    media: URL.createObjectURL(file),
+                                    error:
+                                        file.name.length > 100
+                                            ? "Filename too long."
+                                            : undefined,
+                                } as Preview;
+                                setUpload({ preview: prv });
+                            }}
+                        />
+                    </div>
+                    <hr className="border-t" />
+                </>
+            )}
+            {upload && (
+                <>
+                    <div className="columns-1 sm:columns-2 md:columns-3 2xl:columns-4">
+                        <div
+                            className="relative mb-3 break-inside-avoid rounded-md overflow-clip border
+
+                                    hover:[&>.backdrop]:bg-transparent
+                                    
+                                    hover:[&>img]:scale-105
+                                    "
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setPreviewModal(upload.preview);
+                            }}
+                        >
+                            {/* Options */}
+                            <div
+                                className="z-1 backdrop absolute inset-0 bg-gray-900/20 p-4 cursor-pointer"
+                                title={upload.preview.file.name}
+                            >
+                                <div className="flex flex-col gap-1 items-end *:duration-100">
+                                    {upload.preview.uploadStatus ==
+                                        UploadStatus.PREVIEW && (
+                                        <ActionButton
+                                            className="p-2 rounded-full z-0 text-rose-400 btn-secondary bg-background-secondary hover:bg-background dark:outline-background"
+                                            icon={TrashIcon}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setUpload(null);
+                                            }}
+                                        />
+                                    )}
+                                </div>
+                                <div className="absolute inset-0 p-4 space-y-1">
+                                    <p className="max-w-[30ch] truncate -translate-y-2 w-fit text-xs bg-background-secondary text-primary px-2 py-1 uppercase rounded">
+                                        {upload.preview.file.name}
+                                    </p>
+                                </div>
+                                <div className="absolute bottom-0 inset-x-0 p-2 space-y-2">
+                                    <SelectComponent
+                                        options={Object.keys(MediaTag).map(
+                                            (tag) => ({ value: tag }),
+                                        )}
+                                        emptyOption="Select tag to upload"
+                                        className="bg-section-theme rounded"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                        }}
+                                        onChange={(e) => {
+                                            setUpload((prev) =>
+                                                prev
+                                                    ? {
+                                                          ...prev,
+                                                          tag: e.target
+                                                              .value as MediaTag,
+                                                      }
+                                                    : null,
+                                            );
+                                        }}
+                                    />
+                                    <ActionButton
+                                        text="Confirm Upload"
+                                        icon={CheckCircleIcon}
+                                        spinner={{
+                                            isLoading: uploadInProgress,
+                                        }}
+                                        className="w-full justify-center"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            uploadResource();
+                                        }}
+                                        disabled={
+                                            !upload.tag || uploadInProgress
+                                        }
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Preview */}
+                            <img
+                                src={upload.preview.media ?? Landscape}
+                                alt={upload.preview.file.name}
+                                className="z-0 w-full h-auto object-cover duration-200"
+                                onLoad={() => {
+                                    if (isPreview) handleOnLoad?.();
+                                }}
+                            />
+                            {upload.preview.uploadStatus ===
+                                UploadStatus.UPLOADING && (
+                                <SpinnerComponent
+                                    text={`Uploading... ${formatBytes(upload.preview.progress!.loaded)} / ${formatBytes(upload.preview.progress!.total)} (${upload.preview.progress!.percentage}%)`}
+                                    customize="m-2 text-xs mr-auto w-fit!"
+                                    animate="animate-pulse"
+                                />
+                            )}
+                            {upload.preview.uploadStatus ==
+                                UploadStatus.SUCCESS && (
+                                <Notification
+                                    type="success"
+                                    messages={["Upload complete."]}
+                                    customise="py-1"
+                                />
+                            )}
+                            {upload.preview.error && (
+                                <Notification
+                                    type="error"
+                                    messages={[upload.preview.error]}
+                                    customise="py-1"
+                                />
+                            )}
+                        </div>
+                    </div>
+                </>
+            )}
+            <Notification type="info" messages={["No Media to show"]} />
+        </div>
     );
 }

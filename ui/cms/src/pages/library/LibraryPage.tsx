@@ -1,4 +1,4 @@
-import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
+import { ArrowUpTrayIcon, CheckBadgeIcon } from "@heroicons/react/24/outline";
 import { useCallback, useEffect, useState, type SubmitEvent } from "react";
 import type { ErrorResponse } from "../../api/api";
 import ActionButton from "../../components/ActionButtonComponent";
@@ -10,10 +10,10 @@ import SectionLayoutComponent from "../../components/SectionLayoutComponent";
 import SpinnerComponent from "../../components/SpinnerComponent";
 import { MediaTag, type Media } from "../../services/DtoModels";
 import MediaService, { UploadStatus } from "../../services/MediaService";
+import { DateFormatter } from "../../utils/DateFormatter";
+import { getMediaSize } from "../../utils/FilesHelper";
 import MasonryComponent from "./MasonryComponent";
 import useFilePreview from "./useFilePreview";
-import { getMediaSize } from "../../utils/FilesHelper";
-import { DateFormatter } from "../../utils/DateFormatter";
 
 export default function LibraryPage() {
     const { notifications, setNotifications, resetNotifications } =
@@ -60,8 +60,6 @@ export default function LibraryPage() {
                     setEmptyProfile(true);
                 }
                 if (e.errorCode === "500") {
-                    console.log(e);
-
                     setNotifications("fetch", {
                         type: "error",
                         messages: [
@@ -392,8 +390,8 @@ export default function LibraryPage() {
                         {resourceModalType === "edit" && (
                             <ActionButton
                                 type="submit"
-                                icon={ArrowUpTrayIcon}
-                                text="Confirm"
+                                icon={CheckBadgeIcon}
+                                text="Update Tag"
                                 className="ms-auto"
                                 spinner={{
                                     isLoading: actionProgress,

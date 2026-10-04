@@ -29,7 +29,7 @@ export default function ActionButton({
             {spinner && spinner.isLoading ? (
                 <SpinnerComponent
                     {...spinner}
-                    customize={`w-fit ${spinner.customize}`}
+                    customize={`w-fit! ${spinner.customize}`}
                 />
             ) : (
                 Icon && <Icon className={`size-4 ${customiseIcon}`} />

@@ -114,13 +114,10 @@ export default function ProfilePage() {
                 });
             })
             .catch((e: ErrorResponse) => {
-                console.log(e);
                 if (e.errorCode === "BUS-2001") {
                     setEmptyProfile(true);
                 }
                 if (e.errorCode === "500") {
-                    console.log(e);
-
                     setNotifications("info", {
                         type: "error",
                         messages: [
@@ -147,6 +144,7 @@ export default function ProfilePage() {
 
         const formData = new FormData(e.currentTarget);
 
+        resetNotifications("action");
         setActionProgress(true);
 
         const promise = emptyProfile
@@ -155,6 +153,7 @@ export default function ProfilePage() {
 
         promise
             .then((resp) => {
+                setEmptyProfile(false);
                 setProfile(resp.data);
                 setDraft(resp.data);
                 setNotifications("action", {
