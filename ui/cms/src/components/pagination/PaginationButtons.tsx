@@ -22,16 +22,16 @@ export function PaginationButtons<T>({
 
     return (
         <div className={`w-fit ${className}`}>
-            <div className="rounded-md overflow-hidden w-fit flex justify-self-end">
+            <div className="rounded-md overflow-hidden w-fit flex justify-self-end outline-1 outline-offset-1 outline-primary m-0.5">
                 <ActionButton
                     icon={ChevronLeftIcon}
-                    className="btn-primary rounded-none p-2"
+                    className="btn-primary rounded-none p-2 outline-none m-0"
                     onClick={goToPrevPage}
                     disabled={currentPage == 1}
                 />
                 <ActionButton
                     icon={ChevronRightIcon}
-                    className="btn-primary rounded-none p-2"
+                    className="btn-primary rounded-none p-2 outline-none m-0"
                     onClick={goToNextPage}
                     disabled={totalPages == currentPage}
                 />

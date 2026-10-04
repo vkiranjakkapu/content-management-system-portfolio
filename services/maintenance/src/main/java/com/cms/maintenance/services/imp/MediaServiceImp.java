@@ -14,6 +14,7 @@ import com.cms.maintenance.dto.CreateMediaRequestDto;
 import com.cms.maintenance.dto.MediaResponseDto;
 import com.cms.maintenance.dto.UpdateMediaRequestDto;
 import com.cms.maintenance.enums.BusinessExceptions;
+import com.cms.maintenance.enums.MediaTag;
 import com.cms.maintenance.enums.StorageExceptions;
 import com.cms.maintenance.exceptions.BusinessException;
 import com.cms.maintenance.models.Media;
@@ -36,6 +37,16 @@ public class MediaServiceImp implements MediaService {
     @Override
     public List<Media> getAllMedia(Profile profile) {
         return mediaRepository.findAllByProfileOrderByUpdatedAtDesc(profile);
+    }
+
+    @Override
+    public List<Media> getAllMediaByTag(MediaTag tag, Profile profile) {
+        return mediaRepository.findAllByTagAndProfileOrderByUpdatedAtDesc(tag, profile);
+    }
+
+    @Override
+    public List<Media> getAllMediaByTagIn(List<MediaTag> tags, Profile profile) {
+        return mediaRepository.findAllByTagInAndProfileOrderByUpdatedAtDesc(tags, profile);
     }
 
     @Override

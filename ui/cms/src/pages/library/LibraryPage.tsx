@@ -1,25 +1,19 @@
 import { ArrowUpTrayIcon } from "@heroicons/react/24/outline";
-import {
-    useCallback,
-    useEffect,
-    useMemo,
-    useState,
-    type SubmitEvent,
-} from "react";
+import { useCallback, useEffect, useState, type SubmitEvent } from "react";
 import type { ErrorResponse } from "../../api/api";
 import ActionButton from "../../components/ActionButtonComponent";
 import SelectComponent from "../../components/formelements/SelectComponent";
 import ModalComponent from "../../components/ModalComponent";
 import Notification from "../../components/notifications/Notification";
 import { useNotifications } from "../../components/notifications/useNotifications";
-import usePagination from "../../components/pagination/usePagination";
 import SectionLayoutComponent from "../../components/SectionLayoutComponent";
 import SpinnerComponent from "../../components/SpinnerComponent";
 import { MediaTag, type Media } from "../../services/DtoModels";
 import MediaService, { UploadStatus } from "../../services/MediaService";
-import { DateFormatter } from "../../utils/DateFormatter";
 import MasonryComponent from "./MasonryComponent";
 import useFilePreview from "./useFilePreview";
+import { getMediaSize } from "../../utils/FilesHelper";
+import { DateFormatter } from "../../utils/DateFormatter";
 
 export default function LibraryPage() {
     const { notifications, setNotifications, resetNotifications } =
@@ -35,39 +29,33 @@ export default function LibraryPage() {
     const [fetchProgress, setFetchProgress] = useState<boolean>(true);
     const [actionProgress, setActionProgress] = useState<boolean>(false);
 
-    const fetchMedia = useCallback((resources: Media[]) => {
-        if (resources.length == 0) return;
-
-        MediaService.fetchMediaByList<Record<string, Blob>>({
-            ids: resources.map((md) => md.id),
-        })
-            .then((resp) => {
-                const updatedMedia = resources.map((md) => ({
-                    ...md,
-                    media: resp.data[md.id]!,
-                }));
-
-                setAllResources(updatedMedia);
-            })
-            .catch((e: ErrorResponse) => {
-                console.log(e);
-                console.log(e.errorMessage);
-            })
-            .finally(() => {
-                setFetchProgress(false);
-            });
-    }, []);
-
     const fetchResources = useCallback(() => {
         MediaService.getMedia<Media[]>()
             .then((resp) => {
-                setAllResources(resp.data);
-                if (resp.data.length > 0) {
-                    fetchMedia(resp.data);
+                const resources = resp.data;
+                if (resources.length > 0) {
+                    MediaService.fetchMediaByList<Record<string, Blob>>({
+                        ids: resources.map((md) => md.id),
+                    })
+                        .then((resp) => {
+                            const mediaMap = resp.data;
+                            const updatedResources = resources.map((md) => ({
+                                ...md,
+                                media: mediaMap[md.id]!,
+                            }));
+                            setAllResources(updatedResources);
+                        })
+                        .finally(() => {
+                            setFetchProgress(false);
+                            setEmptyProfile(false);
+                        });
+                } else {
+                    setEmptyProfile(false);
+                    setFetchProgress(false);
                 }
-                setEmptyProfile(false);
             })
             .catch((e: ErrorResponse) => {
+                setFetchProgress(false);
                 if (e.errorCode === "BUS-2001") {
                     setEmptyProfile(true);
                 }
@@ -86,31 +74,12 @@ export default function LibraryPage() {
                     type: "info",
                     messages: [e.errorMessage],
                 });
-            })
-            .finally(() => {
-                setFetchProgress(false);
             });
-    }, [setNotifications, fetchMedia]);
+    }, [setNotifications]);
 
     useEffect(() => {
         fetchResources();
     }, [fetchResources]);
-
-    const [mediaCategories, setMediaCategories] = useState<MediaTag[]>([]);
-
-    const queryResults = useMemo(() => {
-        if (mediaCategories.length == 0) {
-            return allResources;
-        }
-
-        const results = allResources.filter((md) =>
-            mediaCategories.includes(md.tag),
-        );
-
-        return results;
-    }, [mediaCategories, allResources]);
-
-    const pagination = usePagination(queryResults, 100);
 
     // * Uploads handling
     const {
@@ -124,7 +93,7 @@ export default function LibraryPage() {
     } = useFilePreview();
 
     const [resourceModalType, setResourceModalType] = useState<
-        "new" | "edit" | "preview" | null
+        "new" | "edit" | null
     >(null);
     const [handlingResource, setHandlingResource] = useState<Media | null>(
         null,
@@ -133,10 +102,11 @@ export default function LibraryPage() {
     function deleteResource(media: Media) {
         if (window.confirm(`Delete '@${media.mediaName}'?`)) {
             MediaService.deleteMedia(media.id).then(() => {
-                window.alert(`@${media.mediaName} deleted successfully.`);
                 setAllResources((prev) =>
                     prev.filter((md) => md.id != media.id),
                 );
+                setHandlingResource(null);
+                window.alert(`@${media.mediaName} deleted successfully.`);
             });
         }
     }
@@ -163,6 +133,8 @@ export default function LibraryPage() {
                         : upItem,
                 ),
             );
+
+            let totalUploaded = 0;
 
             const uploadPromises = previews
                 .filter((prv) => prv.file.name.length < 100)
@@ -212,6 +184,13 @@ export default function LibraryPage() {
                             );
 
                             setAllResources((prev) => [resp.data, ...prev]);
+                            totalUploaded += 1;
+                            setNotifications("upload", {
+                                type: "success",
+                                messages: [
+                                    `Uploading (${totalUploaded}/${previews.length}) Completed.`,
+                                ],
+                            });
                         })
                         .catch((err: ErrorResponse) => {
                             updatePreviews((prev) =>
@@ -320,25 +299,6 @@ export default function LibraryPage() {
                     isLoading: fetchProgress,
                     text: "Fetching Your Media...",
                 }}
-                categorySearch={
-                    allResources.length > 0
-                        ? {
-                              emptyOption: "Category",
-                              options: Object.keys(MediaTag).map((cat) => ({
-                                  value: cat,
-                              })),
-                              onChange(e) {
-                                  const cat = e.target.value as MediaTag;
-                                  const allTags = mediaCategories.includes(cat)
-                                      ? mediaCategories.filter((c) => cat !== c)
-                                      : mediaCategories.concat([cat]);
-
-                                  setMediaCategories(allTags);
-                              },
-                          }
-                        : undefined
-                }
-                pagination={pagination}
             >
                 <div className="space-y-3">
                     {fetchNotifications && (
@@ -350,16 +310,22 @@ export default function LibraryPage() {
                         </div>
                     )}
                     <MasonryComponent
-                        resources={pagination.currentItems}
+                        spinner={{
+                            isLoading: fetchProgress,
+                        }}
+                        resources={allResources}
                         handleEdit={(media) => {
                             setResourceModalType("edit");
                             setHandlingResource(media);
+                            resetNotifications();
                         }}
-                        handleDelete={deleteResource}
-                        handleImageClick={(media) => {
-                            setHandlingResource(media);
-                            setResourceModalType("preview");
+                        handleDelete={(media) => {
+                            deleteResource(media);
+                            resetNotifications();
                         }}
+                        searchOptions={Object.keys(MediaTag).map((cat) => ({
+                            value: cat as MediaTag,
+                        }))}
                     />
                 </div>
             </SectionLayoutComponent>
@@ -379,75 +345,102 @@ export default function LibraryPage() {
                 }}
                 maxWidthClass="max-w-6xl"
             >
-                {resourceModalType === "preview" ? (
-                    <div className="space-y-3">
-                        <h2>
-                            <span>FileName: {handlingResource?.mediaName}</span>
-                        </h2>
-                        {handlingResource?.tag && (
-                            <p className="w-fit px-2 py-1 text-xs bg-primary text-white rounded-md">
-                                {handlingResource?.tag}
-                            </p>
-                        )}
-                        {handlingResource?.createdAt && (
-                            <p className="text-sm">
-                                Uploaded on :{" "}
-                                {DateFormatter.toFormattedDate(
-                                    handlingResource?.createdAt,
-                                )}
-                            </p>
-                        )}
-                        <img
-                            src={`data:${handlingResource?.mediaType};base64,${handlingResource!.media}`}
-                            className="block w-full rounded-md"
+                <form onSubmit={handleSubmit} className="p-1 space-y-3">
+                    {uploadNotifications && (
+                        <Notification
+                            type={uploadNotifications?.type}
+                            messages={uploadNotifications?.messages}
                         />
-                    </div>
-                ) : (
-                    <form onSubmit={handleSubmit} className="p-1 space-y-3">
-                        {uploadNotifications && (
-                            <Notification
-                                type={uploadNotifications?.type}
-                                messages={uploadNotifications?.messages}
-                            />
-                        )}
-                        {updateNotifications && (
-                            <Notification
-                                type={updateNotifications?.type}
-                                messages={updateNotifications?.messages}
-                            />
-                        )}
+                    )}
+                    {updateNotifications && (
+                        <Notification
+                            type={updateNotifications?.type}
+                            messages={updateNotifications?.messages}
+                        />
+                    )}
 
-                        <div className="flex items-center justify-between">
-                            {/* Select Tag */}
-                            <SelectComponent
-                                options={Object.keys(MediaTag).map((tag) => ({
-                                    value: tag,
-                                }))}
-                                name="tag"
-                                emptyOption="Select Tag"
-                                onChange={(e) => {
-                                    const tag = e.target.value;
-                                    if (tag == "") {
-                                        setHandlingResource((prev) =>
-                                            prev
-                                                ? {
-                                                      ...prev,
-                                                      tag: tag as MediaTag,
-                                                  }
-                                                : null,
-                                        );
-                                    }
-                                }}
-                                defaultValue={
-                                    resourceModalType == "edit"
-                                        ? handlingResource?.tag
-                                        : ""
+                    <div className="flex items-center justify-between">
+                        {/* Select Tag */}
+                        <SelectComponent
+                            options={Object.keys(MediaTag).map((tag) => ({
+                                value: tag,
+                            }))}
+                            name="tag"
+                            emptyOption="Select Tag"
+                            onChange={(e) => {
+                                const tag = e.target.value;
+                                if (tag == "") {
+                                    setHandlingResource((prev) =>
+                                        prev
+                                            ? {
+                                                  ...prev,
+                                                  tag: tag as MediaTag,
+                                              }
+                                            : null,
+                                    );
                                 }
-                                className="w-2/3 md:w-2/5"
-                                required
-                            />
+                            }}
+                            defaultValue={
+                                resourceModalType == "edit"
+                                    ? handlingResource?.tag
+                                    : ""
+                            }
+                            className="w-2/3 md:w-2/5"
+                            required
+                        />
 
-                            {resourceModalType === "edit" && (
+                        {resourceModalType === "edit" && (
+                            <ActionButton
+                                type="submit"
+                                icon={ArrowUpTrayIcon}
+                                text="Confirm"
+                                className="ms-auto"
+                                spinner={{
+                                    isLoading: actionProgress,
+                                    size: "border-t-yellow-600! size-4",
+                                }}
+                                disabled={emptyProfile}
+                            />
+                        )}
+                    </div>
+                    {resourceModalType === "new" ? (
+                        <>
+                            {/* Upload */}
+                            <div
+                                onClick={(e) => {
+                                    (
+                                        e.currentTarget
+                                            .lastChild as HTMLInputElement
+                                    ).click();
+                                }}
+                                className="cursor-pointer h-30 bg-background dark:bg-gray-900 outline-2 outline-dashed -outline-offset-2 outline-primary/30 dark:outline-background-secondary/30 hover:outline-offset-0 rounded-md flex items-center justify-center"
+                            >
+                                <h3 className="flex items-center gap-1">
+                                    <ArrowUpTrayIcon className="size-4" />
+                                    Upload your resource
+                                </h3>
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    onChange={handlePreviews}
+                                    multiple
+                                />
+                            </div>
+
+                            {/* Previews */}
+                            <hr className="border-t" />
+                            <div className="flex flex-wrap items-center justify-between">
+                                {previews.length > 0 && (
+                                    <h2 className="text-center capitalize">
+                                        Preview and Confirm to upload.
+                                    </h2>
+                                )}
+                                {previewInProgress && (
+                                    <SpinnerComponent
+                                        text={`Loading previews (${loadedCount}/${previews.length})`}
+                                        animate="animate-pulse"
+                                    />
+                                )}
                                 <ActionButton
                                     type="submit"
                                     icon={ArrowUpTrayIcon}
@@ -459,92 +452,55 @@ export default function LibraryPage() {
                                     }}
                                     disabled={emptyProfile}
                                 />
-                            )}
-                        </div>
-                        {resourceModalType === "new" ? (
-                            <>
-                                {/* Upload */}
-                                <div
-                                    onClick={(e) => {
-                                        (
-                                            e.currentTarget
-                                                .lastChild as HTMLInputElement
-                                        ).click();
-                                    }}
-                                    className="cursor-pointer h-30 bg-background dark:bg-gray-900 outline-2 outline-dashed -outline-offset-2 outline-primary/30 dark:outline-background-secondary/30 hover:outline-offset-0 rounded-md flex items-center justify-center"
-                                >
-                                    <h3 className="flex items-center gap-1">
-                                        <ArrowUpTrayIcon className="size-4" />
-                                        Upload your resource
-                                    </h3>
-                                    <input
-                                        type="file"
-                                        className="hidden"
-                                        onChange={handlePreviews}
-                                        multiple
-                                    />
-                                </div>
-
-                                {/* Previews */}
-                                <hr className="border-t" />
-                                <div className="flex flex-wrap items-center justify-between">
-                                    {previews.length > 0 && (
-                                        <h2 className="text-center capitalize">
-                                            Preview and Confirm to upload.
-                                        </h2>
-                                    )}
-                                    {previewInProgress && (
-                                        <SpinnerComponent
-                                            text={`Loading previews (${loadedCount}/${previews.length})`}
-                                            animate="animate-pulse"
-                                        />
-                                    )}
-                                    <ActionButton
-                                        type="submit"
-                                        icon={ArrowUpTrayIcon}
-                                        text="Confirm"
-                                        className="ms-auto"
-                                        spinner={{
-                                            isLoading: actionProgress,
-                                            size: "border-t-yellow-600! size-4",
-                                        }}
-                                        disabled={emptyProfile}
-                                    />
-                                </div>
-                                {previews.length > 0 && (
-                                    <>
-                                        <hr className="border-t" />
-                                        <MasonryComponent
-                                            resources={previews}
-                                            isPreview={true}
-                                            handleDiscard={(idx) => {
-                                                clearPreviews(idx);
-                                            }}
-                                            handleOnLoad={handleLoadComplete}
-                                        />
-                                    </>
-                                )}
-                            </>
-                        ) : (
-                            resourceModalType === "edit" && (
+                            </div>
+                            {previews.length > 0 && (
                                 <>
-                                    <hr />
-                                    <div className="relative">
-                                        <img
-                                            src={`data:${handlingResource?.mediaType};base64,${handlingResource?.media}`}
-                                            alt={handlingResource!.mediaName}
-                                        />
-                                        <div className="absolute inset-0 p-4">
-                                            <span className="bg-section-theme p-1 rounded">
-                                                {handlingResource?.mediaName}
-                                            </span>
-                                        </div>
-                                    </div>
+                                    <hr className="border-t" />
+                                    <MasonryComponent
+                                        resources={previews}
+                                        isPreview={true}
+                                        handleDiscard={(idx) => {
+                                            clearPreviews(idx);
+                                        }}
+                                        handleOnLoad={handleLoadComplete}
+                                    />
                                 </>
-                            )
-                        )}
-                    </form>
-                )}
+                            )}
+                        </>
+                    ) : (
+                        resourceModalType === "edit" && (
+                            <>
+                                <hr />
+                                <div className="relative">
+                                    <img
+                                        src={`data:${handlingResource?.mediaType};base64,${handlingResource?.media}`}
+                                        alt={handlingResource!.mediaName}
+                                        className="rounded"
+                                    />
+                                    <div className="absolute inset-0 p-4 space-y-2">
+                                        <p className="w-fit bg-section-theme p-1 rounded">
+                                            <b className="text-sm">
+                                                FileName:{" "}
+                                            </b>
+                                            {handlingResource?.mediaName}
+                                        </p>
+                                        <p className="w-fit bg-section-theme p-1 rounded text-sm">
+                                            <b>Size: </b>(
+                                            {getMediaSize(
+                                                handlingResource!.media,
+                                            )}
+                                            ) &nbsp;&nbsp;
+                                            <b>Uploaded On: </b>
+                                            {DateFormatter.toFormattedDate(
+                                                handlingResource?.createdAt,
+                                            )}
+                                        </p>
+                                    </div>
+                                </div>
+                            </>
+                        )
+                    )}
+                </form>
             </ModalComponent>
         </>
     );

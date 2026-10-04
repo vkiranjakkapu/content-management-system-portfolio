@@ -11,6 +11,25 @@ class MediaService {
         });
     }
 
+    async getAllMediaByTag<T>(tag: MediaTag): Promise<ApiResponse<T>> {
+        return apiClient({
+            type: "get",
+            service: "media",
+            uri: `/tag/${tag}`,
+        });
+    }
+
+    async getAllMediaByTagList<T>(payload: {
+        tags: MediaTag[];
+    }): Promise<ApiResponse<T>> {
+        return apiClient({
+            type: "post",
+            service: "media",
+            uri: `/tag/`,
+            payload,
+        });
+    }
+
     async fetchMediaById<T>(id: string): Promise<ApiResponse<T>> {
         return apiClient({
             type: "get",

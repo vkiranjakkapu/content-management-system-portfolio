@@ -7,12 +7,17 @@ import java.util.UUID;
 import com.cms.maintenance.dto.CreateMediaRequestDto;
 import com.cms.maintenance.dto.MediaResponseDto;
 import com.cms.maintenance.dto.UpdateMediaRequestDto;
+import com.cms.maintenance.enums.MediaTag;
 import com.cms.maintenance.models.Media;
 import com.cms.maintenance.models.Profile;
 
 public interface MediaService {
 
     List<Media> getAllMedia(Profile profile);
+
+    List<Media> getAllMediaByTag(MediaTag tag, Profile profile);
+
+    List<Media> getAllMediaByTagIn(List<MediaTag> tags, Profile profile);
 
     List<Media> getAllMediaByIds(Collection<UUID> ids);
 

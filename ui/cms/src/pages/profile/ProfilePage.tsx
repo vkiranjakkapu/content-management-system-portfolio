@@ -4,14 +4,14 @@ import InputComponent from "../../components/formelements/InputComponent";
 import Notification from "../../components/notifications/Notification";
 import { useNotifications } from "../../components/notifications/useNotifications";
 import SectionLayoutComponent from "../../components/SectionLayoutComponent";
-import type { Media, Profile } from "../../services/DtoModels";
+import { MediaTag, type Media, type Profile } from "../../services/DtoModels";
 import ProfileService from "../../services/ProfileService";
 
 import {
     BackspaceIcon,
-    CameraIcon,
     CheckBadgeIcon,
     InformationCircleIcon,
+    XMarkIcon,
 } from "@heroicons/react/24/outline";
 import Landscape from "../../assets/landscape.png";
 import ActionButton from "../../components/ActionButtonComponent";
@@ -31,21 +31,6 @@ export default function ProfilePage() {
     const infoNotifications = notifications["info"] ?? null;
     const actionNotifications = notifications["action"] ?? null;
 
-    const fetchMedia = useCallback(
-        async (ids: string[]): Promise<Record<string, Blob>> => {
-            try {
-                const resp = await MediaService.fetchMediaByList<
-                    Record<string, Blob>
-                >({ ids });
-                return resp.data;
-            } catch (error) {
-                console.error("Failed to fetch media:", error);
-                return {};
-            }
-        },
-        [],
-    );
-
     const [openLibrary, setOpenLibrary] = useState<"dp" | "banner" | null>(
         null,
     );
@@ -54,11 +39,16 @@ export default function ProfilePage() {
     const [fetchProgress, setFetchProgress] = useState<boolean>(true);
 
     const fetchLibrary = useCallback(() => {
-        MediaService.getMedia<Media[]>()
+        MediaService.getAllMediaByTagList<Media[]>({
+            tags: [MediaTag.PROFILE, MediaTag.BANNER],
+        })
             .then((resp) => {
                 const allMedia = resp.data;
-                fetchMedia(allMedia.map((md) => md.id))
-                    .then((mediaMap) => {
+                MediaService.fetchMediaByList<Record<string, Blob>>({
+                    ids: allMedia.map((md) => md.id),
+                })
+                    .then((resp) => {
+                        const mediaMap = resp.data;
                         setAllMedia(
                             allMedia.map((md) => ({
                                 ...md,
@@ -73,7 +63,7 @@ export default function ProfilePage() {
             .finally(() => {
                 setFetchProgress(false);
             });
-    }, [fetchMedia]);
+    }, []);
 
     const fetchProfile = useCallback(() => {
         ProfileService.getAllProfiles<Profile>()
@@ -93,7 +83,10 @@ export default function ProfilePage() {
                 if (ids.length == 0) {
                     return;
                 }
-                fetchMedia(ids).then((mediaMap) => {
+                MediaService.fetchMediaByList<Record<string, Blob>>({
+                    ids,
+                }).then((resp) => {
+                    const mediaMap = resp.data;
                     setProfile((prev) => {
                         if (!prev) return null;
 
@@ -141,7 +134,7 @@ export default function ProfilePage() {
                     messages: [e.errorMessage],
                 });
             });
-    }, [setNotifications, fetchMedia]);
+    }, [setNotifications]);
 
     useEffect(() => {
         fetchProfile();
@@ -221,7 +214,13 @@ export default function ProfilePage() {
                                 }}
                                 className="cursor-pointer"
                                 title="Click to update profile"
-                                image={undefined}
+                                image={
+                                    draft?.dp
+                                        ? `data:${draft.dp.mediaType};base64,${draft.dp.media}`
+                                        : profile?.dp
+                                          ? `data:${profile.dp.mediaType};base64,${profile.dp.media}`
+                                          : undefined
+                                }
                                 position={
                                     draft?.designation ??
                                     profile?.designation ??
@@ -229,12 +228,24 @@ export default function ProfilePage() {
                                 }
                             />
                             <span
-                                className={`uppercase text-xs ${profile?.dp != draft?.dp ? "block" : "hidden"}`}
+                                className={`uppercase text-xs space-y-2 text-center ${profile?.dp != draft?.dp ? "block" : "hidden"}`}
                             >
                                 (Edited)
+                                <ActionButton
+                                    icon={XMarkIcon}
+                                    text="Reset"
+                                    className="text-xs px-1 bg-yellow-200 outline-yellow-200 text-yellow-600"
+                                    onClick={() => {
+                                        setDraft((prev) =>
+                                            prev
+                                                ? { ...prev, dp: profile?.dp }
+                                                : null,
+                                        );
+                                    }}
+                                />
                             </span>
                             <span
-                                className={`flex items-center gap-1 uppercase text-xs ${!profile?.dp || !draft?.dp ? "block" : "hidden"}`}
+                                className={`flex items-center gap-1 uppercase text-xs ${!profile?.dp && !draft?.dp ? "block" : "hidden"}`}
                             >
                                 <InformationCircleIcon className="size-4" />
                                 <span>Showing default</span>
@@ -275,7 +286,7 @@ export default function ProfilePage() {
                         {/* Banner Image Box */}
                         <div className="md:row-span-2 md:col-span-2 flex flex-col justify-between order-4 md:order-2">
                             <div
-                                className={`h-48 w-full rounded-3xl shadow-lg overflow-hidden cursor-pointer relative border hover:[&>.camIcon]:visible`}
+                                className={`h-48 w-full rounded-3xl shadow-lg overflow-hidden cursor-pointer relative border hover:[&>.hoverReveal]:visible`}
                                 onClick={() => {
                                     fetchLibrary();
                                     setOpenLibrary("banner");
@@ -285,29 +296,46 @@ export default function ProfilePage() {
                                 <img
                                     src={
                                         profile?.banner?.media
-                                            ? URL.createObjectURL(
-                                                  profile.banner.media,
-                                              )
+                                            ? `data:${profile.banner.mediaType};base64,${profile.banner.media}`
                                             : draft?.banner?.media
-                                              ? URL.createObjectURL(
-                                                    draft.banner.media,
-                                                )
+                                              ? `data:${draft.banner.mediaType};base64,${draft.banner.media}`
                                               : Landscape
                                     }
                                     alt="Banner"
                                     className={`w-full h-full object-cover ${
-                                        !profile?.banner && "opacity-60"
+                                        !draft?.banner &&
+                                        !profile?.banner &&
+                                        "opacity-60"
                                     }`}
                                 />
-                                <div className="camIcon absolute pointer-events-none invisible top-0 right-0 bg-section-theme m-2 p-2 rounded-full">
-                                    <CameraIcon className="size-4" />
+                                <div
+                                    className={`absolute inset-y-0 h-fit top-0 right-0 m-3 space-y-2 rounded-full ${draft?.banner != profile?.banner ? "block" : "hidden"}`}
+                                >
+                                    <div
+                                        className="p-1 text-sm bg-yellow-200 text-yellow-600 rounded flex items-center gap-1"
+                                        title="Reset"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setDraft((prev) =>
+                                                prev
+                                                    ? {
+                                                          ...prev,
+                                                          banner: profile?.banner,
+                                                      }
+                                                    : null,
+                                            );
+                                        }}
+                                    >
+                                        <BackspaceIcon className="size-4" />
+                                        Reset
+                                    </div>
                                 </div>
                                 <div className="absolute bottom-0 p-2 pl-6 bg-section-theme w-full font-playfair text-primary text-lg">
                                     {draft?.location ??
                                         profile?.location ??
                                         "West Godavari, AP"}
                                 </div>
-                                <div className="absolute top-0 p-2 pl-6 flex items-center gap-1 justify-center mt-2 text-slate-500">
+                                <div className="hoverReveal invisible pointer-events-none absolute top-0 p-1 bg-section-theme rounded flex items-center gap-1 justify-center m-3 text-slate-500">
                                     <InformationCircleIcon className="size-4" />
                                     <span className="capitalize text-sm">
                                         Will be Used as background for location
@@ -521,6 +549,27 @@ export default function ProfilePage() {
                         text: "Fetching library...",
                         isLoading: fetchProgress,
                     }}
+                    searchOptions={[MediaTag.PROFILE, MediaTag.BANNER].map(
+                        (tag) => ({ value: tag }),
+                    )}
+                    handleImageClick={(media) => {
+                        if (openLibrary == "dp") {
+                            setDraft((prev) =>
+                                prev ? { ...prev, dp: media } : null,
+                            );
+                        }
+                        if (openLibrary == "banner") {
+                            setDraft((prev) =>
+                                prev ? { ...prev, banner: media } : null,
+                            );
+                        }
+                        setOpenLibrary(null);
+                    }}
+                    handleNewUpload={(media) => {
+                        setAllMedia((prev) => [media, ...prev]);
+                        console.log(media);
+                    }}
+                    allowUpload
                 />
             </ModalComponent>
         </>

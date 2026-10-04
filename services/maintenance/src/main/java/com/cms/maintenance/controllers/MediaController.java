@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.cms.maintenance.dto.ApiResponseDto;
 import com.cms.maintenance.dto.CreateMediaRequestDto;
 import com.cms.maintenance.dto.MediaResponseDto;
+import com.cms.maintenance.dto.SearchByTagsRequestDto;
 import com.cms.maintenance.dto.UpdateMediaRequestDto;
+import com.cms.maintenance.enums.MediaTag;
 import com.cms.maintenance.models.Media;
 import com.cms.maintenance.services.MediaService;
 import com.cms.maintenance.services.ProfileService;
@@ -34,9 +36,24 @@ public class MediaController {
 	private final ProfileService profileService;
 
 	@GetMapping("/")
-	public ResponseEntity<ApiResponseDto<List<Media>>> getMyMedia() {
+	public ResponseEntity<ApiResponseDto<List<Media>>> getAllMedia() {
 		return ResponseEntity.ok(ApiResponseDto.<List<Media>>builder()
 				.data(mediaService.getAllMedia(profileService.getCurrentUserProfile()))
+				.build());
+	}
+
+	@GetMapping("/tag/{tag}")
+	public ResponseEntity<ApiResponseDto<List<Media>>> getMediaByTag(@PathVariable MediaTag tag) {
+		return ResponseEntity.ok(ApiResponseDto.<List<Media>>builder()
+				.data(mediaService.getAllMediaByTag(tag, profileService.getCurrentUserProfile()))
+				.build());
+	}
+
+	@PostMapping("/tag/")
+	public ResponseEntity<ApiResponseDto<List<Media>>> getAllMediaByTag(
+			@Valid @RequestBody SearchByTagsRequestDto requets) {
+		return ResponseEntity.ok(ApiResponseDto.<List<Media>>builder()
+				.data(mediaService.getAllMediaByTagIn(requets.tags(), profileService.getCurrentUserProfile()))
 				.build());
 	}
 

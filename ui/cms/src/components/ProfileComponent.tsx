@@ -4,7 +4,7 @@ import profileDp from "/profile.webp";
 import { CameraIcon } from "@heroicons/react/24/outline";
 
 type ProfileComponentProps = HTMLAttributes<HTMLDivElement> & {
-    image?: Blob;
+    image?: string;
     position?: string;
     customiseText?: string;
 };
@@ -31,7 +31,7 @@ export default function ProfileComponent({
             className={`relative size-48 rounded-full text-primary hover:[&>.camIcon]:visible ${props.className}`}
         >
             <img
-                src={image ? URL.createObjectURL(image) : profileDp}
+                src={image ?? profileDp}
                 alt="Venkata Kiran Jakkapu"
                 loading="eager"
                 decoding="async"
