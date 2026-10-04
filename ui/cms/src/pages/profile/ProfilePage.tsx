@@ -9,13 +9,14 @@ import ProfileService from "../../services/ProfileService";
 
 import {
     BackspaceIcon,
+    CameraIcon,
     CheckBadgeIcon,
     InformationCircleIcon,
 } from "@heroicons/react/24/outline";
-import Avatar from "../../assets/avatar.png";
 import Landscape from "../../assets/landscape.png";
 import ActionButton from "../../components/ActionButtonComponent";
 import ModalComponent from "../../components/ModalComponent";
+import ProfileComponent from "../../components/ProfileComponent";
 import MediaService from "../../services/MediaService";
 import MasonryComponent from "../library/MasonryComponent";
 
@@ -23,10 +24,10 @@ export default function ProfilePage() {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [draft, setDraft] = useState<Partial<Profile> | null>(null);
 
-    const { notifications, setNotifications } = useNotifications([
-        "info",
-        "action",
-    ]);
+    const [emptyProfile, setEmptyProfile] = useState<boolean>(false);
+
+    const { notifications, setNotifications, resetNotifications } =
+        useNotifications(["info", "action"]);
     const infoNotifications = notifications["info"] ?? null;
     const actionNotifications = notifications["action"] ?? null;
 
@@ -79,14 +80,16 @@ export default function ProfilePage() {
             .then((resp) => {
                 const profile = resp.data;
                 setProfile(profile);
+                setDraft(profile);
 
                 if (!profile.dp && !profile.banner) {
                     return;
                 }
 
-                const ids = [profile.dp.id, profile.banner.id].filter(
-                    (id) => id != null,
-                );
+                const ids = [
+                    ...[profile.dp ? profile.dp.id : null],
+                    ...[profile.banner ? profile.banner.id : null],
+                ].filter((id) => id != null);
                 if (ids.length == 0) {
                     return;
                 }
@@ -96,14 +99,22 @@ export default function ProfilePage() {
 
                         const updatedProfile = {
                             ...prev,
-                            dp: {
-                                ...prev.dp,
-                                media: mediaMap.get(prev.dp.id)!,
-                            },
-                            banner: {
-                                ...prev.banner,
-                                media: mediaMap.get(prev.banner.id)!,
-                            },
+                            ...(prev.dp
+                                ? {
+                                      dp: {
+                                          ...prev.dp,
+                                          media: mediaMap.get(prev.dp.id)!,
+                                      },
+                                  }
+                                : {}),
+                            ...(prev.banner
+                                ? {
+                                      banner: {
+                                          ...prev.banner,
+                                          media: mediaMap.get(prev.banner.id)!,
+                                      },
+                                  }
+                                : {}),
                         };
                         return updatedProfile;
                     });
@@ -111,7 +122,9 @@ export default function ProfilePage() {
             })
             .catch((e: ErrorResponse) => {
                 console.log(e);
-
+                if (e.errorCode === "BUS-2001") {
+                    setEmptyProfile(true);
+                }
                 setNotifications("info", {
                     type: "info",
                     messages: [e.errorMessage],
@@ -123,15 +136,30 @@ export default function ProfilePage() {
         fetchProfile();
     }, [fetchProfile]);
 
+    const [actionProgress, setActionProgress] = useState<boolean>(false);
+
     function handleFormSubmit(e: SubmitEvent<HTMLFormElement>) {
         e.preventDefault();
 
         const formData = new FormData(e.currentTarget);
 
-        ProfileService.createProfile<Profile>(formData)
+        setActionProgress(true);
+
+        const promise = emptyProfile
+            ? ProfileService.createProfile<Profile>(formData)
+            : ProfileService.updateProfile<Profile>(formData);
+
+        promise
             .then((resp) => {
                 setProfile(resp.data);
-                setDraft(null); // Clear draft on successful save
+                setDraft(resp.data);
+                setNotifications("action", {
+                    type: "success",
+                    messages: [
+                        `Profile ${emptyProfile ? "Created" : "Updated"} Successfully.`,
+                    ],
+                });
+                resetNotifications("info");
             })
             .catch((e: ErrorResponse) => {
                 setNotifications("action", {
@@ -143,6 +171,9 @@ export default function ProfilePage() {
                               )
                             : [e.errorMessage],
                 });
+            })
+            .finally(() => {
+                setActionProgress(false);
             });
     }
 
@@ -150,7 +181,7 @@ export default function ProfilePage() {
         <>
             <SectionLayoutComponent
                 title="Profile"
-                description="You can Manage Profiles from this page"
+                description="You can Manage Profile from this page"
             >
                 <div className="space-y-3">
                     {infoNotifications && (
@@ -168,133 +199,37 @@ export default function ProfilePage() {
 
                     <form
                         onSubmit={handleFormSubmit}
-                        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                        className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4"
                     >
                         {/* Profile Picture Box */}
-                        <div className="flex justify-center md:row-span-2">
-                            <div
-                                className="w-48 h-48 rounded-3xl shadow-lg overflow-hidden cursor-pointer relative border shrink-0"
+                        <div className="flex flex-col items-center justify-center md:row-span-2 order-1">
+                            <ProfileComponent
                                 onClick={() => {
                                     fetchLibrary();
                                     setOpenLibrary("dp");
                                 }}
-                                title="Click to change profile picture"
+                                className="cursor-pointer"
+                                title="Click to update profile"
+                                image={undefined}
+                                position={
+                                    draft?.designation ??
+                                    profile?.designation ??
+                                    "~ Full Stack Developer ~ Java ~ React ~ AI"
+                                }
+                            />
+                            <span
+                                className={`uppercase text-xs ${profile?.dp != draft?.dp ? "block" : "hidden"}`}
                             >
-                                <img
-                                    src={
-                                        profile?.dp?.media
-                                            ? URL.createObjectURL(
-                                                  profile.dp.media,
-                                              )
-                                            : Avatar
-                                    }
-                                    alt="Profile"
-                                    className="w-full h-full object-cover"
-                                />
-                                <input type="file" className="hidden" />
-                            </div>
-                        </div>
-
-                        {/* Banner Image Box */}
-                        <div className="md:row-span-2 md:col-span-2 flex flex-col justify-between">
-                            <div
-                                className={`h-48 w-full rounded-3xl shadow-lg overflow-hidden cursor-pointer relative border ${
-                                    !profile?.banner && "opacity-60"
-                                }`}
-                                onClick={() => {
-                                    fetchLibrary();
-                                    setOpenLibrary("banner");
-                                }}
-                                title="Click to change banner image"
+                                (Edited)
+                            </span>
+                            <span
+                                className={`flex items-center gap-1 uppercase text-xs ${!profile?.dp || !draft?.dp ? "block" : "hidden"}`}
                             >
-                                <img
-                                    src={
-                                        profile?.banner?.media
-                                            ? URL.createObjectURL(
-                                                  profile.banner.media,
-                                              )
-                                            : Landscape
-                                    }
-                                    alt="Banner"
-                                    className="w-full h-full object-cover"
-                                />
-                                <input type="file" className="hidden" />
-                            </div>
-                            <div className="flex items-center gap-1 justify-center mt-2 text-slate-500">
                                 <InformationCircleIcon className="size-4" />
-                                <span className="capitalize text-sm">
-                                    Will be Used as background for location
-                                </span>
-                            </div>
+                                <span>Showing default</span>
+                            </span>
                         </div>
-
-                        <div>
-                            <label
-                                htmlFor="email"
-                                className="capitalize block text-sm font-medium mb-1"
-                            >
-                                email :
-                            </label>
-                            <InputComponent
-                                id="email"
-                                name="email"
-                                value={draft?.email ?? profile?.email ?? ""}
-                                placeholder="Enter email"
-                                onChange={(e) => {
-                                    setDraft((prev) => ({
-                                        ...prev,
-                                        email: e.target.value,
-                                    }));
-                                }}
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label
-                                htmlFor="name"
-                                className="capitalize block text-sm font-medium mb-1"
-                            >
-                                name :
-                            </label>
-                            <InputComponent
-                                id="name"
-                                name="name"
-                                value={draft?.name ?? profile?.name ?? ""}
-                                placeholder="Enter name"
-                                onChange={(e) => {
-                                    setDraft((prev) => ({
-                                        ...prev,
-                                        name: e.target.value,
-                                    }));
-                                }}
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label
-                                htmlFor="phone"
-                                className="capitalize block text-sm font-medium mb-1"
-                            >
-                                phone :
-                            </label>
-                            <InputComponent
-                                id="phone"
-                                name="phone"
-                                value={draft?.phone ?? profile?.phone ?? ""}
-                                placeholder="Enter phone"
-                                onChange={(e) => {
-                                    setDraft((prev) => ({
-                                        ...prev,
-                                        phone: e.target.value,
-                                    }));
-                                }}
-                                required
-                            />
-                        </div>
-
-                        <div>
+                        <div className="order-2 md:order-3">
                             <label
                                 htmlFor="designation"
                                 className="capitalize block text-sm font-medium mb-1"
@@ -318,9 +253,63 @@ export default function ProfilePage() {
                                 }}
                                 required
                             />
+                            <span
+                                className={`uppercase text-xs ${profile?.designation != draft?.designation ? "block" : "hidden"}`}
+                            >
+                                (Edited)
+                            </span>
                         </div>
+                        <hr className="lg:hidden border-t order-3" />
 
-                        <div>
+                        {/* Banner Image Box */}
+                        <div className="md:row-span-2 md:col-span-2 flex flex-col justify-between order-4 md:order-2">
+                            <div
+                                className={`h-48 w-full rounded-3xl shadow-lg overflow-hidden cursor-pointer relative border hover:[&>.camIcon]:visible`}
+                                onClick={() => {
+                                    fetchLibrary();
+                                    setOpenLibrary("banner");
+                                }}
+                                title="Click to change banner image"
+                            >
+                                <img
+                                    src={
+                                        profile?.banner?.media
+                                            ? URL.createObjectURL(
+                                                  profile.banner.media,
+                                              )
+                                            : draft?.banner?.media
+                                              ? URL.createObjectURL(
+                                                    draft.banner.media,
+                                                )
+                                              : Landscape
+                                    }
+                                    alt="Banner"
+                                    className={`w-full h-full object-cover ${
+                                        !profile?.banner && "opacity-60"
+                                    }`}
+                                />
+                                <div className="camIcon absolute pointer-events-none invisible top-0 right-0 bg-section-theme m-2 p-2 rounded-full">
+                                    <CameraIcon className="size-4" />
+                                </div>
+                                <div className="absolute bottom-0 p-2 pl-6 bg-section-theme w-full font-playfair text-primary text-lg">
+                                    {draft?.location ??
+                                        profile?.location ??
+                                        "West Godavari, AP"}
+                                </div>
+                                <div className="absolute top-0 p-2 pl-6 flex items-center gap-1 justify-center mt-2 text-slate-500">
+                                    <InformationCircleIcon className="size-4" />
+                                    <span className="capitalize text-sm">
+                                        Will be Used as background for location
+                                    </span>
+                                </div>
+                            </div>
+                            <span
+                                className={`uppercase text-xs ${profile?.banner != draft?.banner ? "block" : "hidden"}`}
+                            >
+                                (Edited)
+                            </span>
+                        </div>
+                        <div className="order-5">
                             <label
                                 htmlFor="location"
                                 className="capitalize block text-sm font-medium mb-1"
@@ -342,14 +331,26 @@ export default function ProfilePage() {
                                 }}
                                 required
                             />
+                            <span
+                                className={`uppercase text-xs ${profile?.location != draft?.location ? "block" : "hidden"}`}
+                            >
+                                (Edited)
+                            </span>
                         </div>
+                        <hr className="lg:hidden border-t order-6" />
 
-                        <div>
+                        {/* Availability */}
+                        <div className="order-7">
                             <label
                                 htmlFor="availability"
                                 className="capitalize block text-sm font-medium mb-1"
                             >
-                                availability :
+                                work status :
+                                <span
+                                    className={`uppercase text-xs ml-1 ${profile?.availability != draft?.availability ? "block" : "hidden"}`}
+                                >
+                                    (Edited)
+                                </span>
                             </label>
                             <InputComponent
                                 id="availability"
@@ -378,29 +379,118 @@ export default function ProfilePage() {
                             </div>
                         </div>
 
+                        <hr className="hidden md:block col-span-full border-t order-8" />
+
+                        {/* Name */}
+                        <div className="order-9">
+                            <label
+                                htmlFor="name"
+                                className="capitalize block text-sm font-medium mb-1"
+                            >
+                                name :
+                            </label>
+                            <InputComponent
+                                id="name"
+                                name="name"
+                                value={draft?.name ?? profile?.name ?? ""}
+                                placeholder="Enter name"
+                                onChange={(e) => {
+                                    setDraft((prev) => ({
+                                        ...prev,
+                                        name: e.target.value,
+                                    }));
+                                }}
+                                required
+                            />
+                            <span
+                                className={`uppercase text-xs ${profile?.name != draft?.name ? "block" : "hidden"}`}
+                            >
+                                (Edited)
+                            </span>
+                        </div>
+
+                        {/* Email */}
+                        <div className="order-10">
+                            <label
+                                htmlFor="email"
+                                className="capitalize block text-sm font-medium mb-1"
+                            >
+                                email :
+                            </label>
+                            <InputComponent
+                                id="email"
+                                name="email"
+                                value={draft?.email ?? profile?.email ?? ""}
+                                placeholder="Enter email"
+                                onChange={(e) => {
+                                    setDraft((prev) => ({
+                                        ...prev,
+                                        email: e.target.value,
+                                    }));
+                                }}
+                                required
+                            />
+                            <span
+                                className={`uppercase text-xs ${profile?.email != draft?.email ? "block" : "hidden"}`}
+                            >
+                                (Edited)
+                            </span>
+                        </div>
+
+                        {/* Phone */}
+                        <div className="order-11">
+                            <label
+                                htmlFor="phone"
+                                className="capitalize block text-sm font-medium mb-1"
+                            >
+                                phone :
+                            </label>
+                            <InputComponent
+                                id="phone"
+                                name="phone"
+                                value={draft?.phone ?? profile?.phone ?? ""}
+                                placeholder="Enter phone"
+                                onChange={(e) => {
+                                    setDraft((prev) => ({
+                                        ...prev,
+                                        phone: e.target.value,
+                                    }));
+                                }}
+                                required
+                            />
+                            <span
+                                className={`uppercase text-xs ${profile?.phone != draft?.phone ? "block" : "hidden"}`}
+                            >
+                                (Edited)
+                            </span>
+                        </div>
+
                         {/* Form Actions */}
-                        <div className="col-span-full flex items-center justify-between gap-2 pt-4 border-t border-slate-100">
+                        <div className="order-12 col-span-full flex items-center justify-between gap-2 pt-4 border-t">
                             <div className="flex-1">
-                                {draft != null &&
-                                    Object.keys(draft).length > 0 && (
-                                        <div className="flex items-center justify-end gap-2">
-                                            <span className="px-2 py-1 bg-amber-200 text-amber-800 text-xs uppercase rounded w-fit animate-pulse">
-                                                UnSaved Draft
-                                            </span>
-                                            <ActionButton
-                                                text="Reset"
-                                                icon={BackspaceIcon}
-                                                className="bg-yellow-200 outline-yellow-200 text-yellow-600"
-                                                onClick={() => setDraft(null)}
-                                            />
-                                        </div>
-                                    )}
+                                {JSON.stringify(draft) !==
+                                    JSON.stringify(profile) && (
+                                    <div className="flex items-center justify-end gap-2">
+                                        <span className="px-2 py-1 bg-amber-200 text-amber-800 text-xs uppercase rounded w-fit animate-pulse">
+                                            UnSaved Draft
+                                        </span>
+                                        <ActionButton
+                                            text="Reset"
+                                            icon={BackspaceIcon}
+                                            className="bg-yellow-200 outline-yellow-200 text-yellow-600"
+                                            onClick={() => setDraft(profile)}
+                                        />
+                                    </div>
+                                )}
                             </div>
                             <ActionButton
                                 className="ml-auto"
-                                text={profile ? `Update` : `Create`}
+                                text={!emptyProfile ? `Update` : `Create`}
                                 icon={CheckBadgeIcon}
                                 type="submit"
+                                spinner={{
+                                    isLoading: actionProgress,
+                                }}
                             />
                         </div>
                     </form>

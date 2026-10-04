@@ -53,11 +53,11 @@ public class ProfileServiceImp implements ProfileService {
     @Override
     public Profile createProfile(CreateProfileRequestDto request) {
 
-        try {
-            getCurrentUserProfile();
+        boolean profileExists = profileRepository.findByUserId(currentUser.userId()).isPresent();
+
+        if (profileExists) {
             throw new BusinessException(BusinessExceptions.PROFILE_ALREADY_EXISTS,
                     "Profile already exists for this user.");
-        } catch (BusinessException e) {
         }
 
         Profile profile = Profile.builder()
@@ -85,7 +85,7 @@ public class ProfileServiceImp implements ProfileService {
                     .file(request.banner())
                     .tag(MediaTag.BANNER)
                     .build(), savedProfile);
-            savedProfile.setDp(banner);
+            savedProfile.setBanner(banner);
         });
 
         return profileRepository.save(savedProfile);

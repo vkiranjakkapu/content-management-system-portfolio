@@ -9,6 +9,7 @@
     --color-background-secondary: #ffffffc7;
 
     --font-noto-sans: "Noto Sans", sans-serif;
+    --font-playfair: "Playfair Display SC", serif;
 }
 
 @layer base {
