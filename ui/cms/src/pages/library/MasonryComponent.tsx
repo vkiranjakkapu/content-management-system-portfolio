@@ -158,6 +158,8 @@ export default function MasonryComponent({
                 handleNewUpload?.(resp.data);
             })
             .catch((e: ErrorResponse) => {
+                console.log(e);
+
                 setUploadNotifications({
                     type: "error",
                     messages: [e.errorMessage],
@@ -666,6 +668,12 @@ export default function MasonryComponent({
         </>
     ) : (
         <div className="space-y-1.5 *:not-last:pb-1.5">
+            {uploadNotifications && (
+                <Notification
+                    type={uploadNotifications.type}
+                    messages={uploadNotifications.messages}
+                />
+            )}
             {allowUpload && (
                 <>
                     <div>

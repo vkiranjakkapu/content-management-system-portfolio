@@ -87,30 +87,29 @@ export default function ProfilePage() {
                     ids,
                 }).then((resp) => {
                     const mediaMap = resp.data;
-                    setProfile((prev) => {
-                        if (!prev) return null;
 
-                        const updatedProfile = {
-                            ...prev,
-                            ...(prev.dp
-                                ? {
-                                      dp: {
-                                          ...prev.dp,
-                                          media: mediaMap[prev.dp.id]!,
-                                      },
-                                  }
-                                : {}),
-                            ...(prev.banner
-                                ? {
-                                      banner: {
-                                          ...prev.banner,
-                                          media: mediaMap[prev.banner.id]!,
-                                      },
-                                  }
-                                : {}),
-                        };
-                        return updatedProfile;
-                    });
+                    const updatedProfile = {
+                        ...profile,
+                        ...(profile.dp
+                            ? {
+                                  dp: {
+                                      ...profile.dp,
+                                      media: mediaMap[profile.dp.id]!,
+                                  },
+                              }
+                            : {}),
+                        ...(profile.banner
+                            ? {
+                                  banner: {
+                                      ...profile.banner,
+                                      media: mediaMap[profile.banner.id]!,
+                                  },
+                              }
+                            : {}),
+                    };
+
+                    setProfile(updatedProfile);
+                    setDraft(updatedProfile);
                 });
             })
             .catch((e: ErrorResponse) => {
@@ -180,6 +179,51 @@ export default function ProfilePage() {
             });
     }
 
+    function updateProfileMedia(type: "dp" | "banner") {
+        const targetMedia = type === "dp" ? draft?.dp : draft?.banner;
+
+        if (!targetMedia) {
+            setNotifications("action", {
+                type: "error",
+                messages: [`@${type} was not found.`],
+            });
+            return;
+        }
+
+        const payload = {
+            ...(type === "dp"
+                ? { dp: draft?.dp!.id }
+                : { banner: draft?.banner!.id }),
+        };
+
+        setNotifications("action", null);
+        setActionProgress(true);
+        ProfileService.updateProfile<Profile>(payload)
+            .then(() => {
+                setProfile((prev) =>
+                    prev
+                        ? {
+                              ...prev,
+                              [type]: targetMedia,
+                          }
+                        : null,
+                );
+                setNotifications("action", {
+                    type: "success",
+                    messages: [`@${type} updated successfully.`],
+                });
+            })
+            .catch((e: ErrorResponse) => {
+                setNotifications("action", {
+                    type: "error",
+                    messages: [e.errorMessage],
+                });
+            })
+            .finally(() => {
+                setActionProgress(false);
+            });
+    }
+
     return (
         <>
             <SectionLayoutComponent
@@ -188,16 +232,17 @@ export default function ProfilePage() {
             >
                 <div className="space-y-3">
                     {infoNotifications && (
-                        <Notification
-                            type={infoNotifications?.type}
-                            messages={infoNotifications.messages}
-                        />
+                        <div>
+                            <Notification
+                                type={infoNotifications?.type}
+                                messages={infoNotifications.messages}
+                            />
+                        </div>
                     )}
                     {actionNotifications && (
-                        <Notification
-                            type={actionNotifications?.type}
-                            messages={actionNotifications.messages}
-                        />
+                        <div>
+                            <Notification {...actionNotifications} />
+                        </div>
                     )}
 
                     <form
@@ -205,9 +250,20 @@ export default function ProfilePage() {
                         className="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4"
                     >
                         {/* Profile Picture Box */}
-                        <div className="flex flex-col items-center justify-center md:row-span-2 order-1">
+                        <div
+                            className={`flex flex-col gap-2 rounded-lg pb-2 items-center justify-center md:row-span-2 order-1 ${profile?.dp != draft?.dp && "border"}`}
+                        >
                             <ProfileComponent
                                 onClick={() => {
+                                    if (emptyProfile) {
+                                        setNotifications("info", {
+                                            type: "error",
+                                            messages: [
+                                                "Please Create the Profile first to proceed with @dp upload.",
+                                            ],
+                                        });
+                                        return;
+                                    }
                                     fetchLibrary();
                                     setOpenLibrary("dp");
                                 }}
@@ -227,13 +283,18 @@ export default function ProfilePage() {
                                 }
                             />
                             <span
-                                className={`uppercase text-xs space-y-2 text-center ${profile?.dp != draft?.dp ? "block" : "hidden"}`}
+                                className={`flex items-center gap-1 uppercase text-xs ${!profile?.dp && !draft?.dp ? "block" : "hidden"}`}
                             >
-                                (Edited)
+                                <InformationCircleIcon className="size-4" />
+                                <span>Showing default</span>
+                            </span>
+                            <div
+                                className={`uppercase text-xs flex items-center gap-2 ${profile?.dp != draft?.dp ? "block" : "hidden"}`}
+                            >
                                 <ActionButton
                                     icon={XMarkIcon}
                                     text="Reset"
-                                    className="text-xs px-1 bg-yellow-200 outline-yellow-200 text-yellow-600"
+                                    className="text-xs bg-yellow-200 outline-yellow-500 text-yellow-600"
                                     onClick={() => {
                                         setDraft((prev) =>
                                             prev
@@ -242,13 +303,16 @@ export default function ProfilePage() {
                                         );
                                     }}
                                 />
-                            </span>
-                            <span
-                                className={`flex items-center gap-1 uppercase text-xs ${!profile?.dp && !draft?.dp ? "block" : "hidden"}`}
-                            >
-                                <InformationCircleIcon className="size-4" />
-                                <span>Showing default</span>
-                            </span>
+                                <ActionButton
+                                    text="Update"
+                                    icon={CheckBadgeIcon}
+                                    className="text-xs"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        updateProfileMedia("dp");
+                                    }}
+                                />
+                            </div>
                         </div>
                         <div className="order-2 md:order-3">
                             <label
@@ -287,6 +351,15 @@ export default function ProfilePage() {
                             <div
                                 className={`h-48 w-full rounded-3xl shadow-lg overflow-hidden cursor-pointer relative border hover:[&>.hoverReveal]:visible`}
                                 onClick={() => {
+                                    if (emptyProfile) {
+                                        setNotifications("info", {
+                                            type: "error",
+                                            messages: [
+                                                "Please Create the Profile first to proceed with @banner upload.",
+                                            ],
+                                        });
+                                        return;
+                                    }
                                     fetchLibrary();
                                     setOpenLibrary("banner");
                                 }}
@@ -294,10 +367,10 @@ export default function ProfilePage() {
                             >
                                 <img
                                     src={
-                                        profile?.banner?.media
-                                            ? `data:${profile.banner.mediaType};base64,${profile.banner.media}`
-                                            : draft?.banner?.media
-                                              ? `data:${draft.banner.mediaType};base64,${draft.banner.media}`
+                                        draft?.banner?.media
+                                            ? `data:${draft.banner.mediaType};base64,${draft.banner.media}`
+                                            : profile?.banner?.media
+                                              ? `data:${profile.banner.mediaType};base64,${profile.banner.media}`
                                               : Landscape
                                     }
                                     alt="Banner"
@@ -310,6 +383,15 @@ export default function ProfilePage() {
                                 <div
                                     className={`absolute inset-y-0 h-fit top-0 right-0 m-3 space-y-2 rounded-full ${draft?.banner != profile?.banner ? "block" : "hidden"}`}
                                 >
+                                    <ActionButton
+                                        text="Update"
+                                        icon={CheckBadgeIcon}
+                                        className="text-sm"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            updateProfileMedia("banner");
+                                        }}
+                                    />
                                     <div
                                         className="p-1 text-sm bg-yellow-200 text-yellow-600 rounded flex items-center gap-1"
                                         title="Reset"
@@ -523,7 +605,9 @@ export default function ProfilePage() {
                             </div>
                             <ActionButton
                                 className="ml-auto"
-                                text={!emptyProfile ? `Update` : `Create`}
+                                text={
+                                    !emptyProfile ? `Update` : `Create Profile`
+                                }
                                 icon={CheckBadgeIcon}
                                 type="submit"
                                 spinner={{
@@ -566,7 +650,6 @@ export default function ProfilePage() {
                     }}
                     handleNewUpload={(media) => {
                         setAllMedia((prev) => [media, ...prev]);
-                        console.log(media);
                     }}
                     allowUpload
                 />

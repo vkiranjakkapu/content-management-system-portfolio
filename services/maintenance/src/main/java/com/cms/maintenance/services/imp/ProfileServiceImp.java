@@ -6,12 +6,10 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.cms.maintenance.dto.CreateMediaRequestDto;
 import com.cms.maintenance.dto.CreateProfileRequestDto;
 import com.cms.maintenance.dto.ProfileResponseDto;
 import com.cms.maintenance.dto.UpdateProfileRequestDto;
 import com.cms.maintenance.enums.BusinessExceptions;
-import com.cms.maintenance.enums.MediaTag;
 import com.cms.maintenance.exceptions.BusinessException;
 import com.cms.maintenance.models.Media;
 import com.cms.maintenance.models.Profile;
@@ -19,6 +17,7 @@ import com.cms.maintenance.repositories.ProfileRepository;
 import com.cms.maintenance.services.CurrentUserService;
 import com.cms.maintenance.services.MediaService;
 import com.cms.maintenance.services.ProfileService;
+import com.platform.web.exception.SecurityExceptions;
 
 import lombok.RequiredArgsConstructor;
 
@@ -72,19 +71,13 @@ public class ProfileServiceImp implements ProfileService {
 
         Profile savedProfile = profileRepository.save(profile);
 
-        Optional.ofNullable(request.dp()).ifPresent(dpReq -> {
-            Media dp = mediaService.createMedia(CreateMediaRequestDto.builder()
-                    .file(request.dp())
-                    .tag(MediaTag.PROFILE)
-                    .build(), savedProfile);
+        Optional.ofNullable(request.dp()).ifPresent(dpId -> {
+            Media dp = mediaService.getMediaById(UUID.fromString(dpId));
             savedProfile.setDp(dp);
         });
 
-        Optional.ofNullable(request.banner()).ifPresent(bannerReq -> {
-            Media banner = mediaService.createMedia(CreateMediaRequestDto.builder()
-                    .file(request.banner())
-                    .tag(MediaTag.BANNER)
-                    .build(), savedProfile);
+        Optional.ofNullable(request.banner()).ifPresent(bannerId -> {
+            Media banner = mediaService.getMediaById(UUID.fromString(bannerId));
             savedProfile.setBanner(banner);
         });
 
@@ -107,33 +100,21 @@ public class ProfileServiceImp implements ProfileService {
 
         Optional.ofNullable(request.location()).ifPresent(profile::setLocation);
 
-        Optional.ofNullable(request.dp()).ifPresent(dpReq -> {
-            try {
-                mediaService.deleteMediaById(profile.getDp().getId());
-            } catch (BusinessException e) {
-                e.printStackTrace();
+        Optional.ofNullable(request.dp()).ifPresent(dpId -> {
+            Media dp = mediaService.getMediaById(UUID.fromString(dpId));
+            if (!dp.getProfile().equals(profile)) {
+                throw new BusinessException(SecurityExceptions.FORBIDDEN_ACCESS,
+                        "You are not allowed to access this resource", HttpStatus.FORBIDDEN);
             }
-
-            Media dp = mediaService.createMedia(CreateMediaRequestDto.builder()
-                    .file(dpReq)
-                    .tag(MediaTag.PROFILE)
-                    .build(), getCurrentUserProfile());
-            dp.setProfile(profile);
             profile.setDp(dp);
         });
 
-        Optional.ofNullable(request.banner()).ifPresent(bannerReq -> {
-            try {
-                mediaService.deleteMediaById(profile.getBanner().getId());
-            } catch (BusinessException e) {
-                e.printStackTrace();
+        Optional.ofNullable(request.banner()).ifPresent(bannerId -> {
+            Media banner = mediaService.getMediaById(UUID.fromString(bannerId));
+            if (!banner.getProfile().equals(profile)) {
+                throw new BusinessException(SecurityExceptions.FORBIDDEN_ACCESS,
+                        "You are not allowed to access this resource", HttpStatus.FORBIDDEN);
             }
-
-            Media banner = mediaService.createMedia(CreateMediaRequestDto.builder()
-                    .file(bannerReq)
-                    .tag(MediaTag.BANNER)
-                    .build(), getCurrentUserProfile());
-            banner.setProfile(profile);
             profile.setBanner(banner);
         });
 
