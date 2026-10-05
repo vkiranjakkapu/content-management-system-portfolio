@@ -295,10 +295,10 @@ export default function MasonryComponent({
                             >
                                 {/* Options */}
                                 <div
-                                    className="z-1 backdrop absolute inset-0 bg-gray-900/20 p-4 cursor-pointer"
+                                    className="z-1 absolute inset-0 bg-gray-900/20 p-4 cursor-pointer"
                                     title={upload.preview.file.name}
                                 >
-                                    <div className="flex flex-col gap-1 items-end *:duration-100">
+                                    <div className="relative z-2 inset-x-0 flex flex-col gap-1 items-end *:duration-100">
                                         {upload.preview.uploadStatus ==
                                             UploadStatus.PREVIEW && (
                                             <ActionButton
@@ -311,12 +311,12 @@ export default function MasonryComponent({
                                             />
                                         )}
                                     </div>
-                                    <div className="absolute inset-0 p-4 space-y-1">
+                                    <div className="absolute z-0 inset-0 p-4 space-y-1">
                                         <p className="max-w-[30ch] truncate -translate-y-2 w-fit text-xs bg-background-secondary text-primary px-2 py-1 uppercase rounded">
                                             {upload.preview.file.name}
                                         </p>
                                     </div>
-                                    <div className="absolute bottom-0 inset-x-0 p-2 space-y-2">
+                                    <div className="absolute z-1 bottom-0 inset-x-0 p-2 space-y-2">
                                         <SelectComponent
                                             options={Object.keys(MediaTag).map(
                                                 (tag) => ({ value: tag }),

@@ -62,6 +62,9 @@ export default function Dashboard() {
         ) {
             ContactService.deleteContactReq(contact.id)
                 .then(() => {
+                    setAllContacts((prev) =>
+                        prev.filter((cnct) => cnct.id != contact.id),
+                    );
                     setInfoNotifications({
                         type: "success",
                         messages: [
@@ -90,7 +93,7 @@ export default function Dashboard() {
     return (
         <SectionLayoutComponent
             title="Dashboard"
-            description={`Welcome back ${user.name}.`}
+            description={`Welcome back ${user.name}. This page allows you to manage contact requests you have recieved.`}
             pagination={pagination}
         >
             {infoNotifications && (
