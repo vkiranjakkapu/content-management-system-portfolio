@@ -120,7 +120,7 @@ export default function ProfilePage() {
                     setNotifications("info", {
                         type: "error",
                         messages: [
-                            "We are facing unexpected issues, Please try again later.",
+                            `We are facing unexpected issues, Please try again later. [${e.errorCode}]`,
                         ],
                     });
                     return;

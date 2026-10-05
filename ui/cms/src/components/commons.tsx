@@ -5,9 +5,11 @@ import type {
 } from "react";
 import { DateFormatter } from "../utils/DateFormatter";
 
-export function renderCellValue(value: unknown) {
+export function renderCellValue(value: unknown, dateType?: boolean) {
     if (DateFormatter.isTimestampFormat(value)) {
-        return DateFormatter.toRelativeTime(value);
+        return dateType
+            ? DateFormatter.toFormattedDate(value)
+            : DateFormatter.toRelativeTime(value);
     }
 
     return String(value);

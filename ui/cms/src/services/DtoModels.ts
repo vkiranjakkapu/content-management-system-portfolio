@@ -108,3 +108,11 @@ export const MediaTag = {
 } as const;
 
 export type MediaTag = (typeof MediaTag)[keyof typeof MediaTag];
+
+export type Contact = {
+    id: string;
+    name: string;
+    email: string;
+    message: string;
+    createdAt: string;
+};

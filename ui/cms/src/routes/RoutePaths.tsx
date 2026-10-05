@@ -2,7 +2,6 @@ export const RoutePaths = {
     LOGIN: "/",
     DASHBOARD: "/dashboard",
     PUBLICATIONS: "/publications",
-    CONTACTS: "/contacts",
     PROFILE: "/profile",
     LIBRARY: "/library",
     ABOUT: "/about",

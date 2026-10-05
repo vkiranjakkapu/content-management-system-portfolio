@@ -61,7 +61,7 @@ export type TableComponentProps<T> = TableHTMLAttributes<HTMLTableElement> & {
      * ]}
      * ```
      */
-    headers?: HeaderAlias<T>[];
+    columns?: HeaderAlias<T>[];
 
     /**
      * Controls whether the table header should be disabled.
@@ -299,7 +299,7 @@ export type HeaderAlias<T> = {
 export default function TableComponent<T>({
     title,
     description,
-    headers,
+    columns: headers,
     enableHeader = false,
     body,
     actionEvents,
@@ -355,7 +355,7 @@ export default function TableComponent<T>({
                         [&_th]:py-4
                         [&_td]:py-2.5
 
-                        [&_tr>*:last-child:is(.fullSpan)]:bg-primary/30
+                        [&_tr>*:last-child:is(.fullSpan)]:bg-primary/20
                         [&_tr]:hover:bg-primary/10
                         [&_tr]:even:bg-slate-100
                         dark:[&_tr]:even:bg-slate-600/20
@@ -366,7 +366,7 @@ export default function TableComponent<T>({
                             <thead
                                 className={`
                                 text-xs font-semibold uppercase tracking-wider 
-                                bg-slate-100 dark:bg-slate-800
+                                bg-primary/10 dark:bg-slate-800
                                 border-b dark:text-primary
                             `}
                             >
@@ -405,7 +405,10 @@ export default function TableComponent<T>({
                                             <td
                                                 key={String(column.key)}
                                                 className={`relative overflow-hidden ${column.customiseColumn}`}
-                                                title={String(item[column.key])}
+                                                title={renderCellValue(
+                                                    String(item[column.key]),
+                                                    true,
+                                                )}
                                             >
                                                 {hasLineClamp ? (
                                                     <>

@@ -3,7 +3,6 @@ import {
     Bars3BottomLeftIcon,
     BellAlertIcon,
     BriefcaseIcon,
-    ChartBarSquareIcon,
     CloudIcon,
     CogIcon,
     ComputerDesktopIcon,
@@ -12,7 +11,7 @@ import {
     RectangleStackIcon,
     SparklesIcon,
     SunIcon,
-    ViewColumnsIcon,
+    ViewColumnsIcon
 } from "@heroicons/react/24/outline";
 import { useNavigate } from "react-router-dom";
 import useAuthContext from "../../context/useAuthContext";
@@ -40,17 +39,12 @@ export default function SidebarComponent({
         {
             page: "Dashboard",
             uri: RoutePaths.DASHBOARD,
-            icon: ChartBarSquareIcon,
+            icon: BellAlertIcon,
         },
         {
             page: "Publication",
             uri: RoutePaths.PUBLICATIONS,
             icon: CloudIcon,
-        },
-        {
-            page: "Contacts",
-            uri: RoutePaths.CONTACTS,
-            icon: BellAlertIcon,
         },
         {
             page: "Profile",
