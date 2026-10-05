@@ -4,12 +4,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cms.maintenance.enums.MediaTag;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
 public record CreateMediaRequestDto(
-        @NotEmpty MultipartFile file,
-        @NotEmpty MediaTag tag) {
+        @NotNull(message = "Please select a file") MultipartFile file,
+        @NotNull(message = "Media tag is required") MediaTag tag) {
 
 }

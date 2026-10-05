@@ -13,8 +13,10 @@ public enum BusinessExceptions implements ErrorDefinition {
 
     PROFILE_NOT_FOUND("PROFILE_NOT_FOUND", "BUS-2001",
             "Publication not found."),
+    PROFILE_ALREADY_EXISTS("PROFILE_ALREADY_EXISTS", "BUS-2002",
+            "Publication not found."),
 
-    PUBLICATION_NOT_FOUND("PUBLICATION_NOT_FOUND", "BUS-2002",
+    PUBLICATION_NOT_FOUND("PUBLICATION_NOT_FOUND", "BUS-2003",
             "Publication not found."),
 
     RESOURCE_NOT_FOUND("RESOURCE_NOT_FOUND", "BUS-4001",

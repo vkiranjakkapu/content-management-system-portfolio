@@ -14,6 +14,7 @@ import com.cms.maintenance.dto.CreateMediaRequestDto;
 import com.cms.maintenance.dto.MediaResponseDto;
 import com.cms.maintenance.dto.UpdateMediaRequestDto;
 import com.cms.maintenance.enums.BusinessExceptions;
+import com.cms.maintenance.enums.MediaTag;
 import com.cms.maintenance.enums.StorageExceptions;
 import com.cms.maintenance.exceptions.BusinessException;
 import com.cms.maintenance.models.Media;
@@ -35,7 +36,17 @@ public class MediaServiceImp implements MediaService {
 
     @Override
     public List<Media> getAllMedia(Profile profile) {
-        return mediaRepository.findAllByProfile(profile);
+        return mediaRepository.findAllByProfileOrderByUpdatedAtDesc(profile);
+    }
+
+    @Override
+    public List<Media> getAllMediaByTag(MediaTag tag, Profile profile) {
+        return mediaRepository.findAllByTagAndProfileOrderByUpdatedAtDesc(tag, profile);
+    }
+
+    @Override
+    public List<Media> getAllMediaByTagIn(List<MediaTag> tags, Profile profile) {
+        return mediaRepository.findAllByTagInAndProfileOrderByUpdatedAtDesc(tags, profile);
     }
 
     @Override
@@ -50,7 +61,7 @@ public class MediaServiceImp implements MediaService {
     }
 
     @Override
-    public Media createMedia(CreateMediaRequestDto request) {
+    public Media createMedia(CreateMediaRequestDto request, Profile profile) {
         String fileName = resolvedFileName(request.file());
 
         if (fileName.contains("..")) {
@@ -58,16 +69,33 @@ public class MediaServiceImp implements MediaService {
                     "Filename contains invalid path sequence: " + fileName);
         }
 
-        if (!properties.getMedia().getAllowedExts().contains(Arrays.asList(fileName.split(".")).getLast())) {
+        if (!properties.getMedia().getAllowedExts().contains(Arrays.asList(fileName.split("\\.")).getLast())) {
             throw new BusinessException(StorageExceptions.INVALID_FILE, "File not supported to be uploaded",
                     HttpStatus.UNSUPPORTED_MEDIA_TYPE);
         }
 
-        Media media = storageService.saveMedia(fileName, request.file());
-
+        Media media = new Media();
+        media.setProfile(profile);
+        media.setMediaName(fileName);
+        media.setMediaType(request.file().getContentType());
         media.setTag(request.tag());
 
-        return mediaRepository.save(media);
+        media = mediaRepository.save(media);
+
+        try {
+            // Media path will be attached
+            media = storageService.saveMedia(media, request.file());
+
+            return mediaRepository.save(media);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            mediaRepository.delete(media);
+            storageService.deleteMedia(media);
+
+            throw new BusinessException(StorageExceptions.STORAGE_ERROR,
+                    "Failed to save file.");
+        }
     }
 
     @Override

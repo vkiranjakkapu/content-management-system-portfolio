@@ -6,7 +6,7 @@ import com.cms.maintenance.models.Media;
 
 public interface StorageService {
 
-    Media saveMedia(String fileName, MultipartFile file);
+    Media saveMedia(Media media, MultipartFile file);
 
     byte[] getMedia(Media media);
 

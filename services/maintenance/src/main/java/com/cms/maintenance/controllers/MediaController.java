@@ -1,36 +1,30 @@
 package com.cms.maintenance.controllers;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.cms.maintenance.dto.ApiResponseDto;
 import com.cms.maintenance.dto.CreateMediaRequestDto;
-import com.cms.maintenance.dto.FetchMediaByIDsRequest;
 import com.cms.maintenance.dto.MediaResponseDto;
+import com.cms.maintenance.dto.SearchByTagsRequestDto;
 import com.cms.maintenance.dto.UpdateMediaRequestDto;
 import com.cms.maintenance.enums.MediaTag;
 import com.cms.maintenance.models.Media;
 import com.cms.maintenance.services.MediaService;
 import com.cms.maintenance.services.ProfileService;
-import com.cms.maintenance.services.StorageService;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -39,46 +33,42 @@ import lombok.RequiredArgsConstructor;
 public class MediaController {
 
 	private final MediaService mediaService;
-	private final StorageService storageService;
 	private final ProfileService profileService;
 
 	@GetMapping("/")
-	public ResponseEntity<ApiResponseDto<List<MediaResponseDto>>> getMyMedia() {
-		return ResponseEntity.ok(ApiResponseDto.<List<MediaResponseDto>>builder()
-				.data(mediaService.getAllMedia(profileService.getCurrentUserProfile()).stream()
-						.map(med -> mediaService.mapToResponse(med, true)).toList())
+	public ResponseEntity<ApiResponseDto<List<Media>>> getAllMedia() {
+		return ResponseEntity.ok(ApiResponseDto.<List<Media>>builder()
+				.data(mediaService.getAllMedia(profileService.getCurrentUserProfile()))
+				.build());
+	}
+
+	@GetMapping("/tag/{tag}")
+	public ResponseEntity<ApiResponseDto<List<Media>>> getMediaByTag(@PathVariable MediaTag tag) {
+		return ResponseEntity.ok(ApiResponseDto.<List<Media>>builder()
+				.data(mediaService.getAllMediaByTag(tag, profileService.getCurrentUserProfile()))
+				.build());
+	}
+
+	@PostMapping("/tag/")
+	public ResponseEntity<ApiResponseDto<List<Media>>> getAllMediaByTag(
+			@Valid @RequestBody SearchByTagsRequestDto requets) {
+		return ResponseEntity.ok(ApiResponseDto.<List<Media>>builder()
+				.data(mediaService.getAllMediaByTagIn(requets.tags(), profileService.getCurrentUserProfile()))
 				.build());
 	}
 
 	@GetMapping("/{mediaId}")
-	public ResponseEntity<ApiResponseDto<MediaResponseDto>> getMediaById(@PathVariable UUID mediaId) {
-		return ResponseEntity.ok(ApiResponseDto.<MediaResponseDto>builder()
-				.data(mediaService.mapToResponse(mediaService.getMediaById(mediaId), true)).build());
-	}
-
-	@GetMapping("/fetch/{mediaId}")
-	public ResponseEntity<byte[]> getMediaBytesById(@PathVariable UUID mediaId) {
-		Media media = mediaService.getMediaById(mediaId);
-		return ResponseEntity.ok().contentType(MediaType.parseMediaType(media.getMediaType()))
-				.body(storageService.getMedia(media));
-	}
-
-	@PostMapping("/fetch")
-	public ResponseEntity<ApiResponseDto<Map<UUID, byte[]>>> getMediaFromIds(
-			@RequestBody FetchMediaByIDsRequest request) {
-		return ResponseEntity.ok(ApiResponseDto.<Map<UUID, byte[]>>builder().data(
-				mediaService.getAllMediaByIds(request.ids()).stream().map(med -> mediaService.mapToResponse(med, true))
-						.collect(Collectors.toMap(MediaResponseDto::id, m -> m.media())))
-				.build());
+	public ResponseEntity<ApiResponseDto<Media>> getMediaById(@PathVariable UUID mediaId) {
+		return ResponseEntity.ok(ApiResponseDto.<Media>builder()
+				.data(mediaService.getMediaById(mediaId)).build());
 	}
 
 	@PostMapping("/")
-	public ResponseEntity<ApiResponseDto<MediaResponseDto>> createMedia(@NotEmpty @RequestParam MultipartFile file,
-			@NotEmpty @RequestParam MediaTag tag) {
+	public ResponseEntity<ApiResponseDto<MediaResponseDto>> createMedia(
+			@Valid @ModelAttribute CreateMediaRequestDto request) {
 		return ResponseEntity.ok(ApiResponseDto.<MediaResponseDto>builder()
 				.data(mediaService.mapToResponse(
-						mediaService.createMedia(CreateMediaRequestDto.builder().file(file)
-								.tag(tag).build()),
+						mediaService.createMedia(request, profileService.getCurrentUserProfile()),
 						true))
 				.build());
 	}

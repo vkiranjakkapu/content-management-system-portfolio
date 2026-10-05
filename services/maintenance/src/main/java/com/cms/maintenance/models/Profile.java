@@ -7,6 +7,8 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -37,7 +39,7 @@ public class Profile {
 
     private UUID userId;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL)
     private Media dp;
 
     private String email;
@@ -53,21 +55,26 @@ public class Profile {
     @Builder.Default
     private String availability = "Open to work";
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL)
     private Media banner;
 
-    @OneToMany(mappedBy = "profile", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @OneToMany(mappedBy = "profile", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<SocialProfile> socialProfiles;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "profile")
     private List<About> abouts;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "profile")
     private List<Project> projects;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "profile")
     private List<Skill> skills;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "profile")
     private List<Experience> experiences;
 

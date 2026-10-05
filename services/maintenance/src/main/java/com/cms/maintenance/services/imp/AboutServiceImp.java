@@ -28,14 +28,12 @@ public class AboutServiceImp implements AboutService {
 
     @Override
     public List<About> getAllAbouts() {
-        return aboutRepository.findAllByProfile(profileService.getCurrentUserProfile());
+        return aboutRepository.findAllByProfileOrderByUpdatedAtDesc(profileService.getCurrentUserProfile());
     }
 
     @Override
     public About getLatestAboutByProfileId(UUID profileId) {
-        return aboutRepository.findByProfileAndIsActiveTrue(Profile.builder().id(profileId).build())
-                .orElseThrow(() -> new BusinessException(BusinessExceptions.RESOURCE_NOT_FOUND,
-                        "No active About details found for profile."));
+        return aboutRepository.findByProfileAndIsActiveTrue(Profile.builder().id(profileId).build()).orElse(null);
     }
 
     @Override
@@ -50,21 +48,24 @@ public class AboutServiceImp implements AboutService {
         Profile profile = profileService.getProfileByUserId(currentUser.userId());
 
         About activeAbout = getLatestAboutByProfileId(profile.getId());
-        activeAbout.setActive(false);
+        if (activeAbout != null) {
+            activeAbout.setActive(false);
+            aboutRepository.save(activeAbout);
+        }
 
         About about = About.builder()
                 .profile(profile)
                 .name(request.name())
                 .summary(request.summary())
                 .build();
-        aboutRepository.saveAll(List.of(about, activeAbout));
+        aboutRepository.save(about);
 
         return about;
     }
 
     @Override
     public About updateAbout(UpdateAboutRequestDto request) {
-        About about = getAboutById(request.aboutId());
+        About about = getAboutById(request.id());
         about.setSummary(request.summary());
         about.setName(request.name());
 

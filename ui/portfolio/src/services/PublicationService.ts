@@ -8,12 +8,6 @@ import {
 } from "react-icons/bs";
 import { apiClient, type ApiResponse } from "../api/api";
 
-export type ValidationErrors = {
-    field: string;
-    rejectedValue: object;
-    message: string;
-};
-
 class PublicationService {
     async getPublicationContent<T>(): Promise<ApiResponse<T>> {
         return apiClient({

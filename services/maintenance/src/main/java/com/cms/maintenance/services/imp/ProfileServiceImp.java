@@ -6,12 +6,10 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.cms.maintenance.dto.CreateMediaRequestDto;
 import com.cms.maintenance.dto.CreateProfileRequestDto;
 import com.cms.maintenance.dto.ProfileResponseDto;
 import com.cms.maintenance.dto.UpdateProfileRequestDto;
 import com.cms.maintenance.enums.BusinessExceptions;
-import com.cms.maintenance.enums.MediaTag;
 import com.cms.maintenance.exceptions.BusinessException;
 import com.cms.maintenance.models.Media;
 import com.cms.maintenance.models.Profile;
@@ -19,6 +17,7 @@ import com.cms.maintenance.repositories.ProfileRepository;
 import com.cms.maintenance.services.CurrentUserService;
 import com.cms.maintenance.services.MediaService;
 import com.cms.maintenance.services.ProfileService;
+import com.platform.web.exception.SecurityExceptions;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,7 +33,7 @@ public class ProfileServiceImp implements ProfileService {
     public Profile getCurrentUserProfile() {
         return profileRepository.findByUserId(currentUser.userId()).orElseThrow(
                 () -> new BusinessException(BusinessExceptions.PROFILE_NOT_FOUND,
-                        "No Profile associated with this user.", HttpStatus.TOO_EARLY));
+                        "No Profile associated with this user. Create one to proceed.", HttpStatus.TOO_EARLY));
     }
 
     @Override
@@ -52,89 +51,70 @@ public class ProfileServiceImp implements ProfileService {
 
     @Override
     public Profile createProfile(CreateProfileRequestDto request) {
-        Media dp = mediaService.createMedia(CreateMediaRequestDto.builder()
-                .file(request.dp())
-                .tag(MediaTag.PROFILE)
-                .build());
-        Media banner = mediaService.createMedia(CreateMediaRequestDto.builder()
-                .file(request.banner())
-                .tag(MediaTag.BANNER)
-                .build());
+
+        boolean profileExists = profileRepository.findByUserId(currentUser.userId()).isPresent();
+
+        if (profileExists) {
+            throw new BusinessException(BusinessExceptions.PROFILE_ALREADY_EXISTS,
+                    "Profile already exists for this user.");
+        }
 
         Profile profile = Profile.builder()
                 .userId(currentUser.userId())
-                .dp(dp)
                 .email(request.email())
                 .name(request.name())
                 .phone(request.phone())
                 .designation(request.designation())
                 .location(request.location())
                 .availability(request.availability())
-                .banner(banner)
                 .build();
 
-        dp.setProfile(profile);
-        banner.setProfile(profile);
+        Profile savedProfile = profileRepository.save(profile);
 
-        return profileRepository.save(profile);
-    }
+        Optional.ofNullable(request.dp()).ifPresent(dpId -> {
+            Media dp = mediaService.getMediaById(UUID.fromString(dpId));
+            savedProfile.setDp(dp);
+        });
 
-    @Override
-    public Profile updateProfile(Profile profile) {
-        return profileRepository.save(profile);
+        Optional.ofNullable(request.banner()).ifPresent(bannerId -> {
+            Media banner = mediaService.getMediaById(UUID.fromString(bannerId));
+            savedProfile.setBanner(banner);
+        });
+
+        return profileRepository.save(savedProfile);
     }
 
     @Override
     public Profile updateProfile(UpdateProfileRequestDto request) {
         Profile profile = getProfileByUserId(currentUser.userId());
 
-        Optional.of(request.email()).ifPresent(email -> {
-            profile.setEmail(email);
-        });
+        Optional.ofNullable(request.email()).ifPresent(profile::setEmail);
 
-        Optional.of(request.name()).ifPresent(name -> {
-            profile.setName(name);
-        });
+        Optional.ofNullable(request.name()).ifPresent(profile::setName);
 
-        Optional.of(request.phone()).ifPresent(phone -> {
-            profile.setPhone(phone);
-        });
+        Optional.ofNullable(request.phone()).ifPresent(profile::setPhone);
 
-        Optional.of(request.designation()).ifPresent(designation -> {
-            profile.setDesignation(designation);
-        });
+        Optional.ofNullable(request.designation()).ifPresent(profile::setDesignation);
 
-        Optional.of(request.availability()).ifPresent(availability -> {
-            profile.setAvailability(availability);
-        });
+        Optional.ofNullable(request.availability()).ifPresent(profile::setAvailability);
 
-        Optional.of(request.dp()).ifPresent(dpReq -> {
-            try {
-                mediaService.deleteMediaById(profile.getDp().getId());
-            } catch (BusinessException e) {
-                e.printStackTrace();
+        Optional.ofNullable(request.location()).ifPresent(profile::setLocation);
+
+        Optional.ofNullable(request.dp()).ifPresent(dpId -> {
+            Media dp = mediaService.getMediaById(UUID.fromString(dpId));
+            if (!dp.getProfile().equals(profile)) {
+                throw new BusinessException(SecurityExceptions.FORBIDDEN_ACCESS,
+                        "You are not allowed to access this resource", HttpStatus.FORBIDDEN);
             }
-
-            Media dp = mediaService.createMedia(CreateMediaRequestDto.builder()
-                    .file(dpReq)
-                    .tag(MediaTag.PROFILE)
-                    .build());
-            dp.setProfile(profile);
             profile.setDp(dp);
         });
 
-        Optional.of(request.banner()).ifPresent(bannerReq -> {
-            try {
-                mediaService.deleteMediaById(profile.getBanner().getId());
-            } catch (BusinessException e) {
-                e.printStackTrace();
+        Optional.ofNullable(request.banner()).ifPresent(bannerId -> {
+            Media banner = mediaService.getMediaById(UUID.fromString(bannerId));
+            if (!banner.getProfile().equals(profile)) {
+                throw new BusinessException(SecurityExceptions.FORBIDDEN_ACCESS,
+                        "You are not allowed to access this resource", HttpStatus.FORBIDDEN);
             }
-
-            Media banner = mediaService.createMedia(CreateMediaRequestDto.builder()
-                    .file(bannerReq)
-                    .tag(MediaTag.BANNER)
-                    .build());
-            banner.setProfile(profile);
             profile.setBanner(banner);
         });
 

@@ -15,6 +15,6 @@ public interface AboutRepository extends JpaRepository<About, UUID> {
 
     Optional<About> findByProfileAndIsActiveTrue(Profile profile);
 
-    List<About> findAllByProfile(Profile profile);
+    List<About> findAllByProfileOrderByUpdatedAtDesc(Profile currentUserProfile);
 
 }
