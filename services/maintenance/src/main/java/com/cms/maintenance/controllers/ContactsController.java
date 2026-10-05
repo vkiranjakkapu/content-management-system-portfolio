@@ -17,6 +17,7 @@ import com.cms.maintenance.dto.CreateContactRequestDto;
 import com.cms.maintenance.models.ContactRequest;
 import com.cms.maintenance.services.ContactService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -40,7 +41,7 @@ public class ContactsController {
 
     @PostMapping("/")
     public ResponseEntity<ApiResponseDto<ContactRequest>> createContactRequest(
-            @RequestBody CreateContactRequestDto request) {
+            @Valid @RequestBody CreateContactRequestDto request) {
         return ResponseEntity
                 .ok(ApiResponseDto.<ContactRequest>builder().data(contactService.createRequest(request)).build());
     }

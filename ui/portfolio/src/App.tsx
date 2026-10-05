@@ -173,7 +173,13 @@ function App() {
                     />
 
                     {/* Contact */}
-                    <ContactComponent />
+                    <ContactComponent
+                        email={
+                            content && content.profile.email
+                                ? content.profile.email
+                                : "venkatakiran.jakkapu@gmail.com"
+                        }
+                    />
                 </div>
             </main>
 

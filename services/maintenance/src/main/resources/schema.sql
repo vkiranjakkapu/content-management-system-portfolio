@@ -61,13 +61,10 @@ CREATE TABLE IF NOT EXISTS abouts (
 
 CREATE TABLE IF NOT EXISTS contacts (
     id UUID NOT NULL,
-    profile_id UUID,
     name VARCHAR(255),
     email VARCHAR(255),
     message VARCHAR(255),
-    created_at TIMESTAMP(6) NOT NULL,
-
-    CONSTRAINT pk_contacts PRIMARY KEY (id)
+    created_at TIMESTAMP(6) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS experiences (

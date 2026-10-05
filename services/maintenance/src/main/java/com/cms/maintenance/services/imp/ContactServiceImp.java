@@ -11,7 +11,6 @@ import com.cms.maintenance.exceptions.BusinessException;
 import com.cms.maintenance.models.ContactRequest;
 import com.cms.maintenance.repositories.ContactsRepository;
 import com.cms.maintenance.services.ContactService;
-import com.cms.maintenance.services.ProfileService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 public class ContactServiceImp implements ContactService {
 
     private final ContactsRepository contactsRepository;
-    private final ProfileService profileService;
 
     @Override
     public ContactRequest getContactById(UUID contactId) {
@@ -31,14 +29,14 @@ public class ContactServiceImp implements ContactService {
 
     @Override
     public List<ContactRequest> getAllContactRequests() {
-        return contactsRepository.findAllByProfile(profileService.getCurrentUserProfile());
+        return contactsRepository.findAll();
     }
 
     @Override
     public ContactRequest createRequest(CreateContactRequestDto request) {
         return contactsRepository
                 .save(ContactRequest.builder().name(request.name()).email(request.email()).message(request.message())
-                        .profile(profileService.getCurrentUserProfile()).build());
+                        .build());
     }
 
     @Override
