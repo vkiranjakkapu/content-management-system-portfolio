@@ -116,9 +116,17 @@ public class MediaServiceImp implements MediaService {
     public MediaResponseDto mapToResponse(Media media, boolean includeMedia) {
         try {
             if (includeMedia) {
+                byte[] data;
+                if (!properties.getStorage().getProvider().equals("local")
+                        && media.getMediaPath().contains("filestore")) {
+                    data = new byte[0];
+                } else {
+                    data = storageService.getMedia(media);
+                }
+
                 return MediaResponseDto.builder()
                         .id(media.getId())
-                        .media(storageService.getMedia(media))
+                        .media(data)
                         .mediaName(media.getMediaName())
                         .mediaType(media.getMediaType())
                         .tag(media.getTag())
