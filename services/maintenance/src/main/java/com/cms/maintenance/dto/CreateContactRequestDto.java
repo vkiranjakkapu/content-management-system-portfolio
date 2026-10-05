@@ -1,8 +1,11 @@
 package com.cms.maintenance.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+
 public record CreateContactRequestDto(
-        String name,
-        String email,
-        String message) {
+        @NotEmpty String name,
+        @NotEmpty @Email String email,
+        @NotEmpty String message) {
 
 }

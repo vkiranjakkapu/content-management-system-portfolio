@@ -35,6 +35,18 @@ class PublicationService {
             payload,
         });
     }
+
+    async sendQuote(payload: {
+        name: string;
+        email: string;
+        message: string;
+    }): Promise<ApiResponse<Contact>> {
+        return apiClient({
+            type: "post",
+            uri: "/contact/sendquote",
+            payload,
+        });
+    }
 }
 
 export default new PublicationService();
@@ -138,6 +150,14 @@ const MediaTag = {
 } as const;
 
 export type MediaTag = (typeof MediaTag)[keyof typeof MediaTag];
+
+export type Contact = {
+    id: string;
+    name: string;
+    email: string;
+    message: string;
+    createdAt: string;
+};
 
 export const SocialIconMap: Record<SocialMediaType, IconType> = {
     [SocialMediaType.LINKEDIN]: BsLinkedin,
