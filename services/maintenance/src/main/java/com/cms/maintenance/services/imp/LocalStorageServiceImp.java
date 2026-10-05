@@ -9,7 +9,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cms.maintenance.enums.BusinessExceptions;
 import com.cms.maintenance.enums.StorageExceptions;
 import com.cms.maintenance.exceptions.BusinessException;
 import com.cms.maintenance.models.Media;
@@ -62,9 +61,7 @@ public class LocalStorageServiceImp implements StorageService {
             Resource resource = new UrlResource(Path.of(media.getMediaPath()).toUri());
 
             if (!resource.exists() || !resource.isReadable()) {
-                throw new BusinessException(
-                        BusinessExceptions.RESOURCE_NOT_FOUND,
-                        "File not found");
+                return new byte[0];
             }
 
             return resource.getContentAsByteArray();

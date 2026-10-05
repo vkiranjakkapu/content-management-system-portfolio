@@ -14,9 +14,10 @@ spring:
 
 config:
     storage:
-        provider: azure # use 'azure' for cloud storage
-        local:
-            base-path: "filestore"
+        # provider: local
+        # local:
+        #     base-path: "filestore"
+        provider: azure
         azure:
             connection-string: ${AZURE_STORAGE_CONNECTION_STRING}
             container-name: ${AZURE_STORAGE_CONTAINER}
