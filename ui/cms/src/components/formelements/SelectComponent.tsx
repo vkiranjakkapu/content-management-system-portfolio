@@ -4,6 +4,7 @@ export type SelectComponentProps = SelectHTMLAttributes<HTMLSelectElement> & {
     options: {
         value: string;
         text?: string;
+        disabled?: boolean;
     }[];
     emptyOption?: string;
 };
@@ -22,7 +23,7 @@ export default function SelectComponent({
             {options.map((opt, idx) => {
                 return (
                     <option key={"Option" + idx + opt.value} {...opt}>
-                        {opt.text ?? opt.value}
+                        {(opt.text ?? opt.value).split("_").join(" ")}
                     </option>
                 );
             })}

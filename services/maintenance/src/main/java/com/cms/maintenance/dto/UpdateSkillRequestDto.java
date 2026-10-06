@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public record UpdateSkillRequestDto(
 		UUID id,
-		String tech,
+		UUID techId,
 		String name) {
 
 }

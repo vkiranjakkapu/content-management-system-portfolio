@@ -10,6 +10,7 @@ export const AppConfig = {
     CMS_ABOUT_URL: "/cms/api/v1/about",
     CMS_SOCIAL_PROFILES_URL: "/cms/api/v1/socialprofile",
     CMS_SKILLS_URL: "/cms/api/v1/skills",
+    CMS_TECHNOLOGIES_URL: "/cms/api/v1/technologies",
     CMS_PROJECTS_URL: "/cms/api/v1/projects",
     CMS_EXPERIENCE_URL: "/cms/api/v1/experience",
     CMS_CONTACT_URL: "/cms/api/v1/contact",

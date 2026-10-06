@@ -33,7 +33,7 @@ public class ProfileServiceImp implements ProfileService {
     public Profile getCurrentUserProfile() {
         return profileRepository.findByUserId(currentUser.userId()).orElseThrow(
                 () -> new BusinessException(BusinessExceptions.PROFILE_NOT_FOUND,
-                        "No Profile associated with this user. Create one to proceed.", HttpStatus.TOO_EARLY));
+                        "No Profile associated with this user. Create Profile to proceed.", HttpStatus.TOO_EARLY));
     }
 
     @Override

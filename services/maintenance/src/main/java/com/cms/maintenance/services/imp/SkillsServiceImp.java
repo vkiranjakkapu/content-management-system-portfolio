@@ -10,12 +10,15 @@ import org.springframework.stereotype.Service;
 import com.cms.maintenance.dto.CreateSkillRequestDto;
 import com.cms.maintenance.dto.UpdateSkillRequestDto;
 import com.cms.maintenance.enums.BusinessExceptions;
+import com.cms.maintenance.enums.SkillRequestType;
 import com.cms.maintenance.exceptions.BusinessException;
 import com.cms.maintenance.models.Profile;
 import com.cms.maintenance.models.Skill;
+import com.cms.maintenance.models.Technology;
 import com.cms.maintenance.repositories.SkillsRepository;
 import com.cms.maintenance.services.ProfileService;
 import com.cms.maintenance.services.SkillsService;
+import com.cms.maintenance.services.TechnologyService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,10 +28,11 @@ public class SkillsServiceImp implements SkillsService {
 
     private final SkillsRepository skillsRepository;
     private final ProfileService profileService;
+    private final TechnologyService technologyService;
 
     @Override
     public List<Skill> getAllSkills() {
-        return skillsRepository.findAllByProfile(profileService.getCurrentUserProfile());
+        return skillsRepository.findAllByProfileOrderByNameDesc(profileService.getCurrentUserProfile());
     }
 
     @Override
@@ -39,16 +43,23 @@ public class SkillsServiceImp implements SkillsService {
 
     @Override
     public List<Skill> getAllSkillsByIds(List<UUID> ids) {
-        return skillsRepository.findAllByIdIn(ids);
+        return skillsRepository.findAllByIdInOrderByCreatedAtDesc(ids);
     }
 
     @Override
     public Skill createSkill(CreateSkillRequestDto request) {
         Profile profile = profileService.getCurrentUserProfile();
 
+        Technology technology;
+        if (request.type().equals(SkillRequestType.CREATE_NEW_TECH)) {
+            technology = technologyService.createTechnology(request.tech());
+        } else {
+            technology = technologyService.getTechnologyById(UUID.fromString(request.tech()));
+        }
+
         return skillsRepository.save(Skill.builder()
                 .profile(profile)
-                .tech(request.tech())
+                .tech(technology)
                 .name(request.name())
                 .build());
     }
@@ -56,8 +67,9 @@ public class SkillsServiceImp implements SkillsService {
     @Override
     public Skill updateSkill(UpdateSkillRequestDto request) {
         Skill skill = getSkillById(request.id());
-        skill.setTech(request.tech());
         skill.setName(request.name());
+
+        skill.setTech(technologyService.getTechnologyById(request.techId()));
 
         return skillsRepository.save(skill);
     }
@@ -69,7 +81,7 @@ public class SkillsServiceImp implements SkillsService {
 
     @Override
     public Map<String, List<Skill>> mapToResponse(List<Skill> allSkills) {
-        return allSkills.stream().collect(Collectors.groupingBy(Skill::getTech));
+        return allSkills.stream().collect(Collectors.groupingBy(sk -> sk.getTech().getName()));
     }
 
 }

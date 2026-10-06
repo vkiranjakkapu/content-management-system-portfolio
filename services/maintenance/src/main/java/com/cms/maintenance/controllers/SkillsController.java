@@ -20,6 +20,7 @@ import com.cms.maintenance.dto.UpdateSkillRequestDto;
 import com.cms.maintenance.models.Skill;
 import com.cms.maintenance.services.SkillsService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -42,13 +43,13 @@ public class SkillsController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<ApiResponseDto<Skill>> createSkill(@RequestBody CreateSkillRequestDto request) {
+    public ResponseEntity<ApiResponseDto<Skill>> createSkill(@Valid @RequestBody CreateSkillRequestDto request) {
         return ResponseEntity.ok(ApiResponseDto.<Skill>builder()
                 .data(skillsService.createSkill(request)).build());
     }
 
     @PutMapping("/")
-    public ResponseEntity<ApiResponseDto<Skill>> updateSkill(@RequestBody UpdateSkillRequestDto request) {
+    public ResponseEntity<ApiResponseDto<Skill>> updateSkill(@Valid @RequestBody UpdateSkillRequestDto request) {
         return ResponseEntity.ok(ApiResponseDto.<Skill>builder()
                 .data(skillsService.updateSkill(request)).build());
     }

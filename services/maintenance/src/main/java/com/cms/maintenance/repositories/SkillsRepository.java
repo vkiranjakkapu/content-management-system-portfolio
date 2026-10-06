@@ -10,8 +10,8 @@ import com.cms.maintenance.models.Skill;
 
 public interface SkillsRepository extends JpaRepository<Skill, UUID> {
 
-    List<Skill> findAllByIdIn(List<UUID> ids);
+    List<Skill> findAllByIdInOrderByCreatedAtDesc(List<UUID> ids);
 
-    List<Skill> findAllByProfile(Profile currentUserProfile);
+    List<Skill> findAllByProfileOrderByNameDesc(Profile currentUserProfile);
 
 }

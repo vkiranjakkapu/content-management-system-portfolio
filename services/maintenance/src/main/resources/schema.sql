@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     CONSTRAINT pk_profiles PRIMARY KEY (id)
 );
 
+
 CREATE TABLE IF NOT EXISTS images (
     id UUID NOT NULL,
     profile_id UUID,
@@ -47,11 +48,12 @@ CREATE TABLE IF NOT EXISTS images (
         )
 );
 
+
 CREATE TABLE IF NOT EXISTS abouts (
     id UUID NOT NULL,
     profile_id UUID,
     name VARCHAR(255),
-    summary VARCHAR(255),
+    summary TEXT,
     is_active BOOLEAN NOT NULL,
     created_at TIMESTAMP(6) NOT NULL,
     updated_at TIMESTAMP(6) NOT NULL,
@@ -59,13 +61,17 @@ CREATE TABLE IF NOT EXISTS abouts (
     CONSTRAINT pk_abouts PRIMARY KEY (id)
 );
 
+
 CREATE TABLE IF NOT EXISTS contacts (
     id UUID NOT NULL,
     name VARCHAR(255),
     email VARCHAR(255),
     message VARCHAR(255),
-    created_at TIMESTAMP(6) NOT NULL
+    created_at TIMESTAMP(6) NOT NULL,
+
+    CONSTRAINT pk_contacts PRIMARY KEY (id)
 );
+
 
 CREATE TABLE IF NOT EXISTS experiences (
     id UUID NOT NULL,
@@ -82,16 +88,27 @@ CREATE TABLE IF NOT EXISTS experiences (
     CONSTRAINT pk_experiences PRIMARY KEY (id)
 );
 
+
+CREATE TABLE IF NOT EXISTS technologies (
+    id UUID NOT NULL,
+    name VARCHAR(255) UNIQUE,
+    updated_at TIMESTAMP(6) NOT NULL,
+
+    CONSTRAINT pk_technologies PRIMARY KEY (id)
+);
+
+
 CREATE TABLE IF NOT EXISTS skills (
     id UUID NOT NULL,
     profile_id UUID,
+    tech_id UUID UNIQUE,
     name VARCHAR(255),
-    tech VARCHAR(255),
     created_at TIMESTAMP(6) NOT NULL,
     updated_at TIMESTAMP(6) NOT NULL,
 
     CONSTRAINT pk_skills PRIMARY KEY (id)
 );
+
 
 CREATE TABLE IF NOT EXISTS projects (
     id UUID NOT NULL,
@@ -105,6 +122,7 @@ CREATE TABLE IF NOT EXISTS projects (
     CONSTRAINT pk_projects PRIMARY KEY (id)
 );
 
+
 CREATE TABLE IF NOT EXISTS page_settings (
     id UUID NOT NULL,
     show_contact BOOLEAN NOT NULL,
@@ -116,6 +134,7 @@ CREATE TABLE IF NOT EXISTS page_settings (
     CONSTRAINT pk_page_settings PRIMARY KEY (id)
 );
 
+
 CREATE TABLE IF NOT EXISTS seo_settings (
     id UUID NOT NULL,
     title VARCHAR(255),
@@ -125,8 +144,10 @@ CREATE TABLE IF NOT EXISTS seo_settings (
     og_description VARCHAR(1000),
     og_image_id UUID,
     robots VARCHAR(100),
+
     CONSTRAINT pk_seo_settings PRIMARY KEY (id)
 );
+
 
 CREATE TABLE IF NOT EXISTS publications (
     id UUID NOT NULL,
@@ -150,30 +171,36 @@ CREATE TABLE IF NOT EXISTS publications (
         )
 );
 
+
 CREATE TABLE IF NOT EXISTS projects_gallery (
     project_id UUID NOT NULL,
     gallery_id UUID NOT NULL UNIQUE
 );
+
 
 CREATE TABLE IF NOT EXISTS projects_tech_stack (
     project_id UUID NOT NULL,
     tech_stack_id UUID NOT NULL UNIQUE
 );
 
+
 CREATE TABLE IF NOT EXISTS publications_experiences (
     publication_id UUID NOT NULL,
     experiences_id UUID NOT NULL UNIQUE
 );
+
 
 CREATE TABLE IF NOT EXISTS publications_projects (
     publication_id UUID NOT NULL,
     projects_id UUID NOT NULL UNIQUE
 );
 
+
 CREATE TABLE IF NOT EXISTS publications_skills (
     publication_id UUID NOT NULL,
     skills_id UUID NOT NULL UNIQUE
 );
+
 
 CREATE TABLE IF NOT EXISTS social_profiles (
     id UUID NOT NULL,
@@ -195,6 +222,7 @@ CREATE TABLE IF NOT EXISTS social_profiles (
         )
 );
 
+
 CREATE TABLE IF NOT EXISTS publications_social_profiles (
     publication_id UUID NOT NULL,
     social_profiles_id UUID NOT NULL UNIQUE
@@ -205,11 +233,7 @@ CREATE TABLE IF NOT EXISTS publications_social_profiles (
 -- FOREIGN KEYS
 -- ============================================================
 
--- Profiles <-> Images is a cyclic relationship.
--- All foreign keys are therefore added after table creation.
-
-
--- Profiles -> Images
+-- Profiles <-> Images
 
 ALTER TABLE profiles
     DROP CONSTRAINT IF EXISTS fk_profiles_banner;
@@ -219,6 +243,7 @@ ALTER TABLE profiles
     FOREIGN KEY (banner_id)
     REFERENCES images (id);
 
+
 ALTER TABLE profiles
     DROP CONSTRAINT IF EXISTS fk_profiles_dp;
 
@@ -227,8 +252,6 @@ ALTER TABLE profiles
     FOREIGN KEY (dp_id)
     REFERENCES images (id);
 
-
--- Images -> Profiles
 
 ALTER TABLE images
     DROP CONSTRAINT IF EXISTS fk_images_profile;
@@ -246,17 +269,6 @@ ALTER TABLE abouts
 
 ALTER TABLE abouts
     ADD CONSTRAINT fk_abouts_profile
-    FOREIGN KEY (profile_id)
-    REFERENCES profiles (id);
-
-
--- Contacts -> Profiles
-
-ALTER TABLE contacts
-    DROP CONSTRAINT IF EXISTS fk_contacts_profile;
-
-ALTER TABLE contacts
-    ADD CONSTRAINT fk_contacts_profile
     FOREIGN KEY (profile_id)
     REFERENCES profiles (id);
 
@@ -281,6 +293,17 @@ ALTER TABLE skills
     ADD CONSTRAINT fk_skills_profile
     FOREIGN KEY (profile_id)
     REFERENCES profiles (id);
+
+
+-- Skills -> Technologies
+
+ALTER TABLE skills
+    DROP CONSTRAINT IF EXISTS fk_skills_technology;
+
+ALTER TABLE skills
+    ADD CONSTRAINT fk_skills_technology
+    FOREIGN KEY (tech_id)
+    REFERENCES technologies (id);
 
 
 -- Projects -> Profiles
@@ -327,7 +350,7 @@ ALTER TABLE publications
     REFERENCES page_settings (id);
 
 
--- Publications -> Seo Settings
+-- Publications -> SEO Settings
 
 ALTER TABLE publications
     DROP CONSTRAINT IF EXISTS fk_publications_seo;
@@ -448,10 +471,6 @@ ALTER TABLE publications_skills
     REFERENCES skills (id);
 
 
--- ============================================================
--- SOCIAL PROFILE FOREIGN KEYS
--- ============================================================
-
 -- Social Profiles -> Profiles
 
 ALTER TABLE social_profiles
@@ -487,6 +506,115 @@ ALTER TABLE publications_social_profiles
 
 -- ============================================================
 -- INDEXES
+-- ============================================================
+
+-- Profiles
+
+CREATE INDEX IF NOT EXISTS idx_profiles_user_id
+    ON profiles (user_id);
+
+
+-- Images
+
+CREATE INDEX IF NOT EXISTS idx_images_profile_id
+    ON images (profile_id);
+
+CREATE INDEX IF NOT EXISTS idx_images_tag
+    ON images (tag);
+
+
+-- Abouts
+
+CREATE INDEX IF NOT EXISTS idx_abouts_profile_id
+    ON abouts (profile_id);
+
+CREATE INDEX IF NOT EXISTS idx_abouts_profile_active
+    ON abouts (profile_id, is_active);
+
+
+-- Experiences
+
+CREATE INDEX IF NOT EXISTS idx_experiences_profile_id
+    ON experiences (profile_id);
+
+CREATE INDEX IF NOT EXISTS idx_experiences_profile_active
+    ON experiences (profile_id, is_active);
+
+
+-- Skills
+
+CREATE INDEX IF NOT EXISTS idx_skills_profile_id
+    ON skills (profile_id);
+
+
+-- Projects
+
+CREATE INDEX IF NOT EXISTS idx_projects_profile_id
+    ON projects (profile_id);
+
+CREATE INDEX IF NOT EXISTS idx_projects_profile_active
+    ON projects (profile_id, is_active);
+
+
+-- Social Profiles
+
+CREATE INDEX IF NOT EXISTS idx_social_profiles_profile_id
+    ON social_profiles (profile_id);
+
+
+-- Publications
+
+CREATE INDEX IF NOT EXISTS idx_publications_profile_id
+    ON publications (profile_id);
+
+CREATE INDEX IF NOT EXISTS idx_publications_status
+    ON publications (status);
+
+
+-- Contacts
+
+CREATE INDEX IF NOT EXISTS idx_contacts_created_at_desc
+    ON contacts (created_at DESC);
+
+
+-- Projects Gallery
+
+CREATE INDEX IF NOT EXISTS idx_projects_gallery_project_id
+    ON projects_gallery (project_id);
+
+
+-- Projects Tech Stack
+
+CREATE INDEX IF NOT EXISTS idx_projects_tech_stack_project_id
+    ON projects_tech_stack (project_id);
+
+
+-- Publication Experiences
+
+CREATE INDEX IF NOT EXISTS idx_publications_experiences_publication_id
+    ON publications_experiences (publication_id);
+
+
+-- Publication Projects
+
+CREATE INDEX IF NOT EXISTS idx_publications_projects_publication_id
+    ON publications_projects (publication_id);
+
+
+-- Publication Skills
+
+CREATE INDEX IF NOT EXISTS idx_publications_skills_publication_id
+    ON publications_skills (publication_id);
+
+
+-- Publication Social Profiles
+
+CREATE INDEX IF NOT EXISTS idx_publications_social_profiles_publication_id
+    ON publications_social_profiles (publication_id);
+
+
+-- ============================================================
+-- PARTIAL UNIQUE INDEX
 -- ============================================================
 
 -- Only one DRAFT and one PUBLISH publication per profile.
