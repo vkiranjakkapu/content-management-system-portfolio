@@ -1,5 +1,11 @@
 import { ArrowUpTrayIcon, CheckBadgeIcon } from "@heroicons/react/24/outline";
-import { useCallback, useEffect, useState, type SubmitEvent } from "react";
+import {
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+    type SubmitEvent,
+} from "react";
 import type { ErrorResponse } from "../../api/api";
 import ActionButton from "../../components/ActionButtonComponent";
 import SelectComponent from "../../components/formelements/SelectComponent";
@@ -17,9 +23,9 @@ import useFilePreview from "./useFilePreview";
 
 export default function LibraryPage() {
     const { notifications, setNotifications, resetNotifications } =
-        useNotifications(["fetch", "upload", "update"]);
+        useNotifications(["info", "upload", "update"]);
 
-    const fetchNotifications = notifications["fetch"] ?? null;
+    const fetchNotifications = notifications["info"] ?? null;
     const uploadNotifications = notifications["upload"] ?? null;
     const updateNotifications = notifications["update"] ?? null;
 
@@ -60,7 +66,7 @@ export default function LibraryPage() {
                     setEmptyProfile(true);
                 }
                 if (e.errorCode === "500") {
-                    setNotifications("fetch", {
+                    setNotifications("info", {
                         type: "error",
                         messages: [
                             "We are facing unexpected issues, Please try again later.",
@@ -68,7 +74,7 @@ export default function LibraryPage() {
                     });
                     return;
                 }
-                setNotifications("fetch", {
+                setNotifications("info", {
                     type: "info",
                     messages: [e.errorMessage],
                 });
@@ -97,15 +103,32 @@ export default function LibraryPage() {
         null,
     );
 
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     function deleteResource(media: Media) {
         if (window.confirm(`Delete '@${media.mediaName}'?`)) {
-            MediaService.deleteMedia(media.id).then(() => {
-                setAllResources((prev) =>
-                    prev.filter((md) => md.id != media.id),
-                );
-                setHandlingResource(null);
-                window.alert(`@${media.mediaName} deleted successfully.`);
-            });
+            MediaService.deleteMedia(media.id)
+                .then(() => {
+                    setAllResources((prev) =>
+                        prev.filter((md) => md.id != media.id),
+                    );
+                    setHandlingResource(null);
+                    setNotifications("info", {
+                        type: "success",
+                        messages: [`@${media.mediaName} deleted successfully.`],
+                    });
+                    if (timeoutRef.current) {
+                        clearTimeout(timeoutRef.current);
+                    }
+                    timeoutRef.current = setTimeout(() => {
+                        setNotifications("info", null);
+                    }, 7000);
+                })
+                .catch((e: ErrorResponse) => {
+                    setNotifications("info", {
+                        type: "error",
+                        messages: [e.errorMessage],
+                    });
+                });
         }
     }
 
@@ -300,12 +323,15 @@ export default function LibraryPage() {
             >
                 <div className="space-y-3">
                     {fetchNotifications && (
-                        <div className="">
-                            <Notification
-                                type={fetchNotifications?.type}
-                                messages={fetchNotifications?.messages}
-                            />
-                        </div>
+                        <>
+                            <div className="">
+                                <Notification
+                                    type={fetchNotifications?.type}
+                                    messages={fetchNotifications?.messages}
+                                />
+                            </div>
+                            <hr className="border-t" />
+                        </>
                     )}
                     <MasonryComponent
                         spinner={{

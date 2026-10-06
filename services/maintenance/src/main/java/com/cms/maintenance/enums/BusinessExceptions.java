@@ -22,6 +22,9 @@ public enum BusinessExceptions implements ErrorDefinition {
 	DUPLICATE_ENTRY("DUPLICATE_ENTRY", "BUS-2004",
 			"Entry already existed in records."),
 
+	RESOURCE_IN_USE("RESOURCE_IN_USE", "BUS-2004",
+			"Entry already existed in records."),
+
 	RESOURCE_NOT_FOUND("RESOURCE_NOT_FOUND", "BUS-4001",
 			"Resource with guven Id not found.");
 
