@@ -311,6 +311,7 @@ export default function LibraryPage() {
                         icon: ArrowUpTrayIcon,
                         text: "Upload",
                         onClick() {
+                            setNotifications("upload", null);
                             setResourceModalType("new");
                         },
                         disabled: emptyProfile,
@@ -459,12 +460,6 @@ export default function LibraryPage() {
                                         Preview and Confirm to upload.
                                     </h2>
                                 )}
-                                {previewInProgress && (
-                                    <SpinnerComponent
-                                        text={`Loading previews (${loadedCount}/${previews.length})`}
-                                        animate="animate-pulse"
-                                    />
-                                )}
                                 <ActionButton
                                     type="submit"
                                     icon={ArrowUpTrayIcon}
@@ -477,6 +472,15 @@ export default function LibraryPage() {
                                     disabled={emptyProfile}
                                 />
                             </div>
+                            {previewInProgress && (
+                                <>
+                                    <hr className="border-t" />
+                                    <SpinnerComponent
+                                        text={`Loading previews (${loadedCount}/${previews.length})`}
+                                        animate="animate-pulse"
+                                    />
+                                </>
+                            )}
                             {previews.length > 0 && (
                                 <>
                                     <hr className="border-t" />
