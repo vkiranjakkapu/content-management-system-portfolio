@@ -10,7 +10,7 @@ spring:
         password: ${database.password}
     jpa:
         hibernate:
-            ddl-auto: create
+            ddl-auto: update
     sql:
         init:
             mode: always

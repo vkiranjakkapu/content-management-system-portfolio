@@ -4,7 +4,7 @@ export type Publication = {
     seo?: SeoSettings;
     profile: Profile;
     about: About;
-    skills: Record<string, Skill[]>;
+    skills: SkillResponse;
     projects: Project[];
     experiences: Experience[];
     socialProfiles: SocialProfile[];
@@ -66,11 +66,26 @@ export type Profile = {
     banner: Media;
 };
 
+export type SkillResponse = Record<string, Skill[]>;
+
 export type Skill = {
     id: string;
-    tech: string;
+    tech: Technology;
     name: string;
 };
+
+export type Technology = {
+    id: string;
+    name: string;
+};
+
+export const SkillRequestType = {
+    USE_EXISTING_TECH: "USE_EXISTING_TECH",
+    CREATE_NEW_TECH: "CREATE_NEW_TECH",
+};
+
+export type SkillRequestType =
+    (typeof SkillRequestType)[keyof typeof SkillRequestType];
 
 export type SocialProfile = {
     id: string;
@@ -108,3 +123,11 @@ export const MediaTag = {
 } as const;
 
 export type MediaTag = (typeof MediaTag)[keyof typeof MediaTag];
+
+export type Contact = {
+    id: string;
+    name: string;
+    email: string;
+    message: string;
+    createdAt: string;
+};

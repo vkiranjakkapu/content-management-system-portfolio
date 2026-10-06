@@ -91,8 +91,6 @@ export default function MasonryComponent({
         if (!upload) {
             return;
         }
-
-        setUploadInProgress(true);
         setUploadNotifications(null);
 
         const tag = upload.tag;
@@ -137,6 +135,8 @@ export default function MasonryComponent({
             return;
         }
 
+        setUploadInProgress(true);
+
         setUpload((prev) =>
             prev ? { ...prev, uploadStatus: UploadStatus.UPLOADING } : null,
         );
@@ -174,7 +174,7 @@ export default function MasonryComponent({
         <SpinnerComponent {...spinner} />
     ) : resources.length > 0 ? (
         <>
-            <div className="*:not-last:pb-2 space-y-2 divide-y">
+            <div className="*:not-last:pb-3 space-y-3 divide-y">
                 {!isPreview && (
                     <>
                         {uploadNotifications && (
@@ -185,8 +185,8 @@ export default function MasonryComponent({
                                 />
                             </div>
                         )}
-                        <div className="flex flex-wrap gap-4 items-center justify-between">
-                            <div className="flex-1 flex items-center justify-between gap-4 ">
+                        <div className="flex flex-wrap gap-3 items-center justify-between">
+                            <div className="flex-1 flex items-center justify-between gap-3 ">
                                 <SelectComponent
                                     options={
                                         searchOptions
@@ -295,10 +295,10 @@ export default function MasonryComponent({
                             >
                                 {/* Options */}
                                 <div
-                                    className="z-1 backdrop absolute inset-0 bg-gray-900/20 p-4 cursor-pointer"
+                                    className="z-1 absolute inset-0 bg-gray-900/20 p-4 cursor-pointer"
                                     title={upload.preview.file.name}
                                 >
-                                    <div className="flex flex-col gap-1 items-end *:duration-100">
+                                    <div className="relative z-2 inset-x-0 flex flex-col gap-1 items-end *:duration-100">
                                         {upload.preview.uploadStatus ==
                                             UploadStatus.PREVIEW && (
                                             <ActionButton
@@ -311,12 +311,12 @@ export default function MasonryComponent({
                                             />
                                         )}
                                     </div>
-                                    <div className="absolute inset-0 p-4 space-y-1">
+                                    <div className="absolute z-0 inset-0 p-4 space-y-1">
                                         <p className="max-w-[30ch] truncate -translate-y-2 w-fit text-xs bg-background-secondary text-primary px-2 py-1 uppercase rounded">
                                             {upload.preview.file.name}
                                         </p>
                                     </div>
-                                    <div className="absolute bottom-0 inset-x-0 p-2 space-y-2">
+                                    <div className="absolute z-1 bottom-0 inset-x-0 p-2 space-y-2">
                                         <SelectComponent
                                             options={Object.keys(MediaTag).map(
                                                 (tag) => ({ value: tag }),
@@ -642,14 +642,20 @@ export default function MasonryComponent({
                                     <ActionButton
                                         text="Delete"
                                         icon={TrashIcon}
-                                        onClick={() => handleDelete(mediaType)}
+                                        onClick={() => {
+                                            setPreviewModal(null);
+                                            handleDelete(mediaType);
+                                        }}
                                     />
                                 )}
                                 {handleEdit && !usePreviewType && (
                                     <ActionButton
                                         text="Edit"
                                         icon={PencilIcon}
-                                        onClick={() => handleEdit(mediaType)}
+                                        onClick={() => {
+                                            setPreviewModal(null);
+                                            handleEdit(mediaType);
+                                        }}
                                     />
                                 )}
                             </div>
@@ -751,7 +757,7 @@ export default function MasonryComponent({
                                 className="z-1 backdrop absolute inset-0 bg-gray-900/20 p-4 cursor-pointer"
                                 title={upload.preview.file.name}
                             >
-                                <div className="flex flex-col gap-1 items-end *:duration-100">
+                                <div className="relative z-2 flex flex-col gap-1 items-end *:duration-100">
                                     {upload.preview.uploadStatus ==
                                         UploadStatus.PREVIEW && (
                                         <ActionButton
@@ -764,12 +770,12 @@ export default function MasonryComponent({
                                         />
                                     )}
                                 </div>
-                                <div className="absolute inset-0 p-4 space-y-1">
+                                <div className="absolute z-0 inset-0 p-4 space-y-1">
                                     <p className="max-w-[30ch] truncate -translate-y-2 w-fit text-xs bg-background-secondary text-primary px-2 py-1 uppercase rounded">
                                         {upload.preview.file.name}
                                     </p>
                                 </div>
-                                <div className="absolute bottom-0 inset-x-0 p-2 space-y-2">
+                                <div className="absolute z-1 bottom-0 inset-x-0 p-2 space-y-2">
                                     <SelectComponent
                                         options={Object.keys(MediaTag).map(
                                             (tag) => ({ value: tag }),

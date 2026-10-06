@@ -29,7 +29,7 @@ public class ContactServiceImp implements ContactService {
 
     @Override
     public List<ContactRequest> getAllContactRequests() {
-        return contactsRepository.findAll();
+        return contactsRepository.findAllByOrderByCreatedAtDesc();
     }
 
     @Override

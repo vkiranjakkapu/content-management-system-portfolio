@@ -4,7 +4,6 @@ import type { NotificationProps } from "./Notification";
 export type AllNotifications = Record<string, NotificationProps | null>;
 
 export function useNotifications<T extends string>(services: T[]) {
-    // 1. Initialize empty services as null instead of {}
     const [notifications, updateNotifications] = useState<AllNotifications>(() =>
         services.reduce((acc, service) => {
             acc[service] = null;
@@ -12,7 +11,6 @@ export function useNotifications<T extends string>(services: T[]) {
         }, {} as AllNotifications)
     );
 
-    // 2. Dynamic state updater
     const setNotifications = useCallback(
         <K extends T>(
             belongs: K,
@@ -37,7 +35,6 @@ export function useNotifications<T extends string>(services: T[]) {
         []
     );
 
-    // 3. Reset resets entries to null
     const resetNotifications = useCallback((item?: T) => {
         if (!item) {
             updateNotifications((prev) =>

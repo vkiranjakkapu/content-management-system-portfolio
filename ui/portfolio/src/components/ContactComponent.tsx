@@ -1,4 +1,4 @@
-import { useState, type SubmitEvent } from "react";
+import { useEffect, useRef, useState, type SubmitEvent } from "react";
 import { PiPaperPlaneTilt } from "react-icons/pi";
 import PublicationService from "../services/PublicationService";
 import type { NotificationProps } from "./notifications/Notification";
@@ -7,14 +7,25 @@ import SectionComponent from "./SectionComponent";
 
 export default function ContactComponent({ email }: { email: string }) {
     const [inProgress, setInprogress] = useState<boolean>(false);
+
     const [notification, setNotification] = useState<NotificationProps | null>(
         null,
     );
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, []);
 
     function sendQuote(e: SubmitEvent<HTMLFormElement>) {
         e.preventDefault();
         setInprogress(true);
-        const formData = new FormData(e.currentTarget);
+        const formTarget = e.currentTarget;
+        const formData = new FormData(formTarget);
 
         const message = String(formData.get("message"));
 
@@ -42,6 +53,7 @@ export default function ContactComponent({ email }: { email: string }) {
                         `Hi ${formData.get("name")}! I just recieved your message. Thank you.`,
                     ],
                 });
+                formTarget.reset();
             })
             .catch(() => {
                 setNotification({
@@ -53,11 +65,14 @@ export default function ContactComponent({ email }: { email: string }) {
             })
             .finally(() => {
                 setInprogress(false);
-                const timeout = setTimeout(() => {
+
+                if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current);
+                }
+
+                timeoutRef.current = setTimeout(() => {
                     setNotification(null);
                 }, 7000);
-
-                return clearTimeout(timeout);
             });
     }
 
@@ -69,7 +84,11 @@ export default function ContactComponent({ email }: { email: string }) {
             className="lg:*:px-6 space-y-3 shadow-none! bg-bg-primary! backdrop-blur-none!"
         >
             <p>Send your quote here.</p>
-            {notification && <Notification {...notification} />}
+            {notification && (
+                <div className="">
+                    <Notification {...notification} />
+                </div>
+            )}
             <form onSubmit={sendQuote} className="grid gap-3 text-md">
                 <label htmlFor="name">
                     <span>Name</span>

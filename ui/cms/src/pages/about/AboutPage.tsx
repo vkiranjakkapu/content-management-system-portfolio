@@ -131,7 +131,7 @@ export default function AboutPage() {
                     setNotifications("info", {
                         type: "error",
                         messages: [
-                            "We are facing unexpected issues, Please try again later.",
+                            `We are facing unexpected issues, Please try again later. [${e.errorCode}]`,
                         ],
                     });
                     return;
@@ -213,7 +213,7 @@ export default function AboutPage() {
                 />
             )}
             <TableComponent
-                headers={[
+                columns={[
                     {
                         key: "name",
                     },

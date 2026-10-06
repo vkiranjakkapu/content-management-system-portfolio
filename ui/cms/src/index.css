@@ -42,11 +42,11 @@
 
     button,
     .btn-primary {
-        @apply bg-primary text-white outline-primary px-2 py-1 outline outline-offset-1 m-0.5 cursor-pointer hover:bg-primary/90;
+        @apply bg-primary text-white outline-primary px-2 py-1 outline outline-offset-1 m-0.5 cursor-pointer hover:bg-primary/90 rounded;
     }
 
     .btn-secondary {
-        @apply bg-slate-300 rounded text-primary outline-slate-300 dark:outline-slate-600 hover:text-white;
+        @apply bg-slate-300 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded text-primary dark:text-white outline-slate-300 dark:outline-slate-600;
     }
 
     .font-noto-sans {

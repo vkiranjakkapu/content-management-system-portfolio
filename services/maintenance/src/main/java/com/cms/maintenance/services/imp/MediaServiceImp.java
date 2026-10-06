@@ -4,7 +4,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -108,17 +111,32 @@ public class MediaServiceImp implements MediaService {
 
     @Override
     public void deleteMediaById(UUID id) {
-        storageService.deleteMedia(getMediaById(id));
-        mediaRepository.deleteById(id);
+        try {
+            Media media = getMediaById(id);
+            mediaRepository.deleteById(id);
+            storageService.deleteMedia(media);
+        } catch (DataIntegrityViolationException e) {
+            throw new BusinessException(BusinessExceptions.RESOURCE_IN_USE,
+                    "Can't delete. This media was in use of '" + extractViolatedTable(e) + "'");
+        }
+
     }
 
     @Override
     public MediaResponseDto mapToResponse(Media media, boolean includeMedia) {
         try {
             if (includeMedia) {
+                byte[] data;
+                if (!properties.getStorage().getProvider().equals("local")
+                        && media.getMediaPath().contains("filestore")) {
+                    data = new byte[0];
+                } else {
+                    data = storageService.getMedia(media);
+                }
+
                 return MediaResponseDto.builder()
                         .id(media.getId())
-                        .media(storageService.getMedia(media))
+                        .media(data)
                         .mediaName(media.getMediaName())
                         .mediaType(media.getMediaType())
                         .tag(media.getTag())
@@ -142,6 +160,27 @@ public class MediaServiceImp implements MediaService {
             return file.getOriginalFilename();
         }
         return UUID.randomUUID().toString();
+    }
+
+    private static final Pattern TABLE_PATTERN = Pattern.compile("table \"([^\"]+)\"");
+
+    private static String extractViolatedTable(DataIntegrityViolationException ex) {
+        String message = ex.getMostSpecificCause().getMessage();
+
+        Matcher matcher = TABLE_PATTERN.matcher(message);
+
+        // matcher.find() finds the first table (the one being updated/deleted)
+        // matcher.find() a second time finds the table with the foreign key constraint
+        if (matcher.find()) {
+            String sourceTable = matcher.group(1); // e.g., "images"
+            if (matcher.find()) {
+                String targetTable = matcher.group(1); // e.g., "profiles"
+                return targetTable;
+            }
+            return sourceTable;
+        }
+
+        return "unknown_table";
     }
 
 }

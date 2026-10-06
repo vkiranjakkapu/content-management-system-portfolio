@@ -3,7 +3,6 @@ import ProtectedRoutes from "../layouts/ProtectedRoutes";
 import PublicRoutes from "../layouts/PublicRoutes";
 import AboutPage from "../pages/about/AboutPage";
 import AccountPage from "../pages/account/AccountPage";
-import ContactsPage from "../pages/contacts/ContactsPage";
 import Dashboard from "../pages/dashboard/Dashboard";
 import ExperiencePage from "../pages/experience/ExperiencePage";
 import LoginPage from "../pages/landing/LoginPage";
@@ -26,7 +25,6 @@ export default function AppRoutes() {
                     path={RoutePaths.PUBLICATIONS}
                     element={<PublicationsPage />}
                 />
-                <Route path={RoutePaths.CONTACTS} element={<ContactsPage />} />
                 <Route path={RoutePaths.PROFILE} element={<ProfilePage />} />
                 <Route path={RoutePaths.LIBRARY} element={<LibraryPage />} />
                 <Route path={RoutePaths.ABOUT} element={<AboutPage />} />

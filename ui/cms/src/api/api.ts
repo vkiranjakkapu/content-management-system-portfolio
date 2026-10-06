@@ -44,6 +44,7 @@ export type ApiClientProps = {
         | "media"
         | "about"
         | "skills"
+        | "technologies"
         | "projects"
         | "experience"
         | "contact"
@@ -78,6 +79,8 @@ export async function apiClient<T>({
             url = AppConfig.CMS_ABOUT_URL;
         } else if (service == "skills") {
             url = AppConfig.CMS_SKILLS_URL;
+        } else if (service == "technologies") {
+            url = AppConfig.CMS_TECHNOLOGIES_URL;
         } else if (service == "projects") {
             url = AppConfig.CMS_PROJECTS_URL;
         } else if (service == "experience") {

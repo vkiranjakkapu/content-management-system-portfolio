@@ -19,6 +19,7 @@ import ModalComponent from "../../components/ModalComponent";
 import ProfileComponent from "../../components/ProfileComponent";
 import MediaService from "../../services/MediaService";
 import MasonryComponent from "../library/MasonryComponent";
+import Avatar from "/profile.webp";
 
 export default function ProfilePage() {
     const [profile, setProfile] = useState<Profile | null>(null);
@@ -60,7 +61,7 @@ export default function ProfilePage() {
                         setFetchProgress(false);
                     });
             })
-            .finally(() => {
+            .catch(() => {
                 setFetchProgress(false);
             });
     }, []);
@@ -120,7 +121,7 @@ export default function ProfilePage() {
                     setNotifications("info", {
                         type: "error",
                         messages: [
-                            "We are facing unexpected issues, Please try again later.",
+                            `We are facing unexpected issues, Please try again later. [${e.errorCode}]`,
                         ],
                     });
                     return;
@@ -190,11 +191,17 @@ export default function ProfilePage() {
             return;
         }
 
-        const payload = {
-            ...(type === "dp"
-                ? { dp: draft?.dp!.id }
-                : { banner: draft?.banner!.id }),
-        };
+        const payload = new FormData();
+        payload.append(
+            type,
+            type === "dp" ? String(draft?.dp!.id) : String(draft?.banner!.id),
+        );
+
+        // const payload_ = {
+        //     ...(type === "dp"
+        //         ? { dp: draft?.dp!.id }
+        //         : { banner: draft?.banner!.id }),
+        // };
 
         setNotifications("action", null);
         setActionProgress(true);
@@ -274,7 +281,7 @@ export default function ProfilePage() {
                                         ? `data:${draft.dp.mediaType};base64,${draft.dp.media}`
                                         : profile?.dp
                                           ? `data:${profile.dp.mediaType};base64,${profile.dp.media}`
-                                          : undefined
+                                          : Avatar
                                 }
                                 position={
                                     draft?.designation ??
@@ -381,7 +388,7 @@ export default function ProfilePage() {
                                     }`}
                                 />
                                 <div
-                                    className={`absolute inset-y-0 h-fit top-0 right-0 m-3 space-y-2 rounded-full ${draft?.banner != profile?.banner ? "block" : "hidden"}`}
+                                    className={`absolute z-2 inset-y-0 h-fit top-0 right-0 m-3 space-y-2 rounded-full ${draft?.banner != profile?.banner ? "block" : "hidden"}`}
                                 >
                                     <ActionButton
                                         text="Update"
@@ -411,12 +418,12 @@ export default function ProfilePage() {
                                         Reset
                                     </div>
                                 </div>
-                                <div className="absolute bottom-0 p-2 pl-6 bg-section-theme w-full font-playfair text-primary text-lg">
+                                <div className="absolute z-1 bottom-0 p-2 pl-6 bg-section-theme w-full font-playfair text-primary text-lg">
                                     {draft?.location ??
                                         profile?.location ??
                                         "West Godavari, AP"}
                                 </div>
-                                <div className="hoverReveal invisible pointer-events-none absolute top-0 p-1 bg-section-theme rounded flex items-center gap-1 justify-center m-3 text-slate-500">
+                                <div className="hoverReveal z-0 invisible pointer-events-none absolute top-0 p-1 bg-section-theme rounded flex items-center gap-1 justify-center m-3 text-slate-500">
                                     <InformationCircleIcon className="size-4" />
                                     <span className="capitalize text-sm">
                                         Will be Used as background for location
@@ -427,6 +434,12 @@ export default function ProfilePage() {
                                 className={`uppercase text-xs ${profile?.banner != draft?.banner ? "block" : "hidden"}`}
                             >
                                 (Edited)
+                            </span>
+                            <span
+                                className={`flex items-center gap-1 uppercase text-xs ${!profile?.banner && !draft?.banner ? "block" : "hidden"}`}
+                            >
+                                <InformationCircleIcon className="size-4" />
+                                <span>Showing default</span>
                             </span>
                         </div>
                         <div className="order-5">

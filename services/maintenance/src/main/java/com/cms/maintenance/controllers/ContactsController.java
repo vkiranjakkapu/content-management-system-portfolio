@@ -7,17 +7,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cms.maintenance.dto.ApiResponseDto;
-import com.cms.maintenance.dto.CreateContactRequestDto;
 import com.cms.maintenance.models.ContactRequest;
 import com.cms.maintenance.services.ContactService;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -37,13 +33,6 @@ public class ContactsController {
     public ResponseEntity<ApiResponseDto<ContactRequest>> getContactById(@PathVariable UUID contactId) {
         return ResponseEntity
                 .ok(ApiResponseDto.<ContactRequest>builder().data(contactService.getContactById(contactId)).build());
-    }
-
-    @PostMapping("/")
-    public ResponseEntity<ApiResponseDto<ContactRequest>> createContactRequest(
-            @Valid @RequestBody CreateContactRequestDto request) {
-        return ResponseEntity
-                .ok(ApiResponseDto.<ContactRequest>builder().data(contactService.createRequest(request)).build());
     }
 
     @DeleteMapping("/{contactId}")
