@@ -41,6 +41,7 @@ export type Experience = {
 export type Project = {
     id: string;
     title: string;
+    description: string;
     techStack: Skill[];
     gallery: Media[];
     gitUrl: string;

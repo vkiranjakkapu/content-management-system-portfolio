@@ -12,13 +12,16 @@ import com.cms.maintenance.dto.UpdateSkillRequestDto;
 import com.cms.maintenance.enums.BusinessExceptions;
 import com.cms.maintenance.enums.SkillRequestType;
 import com.cms.maintenance.exceptions.BusinessException;
+import com.cms.maintenance.exceptions.SecurityException;
 import com.cms.maintenance.models.Profile;
 import com.cms.maintenance.models.Skill;
 import com.cms.maintenance.models.Technology;
 import com.cms.maintenance.repositories.SkillsRepository;
+import com.cms.maintenance.services.CurrentUserService;
 import com.cms.maintenance.services.ProfileService;
 import com.cms.maintenance.services.SkillsService;
 import com.cms.maintenance.services.TechnologyService;
+import com.platform.web.exception.SecurityExceptions;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +32,7 @@ public class SkillsServiceImp implements SkillsService {
     private final SkillsRepository skillsRepository;
     private final ProfileService profileService;
     private final TechnologyService technologyService;
+    private final CurrentUserService currentUser;
 
     @Override
     public List<Skill> getAllSkills() {
@@ -50,6 +54,11 @@ public class SkillsServiceImp implements SkillsService {
     public Skill createSkill(CreateSkillRequestDto request) {
         Profile profile = profileService.getCurrentUserProfile();
 
+        if (!profile.getUserId().equals(currentUser.userId())) {
+            throw new SecurityException(SecurityExceptions.FORBIDDEN_ACCESS,
+                    "You are not allowed to do this operation");
+        }
+
         Technology technology;
         if (request.type().equals(SkillRequestType.CREATE_NEW_TECH)) {
             technology = technologyService.createTechnology(request.tech());
@@ -67,8 +76,13 @@ public class SkillsServiceImp implements SkillsService {
     @Override
     public Skill updateSkill(UpdateSkillRequestDto request) {
         Skill skill = getSkillById(request.id());
-        skill.setName(request.name());
 
+        if (!skill.getProfile().getUserId().equals(currentUser.userId())) {
+            throw new SecurityException(SecurityExceptions.FORBIDDEN_ACCESS,
+                    "You are not allowed to do this operation");
+        }
+
+        skill.setName(request.name());
         skill.setTech(technologyService.getTechnologyById(request.techId()));
 
         return skillsRepository.save(skill);

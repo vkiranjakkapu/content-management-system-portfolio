@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 public record UpdateProjectRequestDto(
 		@NotNull UUID id,
 		String title,
+		String description,
 		List<UUID> techStack,
 		List<UUID> gallery,
 		String gitUrl) {

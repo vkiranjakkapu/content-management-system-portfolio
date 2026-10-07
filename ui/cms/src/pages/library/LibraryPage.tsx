@@ -311,6 +311,7 @@ export default function LibraryPage() {
                         icon: ArrowUpTrayIcon,
                         text: "Upload",
                         onClick() {
+                            setNotifications("upload", null);
                             setResourceModalType("new");
                         },
                         disabled: emptyProfile,
@@ -323,34 +324,33 @@ export default function LibraryPage() {
             >
                 <div className="space-y-3">
                     {fetchNotifications && (
-                        <>
-                            <div className="">
-                                <Notification
-                                    type={fetchNotifications?.type}
-                                    messages={fetchNotifications?.messages}
-                                />
-                            </div>
-                            <hr className="border-t" />
-                        </>
+                        <div className="">
+                            <Notification
+                                type={fetchNotifications?.type}
+                                messages={fetchNotifications?.messages}
+                            />
+                        </div>
                     )}
-                    <MasonryComponent
-                        spinner={{
-                            isLoading: fetchProgress,
-                        }}
-                        resources={allResources}
-                        handleEdit={(media) => {
-                            setResourceModalType("edit");
-                            setHandlingResource(media);
-                            resetNotifications();
-                        }}
-                        handleDelete={(media) => {
-                            deleteResource(media);
-                            resetNotifications();
-                        }}
-                        searchOptions={Object.keys(MediaTag).map((cat) => ({
-                            value: cat as MediaTag,
-                        }))}
-                    />
+                    {!emptyProfile && (
+                        <MasonryComponent
+                            spinner={{
+                                isLoading: fetchProgress,
+                            }}
+                            resources={allResources}
+                            handleEdit={(media) => {
+                                setResourceModalType("edit");
+                                setHandlingResource(media);
+                                resetNotifications();
+                            }}
+                            handleDelete={(media) => {
+                                deleteResource(media);
+                                resetNotifications();
+                            }}
+                            searchOptions={Object.keys(MediaTag).map((cat) => ({
+                                value: cat as MediaTag,
+                            }))}
+                        />
+                    )}
                 </div>
             </SectionLayoutComponent>
 
@@ -459,12 +459,6 @@ export default function LibraryPage() {
                                         Preview and Confirm to upload.
                                     </h2>
                                 )}
-                                {previewInProgress && (
-                                    <SpinnerComponent
-                                        text={`Loading previews (${loadedCount}/${previews.length})`}
-                                        animate="animate-pulse"
-                                    />
-                                )}
                                 <ActionButton
                                     type="submit"
                                     icon={ArrowUpTrayIcon}
@@ -477,6 +471,15 @@ export default function LibraryPage() {
                                     disabled={emptyProfile}
                                 />
                             </div>
+                            {previewInProgress && (
+                                <>
+                                    <hr className="border-t" />
+                                    <SpinnerComponent
+                                        text={`Loading previews (${loadedCount}/${previews.length})`}
+                                        animate="animate-pulse"
+                                    />
+                                </>
+                            )}
                             {previews.length > 0 && (
                                 <>
                                     <hr className="border-t" />

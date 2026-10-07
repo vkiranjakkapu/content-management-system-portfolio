@@ -33,6 +33,7 @@ import {
 } from "../../services/DtoModels";
 
 import SkillsService from "../../services/SkillsService";
+import { SkillComponent } from "./SkillComponent";
 
 export default function SkillsPage() {
     const { notifications, setNotifications } = useNotifications([
@@ -247,7 +248,13 @@ export default function SkillsPage() {
                     const updatedEntries = Object.entries(prevSkills).map(
                         ([tech, skills]) => {
                             if (tech === techName) {
-                                return [techName, skills];
+                                return [
+                                    techName,
+                                    skills.map((sk) => ({
+                                        ...sk,
+                                        tech: { ...sk.tech, name: techName },
+                                    })),
+                                ];
                             }
                             return [tech, skills];
                         },
@@ -255,6 +262,11 @@ export default function SkillsPage() {
 
                     return Object.fromEntries(updatedEntries);
                 });
+                setAllTechnologies((prevTechs) =>
+                    prevTechs.map((t) =>
+                        t.id === targetTech.id ? { ...t, name: techName } : t,
+                    ),
+                );
                 setTargetTech(null);
             })
             .catch((e: ErrorResponse) => {
@@ -424,50 +436,41 @@ export default function SkillsPage() {
                                                 />
                                             )}
                                             {skills.map((skill) => (
-                                                <div
+                                                <SkillComponent
                                                     key={skill.id}
-                                                    className="border rounded-md p-2 flex items-center justify-between gap-3"
-                                                >
-                                                    <div className="min-w-0">
-                                                        <p className="font-medium truncate">
-                                                            {skill.name}
-                                                        </p>
-
-                                                        <p className="text-sm opacity-70 truncate">
-                                                            {skill.tech?.name}
-                                                        </p>
-                                                    </div>
-
-                                                    <div className="flex flex-wrap gap-2">
-                                                        <ActionButton
-                                                            icon={PencilIcon}
-                                                            className="p-2 rounded-full"
-                                                            onClick={() =>
+                                                    skill={skill}
+                                                    actionBtns={[
+                                                        {
+                                                            icon: PencilIcon,
+                                                            className:
+                                                                "p-2 rounded-full",
+                                                            onClick() {
                                                                 openEditSkillModal(
                                                                     skill,
-                                                                )
-                                                            }
-                                                        />
-                                                        <ActionButton
-                                                            icon={TrashIcon}
-                                                            className="p-2 rounded-full btn-secondary text-rose-400"
-                                                            spinner={{
+                                                                );
+                                                            },
+                                                        },
+                                                        {
+                                                            icon: TrashIcon,
+                                                            className:
+                                                                "p-2 rounded-full btn-secondary text-rose-400",
+                                                            spinner: {
                                                                 isLoading:
                                                                     targetSkill?.id ===
                                                                         skill.id &&
                                                                     deleteInProgress,
-                                                            }}
-                                                            onClick={() => {
+                                                            },
+                                                            onClick() {
                                                                 setTargetSkill(
                                                                     skill,
                                                                 );
                                                                 deleteSkill(
                                                                     skill,
                                                                 );
-                                                            }}
-                                                        />
-                                                    </div>
-                                                </div>
+                                                            },
+                                                        },
+                                                    ]}
+                                                />
                                             ))}
                                         </ul>
                                     </div>
@@ -475,10 +478,12 @@ export default function SkillsPage() {
                             )}
                         </div>
                     ) : (
-                        <Notification
-                            type="info"
-                            messages={["No Skills added yet."]}
-                        />
+                        !emptyProfile && (
+                            <Notification
+                                type="info"
+                                messages={["No Skills added yet."]}
+                            />
+                        )
                     )}
                 </div>
             </SectionLayoutComponent>

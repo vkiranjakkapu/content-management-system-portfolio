@@ -111,13 +111,14 @@ public class MediaServiceImp implements MediaService {
 
     @Override
     public void deleteMediaById(UUID id) {
+        Media media = getMediaById(id);
         try {
-            Media media = getMediaById(id);
             mediaRepository.deleteById(id);
             storageService.deleteMedia(media);
         } catch (DataIntegrityViolationException e) {
             throw new BusinessException(BusinessExceptions.RESOURCE_IN_USE,
-                    "Can't delete. This media was in use of '" + extractViolatedTable(e) + "'");
+                    "Can't delete '" + media.getMediaName() + "'. This media was in use for '" + extractViolatedTable(e)
+                            + "'");
         }
 
     }

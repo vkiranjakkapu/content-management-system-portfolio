@@ -11,15 +11,18 @@ import com.cms.maintenance.dto.ProjectResponseDto;
 import com.cms.maintenance.dto.UpdateProjectRequestDto;
 import com.cms.maintenance.enums.BusinessExceptions;
 import com.cms.maintenance.exceptions.BusinessException;
+import com.cms.maintenance.exceptions.SecurityException;
 import com.cms.maintenance.models.Media;
 import com.cms.maintenance.models.Profile;
 import com.cms.maintenance.models.Project;
 import com.cms.maintenance.models.Skill;
 import com.cms.maintenance.repositories.ProjectsRepository;
+import com.cms.maintenance.services.CurrentUserService;
 import com.cms.maintenance.services.MediaService;
 import com.cms.maintenance.services.ProfileService;
 import com.cms.maintenance.services.ProjectService;
 import com.cms.maintenance.services.SkillsService;
+import com.platform.web.exception.SecurityExceptions;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +34,7 @@ public class ProjectServiceImp implements ProjectService {
     private final ProfileService profileService;
     private final SkillsService skillsService;
     private final MediaService mediaService;
+    private final CurrentUserService currentUser;
 
     @Override
     public List<Project> getAllProjects() {
@@ -59,6 +63,7 @@ public class ProjectServiceImp implements ProjectService {
         return projectsRepository.save(Project.builder()
                 .profile(profile)
                 .title(request.title())
+                .description(request.description())
                 .techStack(techStack)
                 .gallery(gallery)
                 .gitUrl(request.gitUrl())
@@ -70,10 +75,16 @@ public class ProjectServiceImp implements ProjectService {
     public Project updateProject(UpdateProjectRequestDto request) {
         Project project = getProjectById(request.id());
 
-        Optional.of(request.title()).ifPresent(title -> project.setTitle(title));
-        Optional.of(request.gitUrl()).ifPresent(gitUrl -> project.setGitUrl(gitUrl));
+        if (!project.getProfile().getUserId().equals(currentUser.userId())) {
+            throw new SecurityException(SecurityExceptions.FORBIDDEN_ACCESS,
+                    "You are not allowed to perform this operation.");
+        }
 
-        Optional.of(request.techStack()).ifPresent(techStack -> {
+        Optional.ofNullable(request.title()).ifPresent(project::setTitle);
+        Optional.ofNullable(request.description()).ifPresent(project::setDescription);
+        Optional.ofNullable(request.gitUrl()).ifPresent(project::setGitUrl);
+
+        Optional.ofNullable(request.techStack()).ifPresent(techStack -> {
             project.setTechStack(skillsService.getAllSkillsByIds(techStack));
         });
 
@@ -86,7 +97,81 @@ public class ProjectServiceImp implements ProjectService {
     }
 
     @Override
+    public boolean addSkill(UUID projectId, UUID skillId) {
+        Project project = getProjectById(projectId);
+
+        if (!project.getProfile().getUserId().equals(currentUser.userId())) {
+            throw new SecurityException(SecurityExceptions.FORBIDDEN_ACCESS,
+                    "You are not allowed to perform this operation.");
+        }
+
+        boolean added = project.getTechStack().add(skillsService.getSkillById(skillId));
+
+        projectsRepository.save(project);
+
+        return added;
+    }
+
+    @Override
+    public boolean removeSkill(UUID projectId, UUID skillId) {
+        Project project = getProjectById(projectId);
+
+        if (!project.getProfile().getUserId().equals(currentUser.userId())) {
+            throw new SecurityException(SecurityExceptions.FORBIDDEN_ACCESS,
+                    "You are not allowed to perform this operation.");
+        }
+
+        boolean removed = project.getTechStack().removeIf(sk -> sk.getId().equals(skillId));
+        if (!removed) {
+            throw new BusinessException(BusinessExceptions.RESOURCE_NOT_FOUND, "Skill not found in this project.");
+        }
+
+        projectsRepository.save(project);
+
+        return removed;
+    }
+
+    @Override
+    public boolean addMedia(UUID projectId, UUID mediaId) {
+        Project project = getProjectById(projectId);
+
+        if (!project.getProfile().getUserId().equals(currentUser.userId())) {
+            throw new SecurityException(SecurityExceptions.FORBIDDEN_ACCESS,
+                    "You are not allowed to perform this operation.");
+        }
+
+        boolean added = project.getGallery().add(mediaService.getMediaById(mediaId));
+
+        projectsRepository.save(project);
+
+        return added;
+    }
+
+    @Override
+    public boolean removeMedia(UUID projectId, UUID mediaId) {
+        Project project = getProjectById(projectId);
+        boolean removed = project.getGallery().removeIf(md -> md.getId().equals(mediaId));
+
+        if (!project.getProfile().getUserId().equals(currentUser.userId())) {
+            throw new SecurityException(SecurityExceptions.FORBIDDEN_ACCESS,
+                    "You are not allowed to perform this operation.");
+        }
+
+        if (!removed) {
+            throw new BusinessException(BusinessExceptions.RESOURCE_NOT_FOUND, "Media not found in this project.");
+        }
+
+        projectsRepository.save(project);
+
+        return removed;
+    }
+
+    @Override
     public boolean deleteProjectById(UUID id) {
+        if (!profileService.getCurrentUserProfile().getUserId().equals(currentUser.userId())) {
+            throw new SecurityException(SecurityExceptions.FORBIDDEN_ACCESS,
+                    "You are not allowed to perform this operation.");
+        }
         projectsRepository.deleteById(id);
         return true;
     }
@@ -96,6 +181,7 @@ public class ProjectServiceImp implements ProjectService {
         return ProjectResponseDto.builder()
                 .id(project.getId())
                 .title(project.getTitle())
+                .description(project.getDescription())
                 .gitUrl(project.getGitUrl())
                 .techStack(project.getTechStack())
                 .gallery(project.getGallery().stream().map(media -> mediaService.mapToResponse(media, false)).toList())
