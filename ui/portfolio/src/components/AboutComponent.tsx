@@ -138,7 +138,11 @@ export default function AboutComponent({
                     {/*  items-center-safe  */}
                     <div className="lg:row-span-2 flex flex-col items-center lg:translate-y-6 order-1">
                         <ProfileComponent
-                            image={profile?.dp.media}
+                            image={
+                                profile?.dp
+                                    ? `data:${profile?.dp.mediaType};base64,${profile?.dp.media}`
+                                    : undefined
+                            }
                             position={profile?.designation}
                             className="size-50!"
                         />
@@ -151,10 +155,8 @@ export default function AboutComponent({
                             <div className="absolute inset-0 bg-black/20 backdrop-blur-[1.5px]"></div>
                             <img
                                 src={
-                                    profile?.banner.media
-                                        ? URL.createObjectURL(
-                                              profile?.banner.media,
-                                          )
+                                    profile?.banner?.media
+                                        ? `data:${profile?.banner.mediaType};base64,${profile?.banner.media}`
                                         : Banner
                                 }
                                 alt="Landscape of West Godavari, Andhra Pradesh"

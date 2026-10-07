@@ -25,7 +25,11 @@ export default function FooterComponent({
                 ></div>
                 <div className="z-1 flex flex-wrap justify-center items-center gap-6 flex-1">
                     <ProfileComponent
-                        image={profile?.dp.media}
+                        image={
+                            profile?.dp
+                                ? `data:${profile?.dp.mediaType};base64,${profile?.dp.media}`
+                                : undefined
+                        }
                         position={profile?.designation}
                         customiseText="text-white font-normal"
                     />

@@ -22,4 +22,4 @@ config:
             connection-string: ${AZURE_STORAGE_CONNECTION_STRING}
             container-name: ${AZURE_STORAGE_CONTAINER}
     media:
-        allowed-exts: [png, jpg, jpeg, gif]
+        allowed-exts: [png, jpg, jpeg, gif, webp]

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, type HTMLAttributes } from "react";
 import profileDp from "/profile.webp";
 
 type ProfileComponentProps = HTMLAttributes<HTMLDivElement> & {
-    image?: Blob;
+    image?: string;
     position?: string;
     customiseText?: string;
 };
@@ -30,7 +30,7 @@ export default function ProfileComponent({
             className={`relative size-48 rounded-full text-primary ${props.className}`}
         >
             <img
-                src={image ? URL.createObjectURL(image) : profileDp}
+                src={image ? image : profileDp}
                 alt="Venkata Kiran Jakkapu"
                 loading="eager"
                 decoding="async"

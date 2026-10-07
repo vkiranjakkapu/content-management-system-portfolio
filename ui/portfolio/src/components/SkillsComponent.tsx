@@ -3,7 +3,7 @@ import type { Skill } from "../services/PublicationService";
 import SectionComponent from "./SectionComponent";
 
 type SkillsComponentProps = HTMLAttributes<HTMLDivElement> & {
-    skills: Map<string, Skill[]>;
+    skills: Record<string, Skill[]>;
 };
 
 export default function SkillsComponent({
@@ -21,8 +21,8 @@ export default function SkillsComponent({
                 style={{ backgroundImage: "url(/footer-bg.webp)" }}
             ></div>
             <div className="relative z-2 grid grid-cols-1 md:grid-cols-3">
-                {skills.size > 0 ? (
-                    Array.from(skills.entries()).map(([tech, skills]) => {
+                {Object.entries(skills).length > 0 ? (
+                    Array.from(Object.entries(skills)).map(([tech, skills]) => {
                         return (
                             <div className="p-2 space-y-2">
                                 <h3 className="text-primary font-playfair font-semibold lg:font-normal">
