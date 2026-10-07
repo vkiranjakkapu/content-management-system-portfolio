@@ -1,5 +1,6 @@
 package com.cms.maintenance.controllers;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,13 @@ import lombok.RequiredArgsConstructor;
 public class PublicationController {
 
     private final PublicationService publicationService;
+
+    @GetMapping("/")
+    public ResponseEntity<ApiResponseDto<List<Publication>>> getAllPublications() {
+        return ResponseEntity
+                .ok(ApiResponseDto.<List<Publication>>builder().data(publicationService.getAllPublications())
+                        .build());
+    }
 
     @GetMapping("/{publicationId}")
     public ResponseEntity<ApiResponseDto<Publication>> getPublicationById(@PathVariable UUID publicationId) {

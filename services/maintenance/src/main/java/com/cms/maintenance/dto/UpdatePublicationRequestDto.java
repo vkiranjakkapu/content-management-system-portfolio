@@ -4,14 +4,15 @@ import java.util.List;
 import java.util.UUID;
 
 public record UpdatePublicationRequestDto(
+        UUID publicationId,
         UUID aboutId,
         List<UUID> skillIds,
         List<UUID> projectIds,
         List<UUID> experienceIds,
-        boolean showSkills,
-        boolean showProjects,
-        boolean showExperience,
-        boolean showContact,
+        Boolean showSkills,
+        Boolean showProjects,
+        Boolean showExperience,
+        Boolean showContact,
         UpdateSeoSettingsRequestDto seo) {
 
 }

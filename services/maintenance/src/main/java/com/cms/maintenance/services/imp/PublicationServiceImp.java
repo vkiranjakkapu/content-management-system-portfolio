@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.cms.maintenance.dto.PublicationResponseDto;
 import com.cms.maintenance.dto.UpdatePublicationRequestDto;
@@ -39,6 +40,11 @@ public class PublicationServiceImp implements PublicationService {
     private final SocialProfileService socialProfileService;
 
     @Override
+    public List<Publication> getAllPublications() {
+        return publicationsRepository.findAllByProfileOrderByUpdatedAtDesc(profileService.getCurrentUserProfile());
+    }
+
+    @Override
     public Publication getLatestPublicPublication() {
         return publicationsRepository.findFirstByStatusOrderByUpdatedAtDesc(PublicationStatus.PUBLISH)
                 .orElseThrow(() -> new BusinessException(BusinessExceptions.PUBLICATION_NOT_FOUND,
@@ -62,23 +68,27 @@ public class PublicationServiceImp implements PublicationService {
     }
 
     @Override
+    @Transactional
     public Publication publishById(UUID id) {
 
-        Publication oldPublication = getLatestPublication();
-        oldPublication.setStatus(PublicationStatus.UN_PUBLISH);
-
         Publication newPublication = getPublicationById(id);
+
+        publicationsRepository
+                .findByProfileAndStatus(profileService.getCurrentUserProfile(), PublicationStatus.PUBLISH)
+                .ifPresent(oldPublication -> {
+                    oldPublication.setStatus(PublicationStatus.UN_PUBLISH);
+                    publicationsRepository.save(oldPublication);
+                });
+
         newPublication.setStatus(PublicationStatus.PUBLISH);
-
-        publicationsRepository.saveAll(List.of(newPublication, oldPublication));
-
-        return newPublication;
+        return publicationsRepository.save(newPublication);
     }
 
     @Override
     public Publication updatePublication(UpdatePublicationRequestDto request) {
 
-        Publication draft = getDraftPublication();
+        Publication draft = Optional.ofNullable(request.publicationId()).map(pbId -> getPublicationById(pbId))
+                .orElse(getDraftPublication());
 
         Optional.ofNullable(request.aboutId()).ifPresent(aboutId -> {
             draft.setAbout(aboutService.getAboutById(aboutId));
@@ -148,8 +158,10 @@ public class PublicationServiceImp implements PublicationService {
     }
 
     private Publication getDraftPublication() {
-        return publicationsRepository.findFirstByProfileAndStatus(profileService.getCurrentUserProfile(),
-                PublicationStatus.DRAFT).orElseGet(() -> {
+        return publicationsRepository
+                .findFirstByProfileAndStatusOrderByCreatedAtDesc(profileService.getCurrentUserProfile(),
+                        PublicationStatus.DRAFT)
+                .orElseGet(() -> {
                     SeoSettings seo = SeoSettings.builder().build();
                     DisplaySettings settings = DisplaySettings.builder().build();
 

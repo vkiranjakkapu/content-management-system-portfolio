@@ -66,7 +66,6 @@ public class Publication {
     @OneToMany
     private List<SocialProfile> socialProfiles;
 
-    @JsonIgnore
     @Builder.Default
     @Enumerated(EnumType.STRING)
     private PublicationStatus status = PublicationStatus.DRAFT;

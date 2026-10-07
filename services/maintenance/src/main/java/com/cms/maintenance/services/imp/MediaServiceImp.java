@@ -125,9 +125,15 @@ public class MediaServiceImp implements MediaService {
 
     @Override
     public MediaResponseDto mapToResponse(Media media, boolean includeMedia) {
+
+        if (media == null) {
+            return null;
+        }
+
         try {
             if (includeMedia) {
                 byte[] data;
+
                 if (!properties.getStorage().getProvider().equals("local")
                         && media.getMediaPath().contains("filestore")) {
                     data = new byte[0];
@@ -143,17 +149,20 @@ public class MediaServiceImp implements MediaService {
                         .tag(media.getTag())
                         .build();
             }
+
             return MediaResponseDto.builder()
                     .id(media.getId())
                     .mediaName(media.getMediaName())
                     .mediaType(media.getMediaType())
                     .tag(media.getTag())
                     .build();
+
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BusinessException(StorageExceptions.STORAGE_ERROR, "Error downloading data");
+            throw new BusinessException(
+                    StorageExceptions.STORAGE_ERROR,
+                    "Error downloading data");
         }
-
     }
 
     private String resolvedFileName(MultipartFile file) {
