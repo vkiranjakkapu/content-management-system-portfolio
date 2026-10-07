@@ -6,7 +6,7 @@ import configureResponseInterceptor from "./ResponseInterceptor";
 
 const api = axios.create({
     baseURL: AppConfig.API_BASE_URL,
-    timeout: 5000,
+    timeout: 20000,
 });
 
 configureRequestInterceptor(api);
