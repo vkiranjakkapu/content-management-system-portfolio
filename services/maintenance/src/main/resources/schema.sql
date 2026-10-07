@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS technologies (
 CREATE TABLE IF NOT EXISTS skills (
     id UUID NOT NULL,
     profile_id UUID,
-    tech_id UUID UNIQUE,
+    tech_id UUID,
     name VARCHAR(255),
     created_at TIMESTAMP(6) NOT NULL,
     updated_at TIMESTAMP(6) NOT NULL,
@@ -139,12 +139,12 @@ CREATE TABLE IF NOT EXISTS page_settings (
 CREATE TABLE IF NOT EXISTS seo_settings (
     id UUID NOT NULL,
     title VARCHAR(255),
-    description VARCHAR(1000),
-    canonical_url VARCHAR(500),
+    description VARCHAR(255),
+    canonical_url VARCHAR(255),
     og_title VARCHAR(255),
-    og_description VARCHAR(1000),
+    og_description VARCHAR(255),
     og_image_id UUID,
-    robots VARCHAR(100),
+    robots VARCHAR(255),
 
     CONSTRAINT pk_seo_settings PRIMARY KEY (id)
 );
@@ -153,9 +153,9 @@ CREATE TABLE IF NOT EXISTS seo_settings (
 CREATE TABLE IF NOT EXISTS publications (
     id UUID NOT NULL,
     profile_id UUID,
-    about_id UUID UNIQUE,
-    settings_id UUID UNIQUE,
-    seo_id UUID UNIQUE,
+    about_id UUID,
+    settings_id UUID,
+    seo_id UUID,
     status VARCHAR(255),
     created_at TIMESTAMP(6) NOT NULL,
     updated_at TIMESTAMP(6) NOT NULL,
@@ -175,13 +175,13 @@ CREATE TABLE IF NOT EXISTS publications (
 
 CREATE TABLE IF NOT EXISTS projects_gallery (
     project_id UUID NOT NULL,
-    gallery_id UUID NOT NULL UNIQUE
+    gallery_id UUID NOT NULL
 );
 
 
 CREATE TABLE IF NOT EXISTS projects_tech_stack (
     project_id UUID NOT NULL,
-    tech_stack_id UUID NOT NULL UNIQUE
+    tech_stack_id UUID NOT NULL
 );
 
 
@@ -199,7 +199,7 @@ CREATE TABLE IF NOT EXISTS publications_projects (
 
 CREATE TABLE IF NOT EXISTS publications_skills (
     publication_id UUID NOT NULL,
-    skills_id UUID NOT NULL UNIQUE
+    skills_id UUID NOT NULL
 );
 
 

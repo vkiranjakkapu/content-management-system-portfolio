@@ -25,7 +25,7 @@ export default function ProjectsComponent({
     return (
         <SectionComponent sectionTitle="projects" className="px-12" {...props}>
             <div className="sm:min-h-125 md:min-h-115 grid grid-cols-1 lg:grid-cols-2 gap-y-4 *:flex *:items-center">
-                <div className="text-primary gap-4 flex-col justify-center items-start! z-1">
+                <div className="text-primary gap-4 flex-col justify-center items-start! z-1 w-fit">
                     <ul
                         className="
                         space-y-3 *:bg-bg-secondary *:rounded-sm

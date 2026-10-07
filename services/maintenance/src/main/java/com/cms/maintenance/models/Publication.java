@@ -18,9 +18,11 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,27 +45,35 @@ public class Publication {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_id")
     private Profile profile;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "settings_id")
     private DisplaySettings settings;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "seo_id")
     private SeoSettings seo;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "about_id")
     private About about;
 
-    @OneToMany
+    @ManyToMany
+    @JoinTable(name = "publications_skills", joinColumns = @JoinColumn(name = "publication_id"), inverseJoinColumns = @JoinColumn(name = "skills_id"))
     private List<Skill> skills;
 
     @OneToMany
+    @JoinTable(name = "publications_projects", joinColumns = @JoinColumn(name = "publication_id"), inverseJoinColumns = @JoinColumn(name = "projects_id"))
     private List<Project> projects;
 
     @OneToMany
+    @JoinTable(name = "publications_experiences", joinColumns = @JoinColumn(name = "publication_id"), inverseJoinColumns = @JoinColumn(name = "experiences_id"))
     private List<Experience> experiences;
 
     @OneToMany
+    @JoinTable(name = "publications_social_profiles", joinColumns = @JoinColumn(name = "publication_id"), inverseJoinColumns = @JoinColumn(name = "social_profiles_id"))
     private List<SocialProfile> socialProfiles;
 
     @Builder.Default
@@ -75,5 +85,4 @@ public class Publication {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
-
 }

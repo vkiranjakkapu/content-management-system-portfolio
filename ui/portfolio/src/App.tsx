@@ -20,8 +20,16 @@ function App() {
     const [content, setContent] = useState<Publication | null>(null);
 
     function fetchProfileMedia(profile: Profile) {
-        PublicationService.fetchMediaFromList<Map<string, Blob>>({
-            ids: [profile.dp.id, profile.banner.id],
+        const mediaIds = [profile.dp?.id, profile.banner?.id].filter(
+            (id): id is string => Boolean(id),
+        );
+
+        if (mediaIds.length === 0) {
+            return;
+        }
+
+        PublicationService.fetchMediaFromList<Record<string, Blob>>({
+            ids: mediaIds,
         })
             .then((resp) => {
                 if (resp.status === 200) {
@@ -33,18 +41,23 @@ function App() {
                                   ...prev,
                                   profile: {
                                       ...profile,
-                                      dp: {
-                                          ...profile.dp,
-                                          media:
-                                              mediaMap.get(profile.dp.id) ??
-                                              profile.dp.media,
-                                      },
-                                      banner: {
-                                          ...profile.banner,
-                                          media:
-                                              mediaMap.get(profile.banner.id) ??
-                                              profile.banner.media,
-                                      },
+                                      dp: profile.dp
+                                          ? {
+                                                ...profile.dp,
+                                                media:
+                                                    mediaMap[profile.dp.id] ??
+                                                    profile.dp.media,
+                                            }
+                                          : null,
+                                      banner: profile.banner
+                                          ? {
+                                                ...profile.banner,
+                                                media:
+                                                    mediaMap[
+                                                        profile.banner.id
+                                                    ] ?? profile.banner.media,
+                                            }
+                                          : null,
                                   },
                               }
                             : null,
@@ -61,7 +74,7 @@ function App() {
             return;
         }
 
-        PublicationService.fetchMediaFromList<Map<string, Blob>>({
+        PublicationService.fetchMediaFromList<Record<string, Blob>>({
             ids: projects.flatMap((prj) => prj.gallery).map((md) => md.id),
         })
             .then((resp) => {
@@ -79,9 +92,7 @@ function App() {
                                               gallery: prj.gallery.map(
                                                   (md) => ({
                                                       ...md,
-                                                      media: mediaMap.get(
-                                                          md.id,
-                                                      ),
+                                                      media: mediaMap[md.id],
                                                   }),
                                               ),
                                           }) as Project,
@@ -151,7 +162,7 @@ function App() {
 
                 {/* Skills */}
                 <SkillsComponent
-                    skills={content?.skills ?? new Map()}
+                    skills={content?.skills ?? {}}
                     id="skills"
                     aria-labelledby="skills-title"
                 />

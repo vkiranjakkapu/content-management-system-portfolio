@@ -30,8 +30,8 @@ class PublicationService {
         ids: string[];
     }): Promise<ApiResponse<T>> {
         return apiClient({
-            type: "get",
-            uri: "/media/fetch/",
+            type: "post",
+            uri: "/media/fetch",
             payload,
         });
     }
@@ -57,7 +57,7 @@ export type Publication = {
     seo?: SeoSettings;
     profile: Profile;
     about: About;
-    skills: Map<string, Skill[]>;
+    skills: Record<string, Skill[]>;
     projects: Project[];
     experiences: Experience[];
     socialProfiles: SocialProfile[];
@@ -101,14 +101,14 @@ export type DisplaySettings = {
 };
 
 export type Profile = {
-    dp: Media;
+    dp: Media | null;
     email: string;
     name: string;
     phone: string;
     designation: string;
     availability: string;
     location: string;
-    banner: Media;
+    banner: Media | null;
 };
 
 export type Skill = {
