@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -49,11 +50,39 @@ public class ProjectsController {
                 .data(projectService.mapToResponse(projectService.createProject(request))).build());
     }
 
-    @PutMapping("/")
-    public ResponseEntity<ApiResponseDto<ProjectResponseDto>> createProject(
+    @PatchMapping("/")
+    public ResponseEntity<ApiResponseDto<ProjectResponseDto>> updateProject(
             @RequestBody UpdateProjectRequestDto request) {
         return ResponseEntity.ok(ApiResponseDto.<ProjectResponseDto>builder()
                 .data(projectService.mapToResponse(projectService.updateProject(request))).build());
+    }
+
+    @PutMapping("/{projectId}/skill/{skillId}")
+    public ResponseEntity<ApiResponseDto<ProjectResponseDto>> addSkillToProject(
+            @PathVariable UUID projectId, @PathVariable UUID skillId) {
+        projectService.addSkill(projectId, skillId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{projectId}/media/{mediaId}")
+    public ResponseEntity<ApiResponseDto<ProjectResponseDto>> addMediaToProject(
+            @PathVariable UUID projectId, @PathVariable UUID mediaId) {
+        projectService.addMedia(projectId, mediaId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{projectId}/skill/{skillId}")
+    public ResponseEntity<ApiResponseDto<Void>> removeSkillFromProject(@PathVariable UUID projectId,
+            @PathVariable UUID skillId) {
+        projectService.removeSkill(projectId, skillId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{projectId}/media/{mediaId}")
+    public ResponseEntity<ApiResponseDto<Void>> removeMediaFromProject(@PathVariable UUID projectId,
+            @PathVariable UUID mediaId) {
+        projectService.removeMedia(projectId, mediaId);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{projectId}")

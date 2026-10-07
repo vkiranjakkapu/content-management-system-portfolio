@@ -114,6 +114,7 @@ CREATE TABLE IF NOT EXISTS projects (
     id UUID NOT NULL,
     profile_id UUID,
     title VARCHAR(255),
+    description TEXT,
     git_url VARCHAR(255),
     is_active BOOLEAN NOT NULL,
     created_at TIMESTAMP(6) NOT NULL,

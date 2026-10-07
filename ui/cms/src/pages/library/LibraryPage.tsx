@@ -324,34 +324,33 @@ export default function LibraryPage() {
             >
                 <div className="space-y-3">
                     {fetchNotifications && (
-                        <>
-                            <div className="">
-                                <Notification
-                                    type={fetchNotifications?.type}
-                                    messages={fetchNotifications?.messages}
-                                />
-                            </div>
-                            <hr className="border-t" />
-                        </>
+                        <div className="">
+                            <Notification
+                                type={fetchNotifications?.type}
+                                messages={fetchNotifications?.messages}
+                            />
+                        </div>
                     )}
-                    <MasonryComponent
-                        spinner={{
-                            isLoading: fetchProgress,
-                        }}
-                        resources={allResources}
-                        handleEdit={(media) => {
-                            setResourceModalType("edit");
-                            setHandlingResource(media);
-                            resetNotifications();
-                        }}
-                        handleDelete={(media) => {
-                            deleteResource(media);
-                            resetNotifications();
-                        }}
-                        searchOptions={Object.keys(MediaTag).map((cat) => ({
-                            value: cat as MediaTag,
-                        }))}
-                    />
+                    {!emptyProfile && (
+                        <MasonryComponent
+                            spinner={{
+                                isLoading: fetchProgress,
+                            }}
+                            resources={allResources}
+                            handleEdit={(media) => {
+                                setResourceModalType("edit");
+                                setHandlingResource(media);
+                                resetNotifications();
+                            }}
+                            handleDelete={(media) => {
+                                deleteResource(media);
+                                resetNotifications();
+                            }}
+                            searchOptions={Object.keys(MediaTag).map((cat) => ({
+                                value: cat as MediaTag,
+                            }))}
+                        />
+                    )}
                 </div>
             </SectionLayoutComponent>
 

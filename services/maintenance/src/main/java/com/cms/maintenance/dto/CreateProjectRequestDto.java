@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotEmpty;
 
 public record CreateProjectRequestDto(
         @NotEmpty String title,
+        @NotEmpty String description,
         @NotEmpty List<UUID> techStack,
         @NotEmpty List<UUID> gallery,
         @NotEmpty String gitUrl) {

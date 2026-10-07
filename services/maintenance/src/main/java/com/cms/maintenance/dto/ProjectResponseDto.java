@@ -11,6 +11,7 @@ import lombok.Builder;
 public record ProjectResponseDto(
         UUID id,
         String title,
+        String description,
         List<Skill> techStack,
         List<MediaResponseDto> gallery,
         String gitUrl) {

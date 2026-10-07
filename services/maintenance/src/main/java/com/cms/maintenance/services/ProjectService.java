@@ -20,6 +20,14 @@ public interface ProjectService {
 
     Project updateProject(UpdateProjectRequestDto request);
 
+    boolean addSkill(UUID projectId, UUID skillId);
+    
+    boolean removeSkill(UUID projectId, UUID skillId);
+
+    boolean addMedia(UUID projectId, UUID mediaId);
+    
+    boolean removeMedia(UUID projectId, UUID mediaId);
+
     boolean deleteProjectById(UUID id);
 
     ProjectResponseDto mapToResponse(Project project);

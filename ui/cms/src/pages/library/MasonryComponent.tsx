@@ -5,7 +5,9 @@ import {
     PencilIcon,
     TrashIcon,
 } from "@heroicons/react/24/outline";
-import ActionButton from "../../components/ActionButtonComponent";
+import ActionButton, {
+    type ActionButtonProps,
+} from "../../components/ActionButtonComponent";
 import Notification, {
     type NotificationProps,
 } from "../../components/notifications/Notification";
@@ -17,9 +19,10 @@ import MediaService, { UploadStatus } from "../../services/MediaService";
 import { formatBytes, getMediaSize } from "../../utils/FilesHelper";
 import type { Preview } from "./useFilePreview";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { ErrorResponse } from "../../api/api";
 import Landscape from "../../assets/landscape.png";
+import InputComponent from "../../components/formelements/InputComponent";
 import SelectComponent from "../../components/formelements/SelectComponent";
 import ModalComponent from "../../components/ModalComponent";
 import { PaginationButtons } from "../../components/pagination/PaginationButtons";
@@ -33,11 +36,41 @@ type MasonryComponentProps = {
     allowUpload?: boolean;
     handleNewUpload?: (media: Media) => void;
 
+    multiSelect?: {
+        /**
+         * Use `showWhen` for condition
+         */
+        conditionalCheckbox?: boolean;
+        /**
+         * matches against `selectedItems.includes()`
+         */
+        showWhen?: boolean;
+
+        /**
+         * `true` -> `'never show'` the checkbox
+         */
+        alwaysHide?: boolean;
+    };
+    selectedItems?: Media[];
+    multiSelectOptions?: (Omit<ActionButtonProps, "onClick"> & {
+        onClick?: (item: Media | Preview) => void;
+        showAlways?: boolean;
+
+        /**
+         * matches against `selectedItems.includes()` function
+         */
+        showWhenIncluded?: boolean;
+    })[];
+
+    spinner?: SpinnerComponentProps;
+
+    notifications?: NotificationProps;
+
     searchOptions?: {
         value: MediaTag;
         text?: string;
     }[];
-    spinner?: SpinnerComponentProps;
+    actionButtons?: ActionButtonProps[];
 
     handleImageClick?: (media: Media) => void;
     handleEdit?: (media: Media) => void;
@@ -49,16 +82,28 @@ type MasonryComponentProps = {
 
 export default function MasonryComponent({
     resources,
+
     isPreview = false,
+    handleOnLoad,
+    handleDiscard,
+
     searchOptions,
+    actionButtons,
+
     spinner,
+
+    notifications,
+
     allowUpload = false,
     handleNewUpload,
+
+    multiSelect,
+    selectedItems,
+    multiSelectOptions,
+
     handleImageClick,
     handleEdit,
     handleDelete,
-    handleOnLoad,
-    handleDiscard,
 }: MasonryComponentProps) {
     const [preview, setPreviewModal] = useState<Media | Preview | null>(null);
 
@@ -79,7 +124,9 @@ export default function MasonryComponent({
     // * Upload Handling
     const [uploadNotifications, setUploadNotifications] =
         useState<NotificationProps | null>(null);
-
+    const notificationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+        null,
+    );
     const [uploadInProgress, setUploadInProgress] = useState<boolean>(false);
 
     const [upload, setUpload] = useState<{
@@ -156,6 +203,14 @@ export default function MasonryComponent({
                 });
                 setUpload(null);
                 handleNewUpload?.(resp.data);
+
+                if (notificationTimeoutRef.current) {
+                    clearTimeout(notificationTimeoutRef.current);
+                }
+
+                notificationTimeoutRef.current = setTimeout(() => {
+                    setUploadNotifications(null);
+                }, 5000);
             })
             .catch((e: ErrorResponse) => {
                 console.log(e);
@@ -169,6 +224,28 @@ export default function MasonryComponent({
                 setUploadInProgress(false);
             });
     }
+
+    if (multiSelect && !selectedItems) {
+        return (
+            <>
+                <i>'selectedItems'</i> Must be provided for <i>'multiSelect'</i>{" "}
+                mode
+            </>
+        );
+    }
+
+    const mediaItems = multiSelect
+        ? [
+              ...selectedItems!,
+              ...pagination.currentItems.filter(
+                  (currentItem) =>
+                      !selectedItems!.some(
+                          (selected) =>
+                              String(selected.id) === String(currentItem.id),
+                      ),
+              ),
+          ]
+        : pagination.currentItems;
 
     return spinner && spinner.isLoading ? (
         <SpinnerComponent {...spinner} />
@@ -185,8 +262,16 @@ export default function MasonryComponent({
                                 />
                             </div>
                         )}
+                        {notifications && (
+                            <div>
+                                <Notification
+                                    type={notifications.type}
+                                    messages={notifications.messages}
+                                />
+                            </div>
+                        )}
                         <div className="flex flex-wrap gap-3 items-center justify-between">
-                            <div className="flex-1 flex items-center justify-between gap-3 ">
+                            <div className="flex-1 flex flex-wrap items-center justify-between gap-3 ">
                                 <SelectComponent
                                     options={
                                         searchOptions
@@ -209,67 +294,77 @@ export default function MasonryComponent({
                                         setCategory(e.target.value as MediaTag);
                                     }}
                                 />
-
-                                {allowUpload && (
-                                    <div>
-                                        <ActionButton
-                                            text="Upload"
-                                            icon={ArrowUpTrayIcon}
-                                            onClick={(e) => {
-                                                (
-                                                    e.currentTarget
-                                                        .nextSibling as HTMLElement
-                                                ).click();
-                                            }}
-                                        />
-                                        <input
-                                            type="file"
-                                            name="uploadResource"
-                                            className="hidden"
-                                            onChange={(e) => {
-                                                if (
-                                                    !e.target.files ||
-                                                    e.target.files.length == 0
-                                                ) {
+                                <div className="flex flex-wrap justify-end! items-end gap-2">
+                                    {allowUpload && (
+                                        <div>
+                                            <ActionButton
+                                                text="Upload"
+                                                icon={ArrowUpTrayIcon}
+                                                onClick={(e) => {
+                                                    (
+                                                        e.currentTarget
+                                                            .nextSibling as HTMLElement
+                                                    ).click();
+                                                }}
+                                            />
+                                            <input
+                                                type="file"
+                                                name="uploadResource"
+                                                className="hidden"
+                                                onChange={(e) => {
+                                                    if (
+                                                        !e.target.files ||
+                                                        e.target.files.length ==
+                                                            0
+                                                    ) {
+                                                        if (upload != null) {
+                                                            URL.revokeObjectURL(
+                                                                upload.preview
+                                                                    .media,
+                                                            );
+                                                        }
+                                                        setUpload(null);
+                                                        return;
+                                                    }
                                                     if (upload != null) {
                                                         URL.revokeObjectURL(
                                                             upload.preview
                                                                 .media,
                                                         );
                                                     }
-                                                    setUpload(null);
-                                                    return;
-                                                }
-
-                                                if (upload != null) {
-                                                    URL.revokeObjectURL(
-                                                        upload.preview.media,
-                                                    );
-                                                }
-
-                                                const file = e.target.files[0];
-                                                const prv = {
-                                                    file,
-                                                    progress: {
-                                                        loaded: 0,
-                                                        percentage: 0,
-                                                        total: file.size,
-                                                    },
-                                                    uploadStatus:
-                                                        UploadStatus.PREVIEW,
-                                                    media: URL.createObjectURL(
+                                                    const file =
+                                                        e.target.files[0];
+                                                    const prv = {
                                                         file,
-                                                    ),
-                                                    error:
-                                                        file.name.length > 100
-                                                            ? "Filename too long."
-                                                            : undefined,
-                                                } as Preview;
-                                                setUpload({ preview: prv });
-                                            }}
-                                        />
-                                    </div>
-                                )}
+                                                        progress: {
+                                                            loaded: 0,
+                                                            percentage: 0,
+                                                            total: file.size,
+                                                        },
+                                                        uploadStatus:
+                                                            UploadStatus.PREVIEW,
+                                                        media: URL.createObjectURL(
+                                                            file,
+                                                        ),
+                                                        error:
+                                                            file.name.length >
+                                                            100
+                                                                ? "Filename too long."
+                                                                : undefined,
+                                                    } as Preview;
+                                                    setUpload({ preview: prv });
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                    {actionButtons &&
+                                        actionButtons.map((action, idx) => (
+                                            <ActionButton
+                                                key={idx}
+                                                {...action}
+                                            />
+                                        ))}
+                                </div>
                             </div>
                             <PaginationButtons
                                 {...pagination}
@@ -278,7 +373,7 @@ export default function MasonryComponent({
                         </div>
                     </>
                 )}
-                {pagination.currentItems.length > 0 || upload != null ? (
+                {mediaItems.length > 0 || upload != null ? (
                     <div className="columns-1 sm:columns-2 md:columns-3 2xl:columns-4">
                         {upload && (
                             <div
@@ -391,7 +486,7 @@ export default function MasonryComponent({
                             </div>
                         )}
 
-                        {pagination.currentItems.map((rsc) => {
+                        {mediaItems.map((rsc) => {
                             const media = !isPreview
                                 ? (rsc as Media)
                                 : ({} as Media);
@@ -412,8 +507,11 @@ export default function MasonryComponent({
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         if (!isPreview) {
-                                            if (handleImageClick) {
-                                                handleImageClick(media);
+                                            if (
+                                                handleImageClick ||
+                                                multiSelect
+                                            ) {
+                                                handleImageClick?.(media);
                                                 return;
                                             }
                                             setPreviewModal(
@@ -432,6 +530,74 @@ export default function MasonryComponent({
                                                 : media.mediaName
                                         }
                                     >
+                                        {(multiSelect ||
+                                            multiSelectOptions) && (
+                                            <div className="absolute top-0 right-0 m-2 flex flex-col items-center gap-1">
+                                                {multiSelect &&
+                                                    !multiSelect.alwaysHide &&
+                                                    (multiSelect.conditionalCheckbox
+                                                        ? selectedItems?.includes(
+                                                              media,
+                                                          ) ===
+                                                          multiSelect.showWhen
+                                                        : true) && (
+                                                        <InputComponent
+                                                            type="checkbox"
+                                                            className="size-4"
+                                                            checked={
+                                                                selectedItems?.find(
+                                                                    (md) =>
+                                                                        md.id ===
+                                                                        media.id,
+                                                                ) != undefined
+                                                            }
+                                                            readOnly
+                                                        />
+                                                    )}
+                                                {multiSelectOptions &&
+                                                    multiSelectOptions.map(
+                                                        (btn, idx) => {
+                                                            const {
+                                                                showWhenIncluded,
+                                                                ...btnProps
+                                                            } = btn;
+                                                            if (
+                                                                selectedItems
+                                                                    ?.map(
+                                                                        (sMd) =>
+                                                                            sMd.id,
+                                                                    )
+                                                                    .includes(
+                                                                        media.id,
+                                                                    ) !=
+                                                                    showWhenIncluded &&
+                                                                !btnProps.showAlways
+                                                            ) {
+                                                                return;
+                                                            }
+                                                            return (
+                                                                <ActionButton
+                                                                    key={idx}
+                                                                    {...btnProps}
+                                                                    onClick={() => {
+                                                                        if (
+                                                                            btnProps.onClick
+                                                                        ) {
+                                                                            btnProps.onClick(
+                                                                                isPreview
+                                                                                    ? preview
+                                                                                    : media,
+                                                                            );
+                                                                        }
+                                                                    }}
+                                                                    className={`p-1 ${btnProps.className}`}
+                                                                />
+                                                            );
+                                                        },
+                                                    )}
+                                            </div>
+                                        )}
+
                                         {/* Options */}
                                         <div className="absolute inset-x-0 bottom-0 p-2 flex flex-wrap gap-1 items-center justify-center invisible pointer-events-none *:duration-100">
                                             {!isPreview ? (

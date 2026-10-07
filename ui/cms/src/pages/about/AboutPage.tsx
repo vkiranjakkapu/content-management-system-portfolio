@@ -212,62 +212,64 @@ export default function AboutPage() {
                     customise="mb-3 border-0 capitalize"
                 />
             )}
-            <TableComponent
-                columns={[
-                    {
-                        key: "name",
-                    },
-                    {
-                        key: "summary",
-                        alias: "About",
-                        customiseColumn: "max-w-[60ch] line-clamp-4",
-                    },
-                    {
-                        key: "updatedAt",
-                        alias: "Last Modified",
-                    },
-                ]}
-                body={pagination.currentItems}
-                loading={{
-                    showSpinner: fetchProgress,
-                    spinner: { text: "Fetching abouts..." },
-                }}
-                actionEvents={[
-                    {
-                        title: "Copy text",
-                        clickEvent: {
-                            icon: ClipboardDocumentListIcon,
-                            className: "text-secondary dark:text-primary",
-                            onClick(item) {
-                                navigator.clipboard.writeText(item.summary);
-                                window.alert(
-                                    `Below text has been copied to your clipboard. \n\n ${item.summary}`,
-                                );
+            {!emptyProfile && (
+                <TableComponent
+                    columns={[
+                        {
+                            key: "name",
+                        },
+                        {
+                            key: "summary",
+                            alias: "About",
+                            customiseColumn: "max-w-[60ch] line-clamp-4",
+                        },
+                        {
+                            key: "updatedAt",
+                            alias: "Last Modified",
+                        },
+                    ]}
+                    body={pagination.currentItems}
+                    loading={{
+                        showSpinner: fetchProgress,
+                        spinner: { text: "Fetching abouts..." },
+                    }}
+                    actionEvents={[
+                        {
+                            title: "Copy text",
+                            clickEvent: {
+                                icon: ClipboardDocumentListIcon,
+                                className: "text-secondary dark:text-primary",
+                                onClick(item) {
+                                    navigator.clipboard.writeText(item.summary);
+                                    window.alert(
+                                        `Below text has been copied to your clipboard. \n\n ${item.summary}`,
+                                    );
+                                },
                             },
                         },
-                    },
-                    {
-                        title: "Edit",
-                        clickEvent: {
-                            icon: PencilIcon,
-                            onClick(abt) {
-                                setAbout(abt);
-                                setModalOpen("update");
+                        {
+                            title: "Edit",
+                            clickEvent: {
+                                icon: PencilIcon,
+                                onClick(abt) {
+                                    setAbout(abt);
+                                    setModalOpen("update");
+                                },
                             },
                         },
-                    },
-                    {
-                        title: "Delete",
-                        clickEvent: {
-                            icon: TrashIcon,
-                            className: "text-rose-500",
-                            onClick(abt) {
-                                deleteAbout(abt);
+                        {
+                            title: "Delete",
+                            clickEvent: {
+                                icon: TrashIcon,
+                                className: "text-rose-500",
+                                onClick(abt) {
+                                    deleteAbout(abt);
+                                },
                             },
                         },
-                    },
-                ]}
-            />
+                    ]}
+                />
+            )}
             <ModalComponent
                 title={modalOpen == "new" ? `Add About` : `Update About`}
                 isOpen={modalOpen != null}
