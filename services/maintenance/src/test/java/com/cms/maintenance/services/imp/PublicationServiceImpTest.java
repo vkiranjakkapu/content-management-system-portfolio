@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.cms.maintenance.enums.PublicationStatus;
 import com.cms.maintenance.models.Publication;
+import com.cms.maintenance.models.Profile;
 import com.cms.maintenance.repositories.PublicationsRepository;
 import com.cms.maintenance.services.AboutService;
 import com.cms.maintenance.services.ExperienceService;
@@ -62,4 +63,44 @@ class PublicationServiceImpTest {
         verify(publicationsRepository).findFirstByStatusOrderByUpdatedAtDesc(PublicationStatus.PUBLISH);
         verifyNoInteractions(profileService);
     }
+    @Test
+    void shouldPublishFirstPublicationWhenNoPublicationIsCurrentlyPublished() {
+        Profile profile = new Profile();
+        Publication draft = new Publication();
+        when(profileService.getCurrentUserProfile()).thenReturn(profile);
+        when(publicationsRepository.findById(draft.getId())).thenReturn(Optional.of(draft));
+        when(publicationsRepository.findByProfileAndStatus(profile, PublicationStatus.PUBLISH))
+                .thenReturn(Optional.empty());
+        when(publicationsRepository.save(draft)).thenReturn(draft);
+
+        Publication result = publicationService.publishById(draft.getId());
+
+        assertThat(result).isSameAs(draft);
+        assertThat(result.getStatus()).isEqualTo(PublicationStatus.PUBLISH);
+        verify(publicationsRepository).save(draft);
+    }
+
+    @Test
+    void shouldUnpublishCurrentPublicationBeforePublishingNewDraft() {
+        Profile profile = new Profile();
+        Publication oldPublication = new Publication();
+        oldPublication.setStatus(PublicationStatus.PUBLISH);
+        Publication newPublication = new Publication();
+        newPublication.setStatus(PublicationStatus.DRAFT);
+
+        when(profileService.getCurrentUserProfile()).thenReturn(profile);
+        when(publicationsRepository.findById(newPublication.getId())).thenReturn(Optional.of(newPublication));
+        when(publicationsRepository.findByProfileAndStatus(profile, PublicationStatus.PUBLISH))
+                .thenReturn(Optional.of(oldPublication));
+        when(publicationsRepository.save(oldPublication)).thenReturn(oldPublication);
+        when(publicationsRepository.save(newPublication)).thenReturn(newPublication);
+
+        Publication result = publicationService.publishById(newPublication.getId());
+
+        assertThat(oldPublication.getStatus()).isEqualTo(PublicationStatus.UN_PUBLISH);
+        assertThat(result.getStatus()).isEqualTo(PublicationStatus.PUBLISH);
+        verify(publicationsRepository).save(oldPublication);
+        verify(publicationsRepository).save(newPublication);
+    }
+
 }

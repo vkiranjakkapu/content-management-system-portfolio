@@ -8,7 +8,19 @@ export type Publication = {
     projects: Project[];
     experiences: Experience[];
     socialProfiles: SocialProfile[];
+    status: PublicationStatus;
+    updatedAt: string;
+    createdAt: string;
 };
+
+export const PublicationStatus = {
+    DRAFT: "DRAFT",
+    PUBLISH: "PUBLISH",
+    UN_PUBLISH: "UN_PUBLISH",
+};
+
+export type PublicationStatus =
+    (typeof PublicationStatus)[keyof typeof PublicationStatus];
 
 export type SeoSettings = {
     id: string;
@@ -17,6 +29,7 @@ export type SeoSettings = {
     canonicalUrl?: string;
     ogTitle?: string;
     ogDescription?: string;
+    ogImageId?: string;
     ogImage?: Media;
     robots?: string;
 };
@@ -35,7 +48,10 @@ export type Experience = {
     position: string;
     startDate: string;
     endDate: string;
-    isWorking: string;
+    updatedAt: string;
+    createdAt: string;
+    active: boolean;
+    working: boolean;
 };
 
 export type Project = {

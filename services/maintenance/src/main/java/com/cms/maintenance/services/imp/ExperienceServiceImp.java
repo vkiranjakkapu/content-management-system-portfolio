@@ -52,13 +52,15 @@ public class ExperienceServiceImp implements ExperienceService {
     public Experience createExperience(CreateExperienceRequestDto request) {
         Profile profile = profileService.getCurrentUserProfile();
 
-        Experience recentExperience = getLatestExperienceByProfileId(profile.getId());
-        recentExperience.setActive(false);
+        experiencesRepository
+                .findByProfileAndIsActiveTrue(profile)
+                .ifPresent(experience -> experience.setActive(false));
 
         Experience experience = Experience.builder()
                 .profile(profile)
                 .company(request.company())
                 .position(request.position())
+                .isWorking(request.isWorking())
                 .startDate(request.startDate())
                 .build();
 
@@ -66,7 +68,8 @@ public class ExperienceServiceImp implements ExperienceService {
             experience.setEndDate(request.ednDate());
         }
 
-        experiencesRepository.saveAll(List.of(experience, recentExperience));
+        experiencesRepository.save(experience);
+
         return experience;
     }
 

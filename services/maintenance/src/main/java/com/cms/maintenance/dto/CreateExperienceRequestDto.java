@@ -9,6 +9,6 @@ public record CreateExperienceRequestDto(
         @NotEmpty String position,
         @NotEmpty LocalDate startDate,
         LocalDate ednDate,
-        @NotEmpty boolean isWorking) {
+        @NotEmpty Boolean isWorking) {
 
 }

@@ -1,7 +1,6 @@
 export const AppConfig = {
     API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
     IDENTITY_SERVICE_URL: "/identity/api/v1",
-    REPORTS_SERVICE_URL: "/reports/api/v1",
     IDENTITY_AUTH_URL: "/identity/api/v1/auth",
     IDENTITY_PROFILE_URL: "/identity/api/v1/users",
     CMS_PUBLICATION_URL: "/cms/api/v1/publish",

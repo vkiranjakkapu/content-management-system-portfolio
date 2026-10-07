@@ -1,5 +1,6 @@
 package com.cms.maintenance.repositories;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,10 +12,13 @@ import com.cms.maintenance.models.Publication;
 
 public interface PublicationsRepository extends JpaRepository<Publication, UUID> {
 
+    List<Publication> findAllByProfileOrderByUpdatedAtDesc(Profile currentUserProfile);
+
     Optional<Publication> findByProfileAndStatus(Profile currentUserProfile, PublicationStatus publish);
 
     Optional<Publication> findFirstByStatusOrderByUpdatedAtDesc(PublicationStatus status);
 
-    Optional<Publication> findFirstByProfileAndStatus(Profile currentUserProfile, PublicationStatus draft);
+    Optional<Publication> findFirstByProfileAndStatusOrderByCreatedAtDesc(Profile currentUserProfile,
+            PublicationStatus draft);
 
 }

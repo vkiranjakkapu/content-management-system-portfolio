@@ -12,7 +12,7 @@ export function renderCellValue(value: unknown, dateType?: boolean) {
             : DateFormatter.toRelativeTime(value);
     }
 
-    return String(value);
+    return value instanceof Boolean ? (value ? "Yes" : "No") : String(value);
 }
 
 export type IconProps = ForwardRefExoticComponent<

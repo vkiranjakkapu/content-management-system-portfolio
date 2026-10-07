@@ -48,7 +48,7 @@ export type ApiClientProps = {
         | "projects"
         | "experience"
         | "contact"
-        | "reports";
+        | "publication";
     payload?: unknown;
     config?: AxiosRequestConfig<unknown, unknown>;
     rawResponse?: boolean;
@@ -88,7 +88,7 @@ export async function apiClient<T>({
         } else if (service == "contact") {
             url = AppConfig.CMS_CONTACT_URL;
         } else {
-            url = AppConfig.REPORTS_SERVICE_URL;
+            url = AppConfig.CMS_PUBLICATION_URL;
         }
 
         if (type.toLowerCase() == "post") {
