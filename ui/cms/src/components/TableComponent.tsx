@@ -426,7 +426,7 @@ export default function TableComponent<T>({
                                                                 ),
                                                             )}
                                                         </div>
-                                                        <div className="absolute inset-x-0 bottom-0 h-5 bg-linear-to-t from-white group-hover:from-transparent to-transparent pointer-events-none transition-colors" />
+                                                        <div className="absolute inset-x-0 bottom-0 h-5 bg-linear-to-t from-white dark:from-transparent group-hover:from-transparent to-transparent pointer-events-none transition-colors" />
                                                     </>
                                                 ) : (
                                                     renderCellValue(
